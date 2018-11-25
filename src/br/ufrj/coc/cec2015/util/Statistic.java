@@ -88,15 +88,14 @@ public class Statistic {
 	
 	private void writeHeadEvolutionOfErrors() throws IOException {
 		StringBuffer sbFormat = new StringBuffer("%-30s");
-		Object[] head = new String[Properties.MAX_RUNS + 3];
+		Object[] head = new String[Properties.MAX_RUNS + 2];
 		head[0] = "MaxFES";
 		for (int round = 0; round < Properties.MAX_RUNS; round++) {
 			sbFormat.append(", %-22s");
 			head[round + 1] = "R" + (round + 1);
 		}
-		sbFormat.append(", %-22s, %-22s\n\n");
+		sbFormat.append(", %-22s\n\n");
 		head[Properties.MAX_RUNS + 1] = "Mean";
-		head[Properties.MAX_RUNS + 2] = "Best";
 		String headLine = String.format(sbFormat.toString(), head);
 		
 		this.fileEvolutionOfErrors.write(headLine);
@@ -105,7 +104,7 @@ public class Statistic {
 
 	private void writeLineEvolutionOfErrors(Object[] values) throws IOException {
 		StringBuffer sbFormat = new StringBuffer("%-30s");
-		for (int round = 0; round < Properties.MAX_RUNS + 2; round++) {
+		for (int round = 0; round < Properties.MAX_RUNS + 1; round++) {
 			sbFormat.append(", %-22s");
 		}
 		sbFormat.append('\n');
@@ -121,11 +120,12 @@ public class Statistic {
 	
 	private void writeEvolutionOfErros() throws IOException {
 		writeHeadEvolutionOfErrors();
+		int bestRound = 0;
 		for (int indexEvaluation = 0; indexEvaluation < EVALUATION_LIMITS.length; indexEvaluation++) {
 			Double mean = 0.0;
 			Double minimum = Double.MAX_VALUE;
 			int countErrors = 0;
-			Object[] values = new Object[Properties.MAX_RUNS + 3];
+			Object[] values = new Object[Properties.MAX_RUNS + 2];
 			values[0] = EVALUATION_LIMITS[indexEvaluation];//"Erro para FES=" + EVALUATION_LIMITS[indexEvaluation] + "*MaxFES:";
 			for (int round = 0; round < Properties.MAX_RUNS; round++) {
 				List<Double> roundErros = errorEvolution.get(round);
@@ -135,7 +135,10 @@ public class Statistic {
 					if (error != null) {
 						mean += error;
 						values[round + 1] = formatNumber(error);
-						minimum = Double.min(error, minimum);
+						if (error < minimum) {
+							bestRound = round;
+							minimum = error;
+						}
 						countErrors++;
 					}
 					else {
@@ -148,10 +151,11 @@ public class Statistic {
 			}
 			mean = countErrors > 0 ? (mean / countErrors) : mean;
 			values[Properties.MAX_RUNS + 1] = mean > 0 ? formatNumber(mean) : "-";
-			values[Properties.MAX_RUNS + 2] = Double.MAX_VALUE == minimum ? "-" : formatNumber(minimum);
 
 			writeLineEvolutionOfErrors(values);
 		}
+		this.fileEvolutionOfErrors.write("\nBest Round = " + bestRound);
+		System.out.println("\nBest Round = " + bestRound);
 	}
 	
 	private void writeHeadStatistics() throws IOException {

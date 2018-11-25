@@ -48,6 +48,9 @@ public class Properties {
 		INDIVIDUAL_SIZE = individualSize;
 		MAX_FES = 10000 * INDIVIDUAL_SIZE;
 	}
+	public static void setPopulationSize(int populationSize) {
+		POPULATION_SIZE = populationSize;
+	}
 
 	public static String RESULTS_ROOT = Properties.class.getResource("/") + bundle.getString("RESULTS_ROOT");
 }

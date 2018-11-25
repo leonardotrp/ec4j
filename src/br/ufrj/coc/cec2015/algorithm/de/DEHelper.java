@@ -235,7 +235,80 @@ public class DEHelper {
 		
 		return trialVector; // Ui,G+1
 	}
+/*
+	private static double[] generateTrialVectorBin(Individual current, Individual base, Individual destiny, List<Individual> partners) {
+		double differencialWeight = getDifferencialWeight(current);
+		double[] trialVector = new double[Properties.INDIVIDUAL_SIZE]; /* Vi *
+		for (int j = 0; j < Properties.INDIVIDUAL_SIZE; j++) {
+			int randI = Helper.randomInRange(0, Properties.INDIVIDUAL_SIZE - 1);
+			
+			if (canCrossover(current) || j == randI) {
+				trialVector[j] = mutate(j, differencialWeight, base, destiny, partners).doubleValue();
+			}
+			else {
+				trialVector[j] = current.get(j);
+			}
+		}
+		return trialVector; // Ui,G+1
+	}
+
+	private static double[] generateTrialVectorEig(Individual current, Individual base, Individual destiny, List<Individual> partners) {
+		double differencialWeight = getDifferencialWeight(current);
+
+		double[] X = current.getId();
+		double[] V = new double[Properties.INDIVIDUAL_SIZE]; /* Vi *
+		for (int j = 0; j < Properties.INDIVIDUAL_SIZE; j++) {
+			V[j] = mutate(j, differencialWeight, base, destiny, partners).doubleValue();
+		}
+
+		double[] QX = new double[Properties.INDIVIDUAL_SIZE]; /* QX *
+		double[] QV = new double[Properties.INDIVIDUAL_SIZE]; /* QX *
+		for (int j = 0; j < Properties.INDIVIDUAL_SIZE; j++) {
+			QX[j] = 0;
+			QV[j] = 0;
+			for (int k = 0; k < Properties.INDIVIDUAL_SIZE; k++) {
+				QX[j] += eigenDecomposition.getEntry(j, k) * QX[j]; /* Qg.Xi *
+				QV[j] += eigenDecomposition.getEntry(j, k) * QV[j]; /* Qg.Vi *
+			}
+		}
+
+		double[] QU = new double[Properties.INDIVIDUAL_SIZE]; /* Vi *
+		for (int j = 0; j < Properties.INDIVIDUAL_SIZE; j++) {
+			int randI = Helper.randomInRange(0, Properties.INDIVIDUAL_SIZE - 1);
+			if (canCrossover(current) || j == randI) {
+				QU[j] = V[j];
+			}
+			else {
+				QU[j] = X[j];
+			}
+		}
+
+		double[] trialVector = new double[Properties.INDIVIDUAL_SIZE];
+		for (int j = 0; j < Properties.INDIVIDUAL_SIZE; j++) {
+			trialVector[j] = 0;
+			for (int k = 0; k < Properties.INDIVIDUAL_SIZE; k++) {
+				trialVector[j] += eigenDecomposition.getEntry(j, k) * QU[j]; /* Qg* . xover(Qg.Xi, Qg.Vi) *
+			}
+		}
+		return trialVector; // Ui,G+1
+	}
 	
+	public static double[] generateTrialVector(Population population, Individual current /* Xi,G *) {
+		initializePopulationIndexes();
+		initializeSortedPopulation(population);		
+		
+		Individual base = selectBase(population, current); // XBase
+		removePopulationIndex(population.indexOf(base));
+
+		List<Individual> partners = selectPartners(population); // X1, X2, X3, X4
+		Individual destiny = selectDestiny(population); // strategy 'DE/current-to-{rand/best/pbest}/N'
+		
+		if (isEigenvectorCrossover() && Math.random() < 0.5)
+			return generateTrialVectorEig(current, base, destiny, partners);
+		else
+			return generateTrialVectorBin(current, base, destiny, partners);
+	}
+*/
 	private static RealMatrix getEigenDecomposition(Population population) {
 		int D = Properties.INDIVIDUAL_SIZE;
 		int NP = population.size();

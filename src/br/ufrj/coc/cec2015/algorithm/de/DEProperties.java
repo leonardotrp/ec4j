@@ -2,6 +2,8 @@ package br.ufrj.coc.cec2015.algorithm.de;
 
 import java.util.ResourceBundle;
 
+import br.ufrj.coc.cec2015.util.Properties;
+
 /**
  * @author Leonardo
  */
@@ -78,5 +80,10 @@ public class DEProperties {
 		
 		if (!valid)
 			throw new IllegalArgumentException(String.format("This variance %s isn't supported", DEProperties.VARIANT));
+		
+		if (Strategy.CURRENT_TO_pBEST.equals(STRATEGY)) {
+			int populationSize = Properties.INDIVIDUAL_SIZE * 10;
+			Properties.setPopulationSize(populationSize);
+		}
 	}
 }
