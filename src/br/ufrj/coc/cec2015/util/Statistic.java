@@ -29,7 +29,7 @@ public class Statistic {
 	private BufferedWriter fileRoundErrors;
 	private BufferedWriter fileEvolutionOfErrors;
 	private List<Double> roundErros = new ArrayList<Double>(Properties.MAX_RUNS);
-	private static double[] EVALUATION_LIMITS = new double[] { 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0 };
+	private static double[] EVALUATION_LIMITS = new double[] { 0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0 };
 	private static Map<Integer, List<Double>> errorEvolution; // <round number, lista de erro em cada rodada para cada instante definido>
 	private int successfulRuns = 0;
 
@@ -114,8 +114,8 @@ public class Statistic {
 	}
 	
 	private String formatNumber(Double value) {
-		DecimalFormat df = new DecimalFormat("0.000E0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
-	    return df.format(value); // 1.2345E4		
+		DecimalFormat df = new DecimalFormat("0.000000000000000E0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+	    return df.format(value); // 1.23456789E4		
 	}
 	
 	private void writeEvolutionOfErros() throws IOException {
@@ -126,7 +126,7 @@ public class Statistic {
 			Double minimum = Double.MAX_VALUE;
 			int countErrors = 0;
 			Object[] values = new Object[Properties.MAX_RUNS + 2];
-			values[0] = EVALUATION_LIMITS[indexEvaluation];//"Erro para FES=" + EVALUATION_LIMITS[indexEvaluation] + "*MaxFES:";
+			values[0] = EVALUATION_LIMITS[indexEvaluation];
 			for (int round = 0; round < Properties.MAX_RUNS; round++) {
 				List<Double> roundErros = errorEvolution.get(round);
 				
@@ -160,7 +160,7 @@ public class Statistic {
 	
 	private void writeHeadStatistics() throws IOException {
 		String strFormat = "%-10s %-22s %-22s %-22s %-22s %-22s %-10s\n";
-		String head = String.format(strFormat + '\n', "FUNCTION", "BEST", "WORST", "MEDIAN", "MEAN", "STANDARD DEVIATION", "SUCCESSFUL RATE");
+		String head = String.format(strFormat + '\n', "FUNCTION", "BEST", "WORST", "MEDIAN", "MEAN", "STD", "SR");
 		this.fileRoundErrors.write(head);
 		System.err.println(head);
 	}
@@ -220,7 +220,7 @@ public class Statistic {
 			BigDecimal bdNumber = new BigDecimal(number);
 			mean = mean.add(bdNumber);
 		}
-		mean = mean.divide(new BigDecimal(numbers.size()), 6, RoundingMode.HALF_UP);
+		mean = mean.divide(new BigDecimal(numbers.size()), 15, RoundingMode.HALF_UP);
 		return mean.doubleValue();
 	}
 
@@ -249,7 +249,7 @@ public class Statistic {
 			
 			standardDeviation = mean.add(bdError);
 		}
-		double result = standardDeviation.doubleValue() / (errors.size() - 1);
+		double result = standardDeviation.divide(BigDecimal.valueOf(errors.size() - 1), 15, RoundingMode.HALF_UP).doubleValue();
 		return Math.sqrt(result);
 	}
 
@@ -261,6 +261,6 @@ public class Statistic {
 			dividend = dividend.add(bdNumber.pow(2));
 			divisor = divisor.add(bdNumber);
 		}
-		return dividend.divide(divisor, 6, RoundingMode.HALF_UP).doubleValue();
+		return dividend.divide(divisor, 15, RoundingMode.HALF_UP).doubleValue();
 	}
 }

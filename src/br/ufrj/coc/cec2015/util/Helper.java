@@ -36,14 +36,14 @@ public class Helper {
 	}
 	
 	public static boolean terminateRun(Population population) {
-		double errorValue = population.getBestError();
-		boolean terminate = Helper.COUNT_EVALUATIONS >= Properties.MAX_FES || errorValue <= Properties.MIN_ERROR_VALUE;
-		if (terminate) {
+		if (population.size() > 0) {
+			double errorValue = population.getBestError();
 			population.setMinErrorValueFound(errorValue <= Properties.MIN_ERROR_VALUE);
+			return population.isMinErrorValueFound() || (Helper.COUNT_EVALUATIONS >= Properties.MAX_FES);
 		}
-		return terminate;
+		return false;
 	}
-	
+
 	private static Random random = new Random();
 
 	public static double randomInRange(double min, double max) {
@@ -62,28 +62,19 @@ public class Helper {
 		return random;
 	}
 	
-	public static double getBestError(Population population) {
-		double best = Double.MAX_VALUE;
-		for (int index = 0; index < population.size(); index++) {
-			double error = getError(population.get(index));
-			if (index == 0 || error < best) {
-				best = error;
-			}
-		}
-		return best;
-	}
-	
 	public static double getError(Individual individual) {
-		double globalOptimum = Properties.FUNCTION_NUMBER * 100;
-		return Math.abs(globalOptimum - individual.getFunctionValue());
+		return getError(individual.getFunctionValue());
 	}
 
+	public static double getError(double functionValue) {
+		double globalOptimum = Properties.FUNCTION_NUMBER * 100;
+		return Math.abs(globalOptimum - functionValue);
+	}
+	
 	public static Individual newIndividualInitialized() {
 		Individual individual = new Individual(Properties.INDIVIDUAL_SIZE);
 		double functionValue = Helper.evaluate(individual.getId());
 		individual.setFunctionValue(functionValue);
-		//individual.setFunctionValueBestKnow(functionValue);
-
 		return individual;
 	}
 }

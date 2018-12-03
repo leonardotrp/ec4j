@@ -18,6 +18,25 @@ public class Population implements Cloneable {
 		this.initialize();
 	}
 	
+	public Population() {
+		super();
+	}
+	
+	public void load(double[][] population) {
+		this.individuals = new ArrayList<Individual>(population.length);
+		double bestError = Double.MAX_VALUE;
+		for (int index = 0; index < population.length; index++) {
+			Individual individual = new Individual(population[index]);
+			this.individuals.add(individual);
+			
+			double error = Helper.getError(individual);
+			if (index == 0 || error < bestError) {
+				bestError = error;
+				this.best = individual;
+			}
+		}
+	}
+	
 	public void initialize() {
 		this.individuals = new ArrayList<Individual>(Properties.POPULATION_SIZE);
 		double bestError = Double.MAX_VALUE;
@@ -59,7 +78,7 @@ public class Population implements Cloneable {
 	}
 
 	public int size() {
-		return this.individuals.size();
+		return this.individuals == null ? 0 : this.individuals.size();
 	}
 	
 	public Individual remove(int index) {

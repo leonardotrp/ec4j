@@ -38,8 +38,8 @@ public class DE extends Algorithm {
 	}
 	
 	@Override
-	public void initializeRun() {
-		super.initializeRun();
+	public void initializeRun(int round) {
+		super.initializeRun(round);
 		DEHelper.initialize();
 	}
 	

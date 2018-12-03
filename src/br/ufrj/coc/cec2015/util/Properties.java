@@ -37,9 +37,12 @@ public class Properties {
 	}
 	private static String CURRENT_ALGORITHM;
 	public static int POPULATION_SIZE;
+	public static void resetPopulationSize() {
+		POPULATION_SIZE = POPULATION_SIZES.get(CURRENT_ALGORITHM);
+	}
 	public static void setCurrentAlgorithm(String algorithm) {
 		CURRENT_ALGORITHM = algorithm;
-		POPULATION_SIZE = POPULATION_SIZES.get(CURRENT_ALGORITHM);
+		resetPopulationSize();
 	}
 	public static String[] INDIVIDUAL_SIZES = bundle.getString("INDIVIDUAL_SIZE").split(",");
 	public static int INDIVIDUAL_SIZE;
@@ -51,6 +54,7 @@ public class Properties {
 	public static void setPopulationSize(int populationSize) {
 		POPULATION_SIZE = populationSize;
 	}
+	
 
 	public static String RESULTS_ROOT = Properties.class.getResource("/") + bundle.getString("RESULTS_ROOT");
 }

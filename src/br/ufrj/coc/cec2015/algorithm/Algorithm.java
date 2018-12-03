@@ -23,8 +23,16 @@ public abstract class Algorithm {
 	
 	public abstract void setCurrentVariant(String variant);
 
-	public void initializeRun() {
+	public void initializeRun(int round) {
 		Helper.COUNT_EVALUATIONS = 0;
+	}
+	
+	public Population initializePopulation(Initializable initializable) {
+		return new Population(initializable);
+	}
+	
+	public boolean terminated(Population population) {
+		return Helper.terminateRun(population);
 	}
 
 	/**
@@ -42,11 +50,11 @@ public abstract class Algorithm {
 			
 			for (int round = 0; round < Properties.MAX_RUNS; round++) { // loop rounds or generations
 	
-				initializeRun();
+				initializeRun(round);
 
-				Population population = new Population(initializable);
+				Population population = this.initializePopulation(initializable);
 
-				while (!Helper.terminateRun(population)) {
+				while (!terminated(population)) {
 					
 					this.run(population, statistic, round);
 					
