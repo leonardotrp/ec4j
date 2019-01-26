@@ -224,16 +224,16 @@ public class Statistic {
 		return mean.doubleValue();
 	}
 
-	static double calculateMedian(List<Double> errors) {
-		int middleIndex = (int) ((errors.size() - 1) / 2);
+	public static double calculateMedian(List<Double> numbers) {
+		int middleIndex = (int) ((numbers.size() - 1) / 2);
 		BigDecimal median;
-		if (errors.size() % 2 == 0) { // par
-			median = new BigDecimal(errors.get(middleIndex));
-			BigDecimal middleErrorPlus = new BigDecimal(errors.get(middleIndex + 1));
+		if (numbers.size() % 2 == 0) { // par
+			median = new BigDecimal(numbers.get(middleIndex));
+			BigDecimal middleErrorPlus = new BigDecimal(numbers.get(middleIndex + 1));
 			median = median.add(middleErrorPlus).divide(new BigDecimal(2));
 		}
 		else {
-			median = new BigDecimal(errors.get(middleIndex + 1));
+			median = new BigDecimal(numbers.get(middleIndex + 1));
 		}
 		return median.doubleValue();
 	}

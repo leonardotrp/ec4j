@@ -17,7 +17,8 @@ public class PSOHelper {
 		ConstByClercPSO_InertiaFactorPSO,
 		SRPSO /* M.R. Tanweer 2015 */,
 		iSRPSO /* Improved SRPSO for CEC2015 - M.R. Tanweer 2015 */,
-		OBLPSO
+		OBLPSO,
+		RIO /* Roach Infestation Optimization */
 	}
 	private static PSOVariant VARIANT;
 	static {
@@ -107,6 +108,10 @@ public class PSOHelper {
 	private static double getSelfPositionValue(Individual particle, int d) {
 		return PSOVariant.iSRPSO.equals(VARIANT) && isLastTwoWorstParticle(particle) ? centroidPosition[d] : particle.getBestKnown(d);
 	}
+	
+	private static double getSocialPositionValue(Population swarm, Individual particle, int d) {
+		return PSOVariant.RIO.equals(VARIANT) ? particle.getBestKnown(d) : swarm.getBest().get(d);
+	}
 
 	private static double calculateVelocity(Population swarm, Individual particle, int d) {
 		double selfCognitionValue = PSOProperties.FI_1 * Helper.randomInRange(0.0, 1.0);
@@ -125,10 +130,20 @@ public class PSOHelper {
 		}
 		
 		double velocity = particle.getInertiaWeight() * particle.getVelocity(d);
-		velocity += selfCognitionValue * (getSelfPositionValue(particle, d) - particle.get(d));
-		velocity += socialCognitionValue * (swarm.getBest().get(d) - particle.get(d));
+		velocity += selfCognitionValue * (getSelfPositionValue(particle, d) - particle.get(d)); // em RIO esta parte é conhecida por "find darkness"
+		velocity += socialCognitionValue * (getSocialPositionValue(swarm, particle, d) - particle.get(d)); // em RIO esta parte é conhecida por "find friends"
 		
 		return velocity;
+	}
+	
+	public static void beforeRun(Population swarm) {
+		if (PSOVariant.RIO.equals(VARIANT))
+			RIOHelper.prepareCockroaches(swarm);
+	}
+
+	public static void afterRun(Population swarm) {
+		if (PSOVariant.RIO.equals(VARIANT))
+			RIOHelper.incrementHungerCounters(swarm);
 	}
 	
 	public static void moveParticle(Population swarm, int index) throws Exception {
@@ -137,19 +152,26 @@ public class PSOHelper {
 		double constriction = getConstrictionCoefficient();
 		calculateCentroidPosition(swarm, particle); // if iSRPSO
 		
-		for (int d = 0; d < Properties.INDIVIDUAL_SIZE; d++) {
-
+		boolean restartParticle = false;
+		if (PSOVariant.RIO.equals(VARIANT)) {
+			RIOHelper.socializing(swarm, index); // if RIO
+			restartParticle = (particle.getHungerCount() >= PSOProperties.HUNGER_INTERVAL);
+			if (restartParticle) {
+				particle.setId(RIOHelper.randomFoodLocation());
+				particle.setHungerCount(0);
+			}
+		}
+		
+		for (int d = 0; !restartParticle && d < Properties.INDIVIDUAL_SIZE; d++) {
 			double velocity = calculateVelocity(swarm, particle, d);
-
 			velocity = constriction * velocity;
-			
 			velocity = protectVelocityLimits(velocity);
 			
 			particle.setVelocity(d, velocity);
 			particle.set(d, particle.get(d) + velocity);
 		}
 	}
-	
+		
 	public static void oblMutate(Population swarm, int index) {
 		Individual particle = swarm.get(index);
 		Individual best = swarm.getBest();

@@ -7,7 +7,7 @@ import br.ufrj.coc.cec2015.util.Helper;
 public class Individual implements Comparable<Individual>, Cloneable {
 	private String uuid = UUID.randomUUID().toString();
 	/**
-	 * identification: sequência de valores que identificam um indivíduo (ex: similar ao cromossomo no AG)
+	 * identification: sequï¿½ncia de valores que identificam um indivï¿½duo (ex: similar ao cromossomo no AG)
 	 */
 	private double[] id;
 	private double functionValue;
@@ -28,6 +28,9 @@ public class Individual implements Comparable<Individual>, Cloneable {
 	
 	// used in SRPSO
 	private double inertiaWeight;
+	
+	// used in RIO
+	private int hungerCount = 0;
 
 	/**
 	 * Construtor da classe Individuo
@@ -126,6 +129,18 @@ public class Individual implements Comparable<Individual>, Cloneable {
 		this.trial++;
 	}
 
+	public int getHungerCount() {
+		return hungerCount;
+	}
+
+	public void setHungerCount(int hungerCount) {
+		this.hungerCount = hungerCount;
+	}
+	
+	public void incrementHungerCount() {
+		this.hungerCount++;
+	}
+	
 	public double getFitness() {
 		return fitness;
 	}
@@ -173,7 +188,7 @@ public class Individual implements Comparable<Individual>, Cloneable {
 	public void setVelocity(double[] velocity) {
 		this.velocity = velocity;
 	}
-
+	
 	public void setVelocity(int index, double velocity) {
 		this.velocity[index] = velocity;
 	}
