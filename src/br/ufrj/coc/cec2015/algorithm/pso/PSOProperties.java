@@ -9,8 +9,8 @@ public class PSOProperties {
 
 	static ResourceBundle bundle = ResourceBundle.getBundle(PSOProperties.class.getPackage().getName() + ".pso");
 	
-	public static double FI_1 = Double.parseDouble(bundle.getString("ACCELERATION_COEFFICIENT_1"));
-	public static double FI_2 = Double.parseDouble(bundle.getString("ACCELERATION_COEFFICIENT_2"));
+	public static double FI_SELF = Double.parseDouble(bundle.getString("ACCELERATION_COEFFICIENT_SELF"));
+	public static double FI_SOCIAL = Double.parseDouble(bundle.getString("ACCELERATION_COEFFICIENT_SOCIAL"));
 	public static double W_STATIC = Double.parseDouble(bundle.getString("INERTIA_WEIGHT"));
 	public static double W_START = Double.parseDouble(bundle.getString("INERTIA_WEIGHT_START"));
 	public static double W_END = Double.parseDouble(bundle.getString("INERTIA_WEIGHT_END"));

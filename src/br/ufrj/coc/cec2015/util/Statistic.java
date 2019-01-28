@@ -29,7 +29,7 @@ public class Statistic {
 	private BufferedWriter fileRoundErrors;
 	private BufferedWriter fileEvolutionOfErrors;
 	private List<Double> roundErros = new ArrayList<Double>(Properties.MAX_RUNS);
-	private static double[] EVALUATION_LIMITS = new double[] { 0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0 };
+	private static double[] EVALUATION_LIMITS = new double[] { /*0.000001, 0.00001, 0.0001, */0.001, 0.01, /*0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, */0.10, /*0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, */0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0 };
 	private static Map<Integer, List<Double>> errorEvolution; // <round number, lista de erro em cada rodada para cada instante definido>
 	private int successfulRuns = 0;
 
@@ -136,7 +136,7 @@ public class Statistic {
 						mean += error;
 						values[round + 1] = formatNumber(error);
 						if (error < minimum) {
-							bestRound = round;
+							bestRound = round + 1;
 							minimum = error;
 						}
 						countErrors++;

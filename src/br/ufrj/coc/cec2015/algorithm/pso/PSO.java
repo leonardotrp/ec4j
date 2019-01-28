@@ -5,7 +5,6 @@ import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Initializable;
 import br.ufrj.coc.cec2015.algorithm.Population;
 import br.ufrj.coc.cec2015.util.Helper;
-import br.ufrj.coc.cec2015.util.Properties;
 import br.ufrj.coc.cec2015.util.Statistic;
 
 public class PSO extends Algorithm {
@@ -30,16 +29,11 @@ public class PSO extends Algorithm {
 		return new Initializable() {
 			@Override
 			public Individual newInitialized() {
-				Individual individual = Helper.newIndividualInitialized();
-				
-				double rangeValue = PSOHelper.getVelocityRangeValue();
-				double[] velocity = new double[Properties.INDIVIDUAL_SIZE];
-				for (int d = 0; d < velocity.length; d++)
-					velocity[d] = Helper.randomInRange(-rangeValue, rangeValue);
-				individual.setVelocity(velocity);
-
-				individual.setHungerCount(Helper.randomInRange(0, PSOProperties.HUNGER_INTERVAL - 1));
-				return individual;
+				Individual particle = Helper.newIndividualInitialized();
+				PSOHelper.initializeVelocity(particle);
+				particle.setInertiaWeight(PSOProperties.W_STATIC);
+				particle.setHungerCount(Helper.randomInRange(0, PSOProperties.HUNGER_INTERVAL - 1));
+				return particle;
 			}
 		};
 	}	

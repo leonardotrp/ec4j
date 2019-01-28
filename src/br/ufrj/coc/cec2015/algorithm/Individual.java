@@ -72,19 +72,8 @@ public class Individual implements Comparable<Individual>, Cloneable {
 	
 	private void initialize(int size) {
 		this.id = new double[size];
-		
-		// PSO
-		//this.velocity = new double[size];
-		//double rangeValue = PSOHelper.getVelocityRangeValue();
-		
 		for (int index = 0; index < size; index++) {
 			this.id[index] = Helper.randomData();
-			
-			// PSO
-			//this.velocity[index] = Helper.randomInRange(-rangeValue, rangeValue);
-			
-			// SFPSO
-			//this.setInertiaWeight(PSOProperties.W_STATIC);
 		}
 		this.bestKnown = this.id.clone();
 	}
