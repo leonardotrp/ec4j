@@ -12,14 +12,14 @@ public class Population implements Cloneable {
 	private Individual best; // global best
 	private boolean minErrorValueFound;
 	
-	public Population(Initializable initializable) {
+	public Population(Initializable initializable, int populationSize) {
 		super();
 		this.initializable = initializable;
-		this.initialize();
+		this.initialize(populationSize);
 	}
-	
-	public Population() {
-		super();
+
+	public Population(Initializable initializable) {
+		this(initializable, Properties.POPULATION_SIZE);
 	}
 	
 	public void load(double[][] population) {
@@ -37,10 +37,25 @@ public class Population implements Cloneable {
 		}
 	}
 	
-	public void initialize() {
-		this.individuals = new ArrayList<Individual>(Properties.POPULATION_SIZE);
+	public void increase(int newSize) {
+		if (newSize > this.size()) {
+			int increaseSize = newSize - this.size();
+			for (int index = 0; index < increaseSize; index++) {
+				Individual individual = this.initializable.newInitialized();
+				this.individuals.add(individual);
+				
+				double error = Helper.getError(individual);
+				if (error < this.getBestError()) {
+					this.best = individual;
+				}
+			}
+		}
+	}
+	
+	private void initialize(int populationSize) {
+		this.individuals = new ArrayList<Individual>(populationSize);
 		double bestError = Double.MAX_VALUE;
-		for (int index = 0; index < Properties.POPULATION_SIZE; index++) {
+		for (int index = 0; index < populationSize; index++) {
 			Individual individual = this.initializable.newInitialized();
 			this.individuals.add(individual);
 			
@@ -52,7 +67,7 @@ public class Population implements Cloneable {
 		}
 	}
 	
-	public void initialize(int index) {
+	public void initializeIndividual(int index) {
 		Individual individual = this.initializable.newInitialized();
 		this.individuals.set(index, individual);
 	}

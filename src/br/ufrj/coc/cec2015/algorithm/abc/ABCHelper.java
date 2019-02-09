@@ -291,7 +291,7 @@ public class ABCHelper {
 
 		foodMaxTrial = foodSources.get(maxTrialIndex);
 		if (foodMaxTrial.getTrial() >= ABCProperties.MAX_TRIAL) {
-			foodSources.initialize(maxTrialIndex);
+			foodSources.initializeIndividual(maxTrialIndex);
 
 			statistic.verifyEvaluationInstant(round, foodSources);
 		}

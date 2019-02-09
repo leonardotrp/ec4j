@@ -2,8 +2,6 @@ package br.ufrj.coc.cec2015.algorithm.de;
 
 import java.util.ResourceBundle;
 
-import br.ufrj.coc.cec2015.util.Properties;
-
 /**
  * @author Leonardo
  */
@@ -80,10 +78,18 @@ public class DEProperties {
 		
 		if (!valid)
 			throw new IllegalArgumentException(String.format("This variance %s isn't supported", DEProperties.VARIANT));
-		
+		/*
 		if (Strategy.CURRENT_TO_pBEST.equals(STRATEGY)) {
 			int populationSize = Properties.INDIVIDUAL_SIZE * 10;
 			Properties.setPopulationSize(populationSize);
 		}
+		*/
 	}
+	
+	// Restart DE with Increase Population Size (inspired in IPOP-CMAES)
+	public static boolean INCREASE_POPULATION = Boolean.parseBoolean(bundle.getString("INCREASE_POPULATION"));
+	public static int NUMBER_OF_RESTARTS = Integer.parseInt(bundle.getString("NUMBER_OF_RESTARTS"));
+	public static int INCREASE_POPSIZE_FACTOR = Integer.parseInt(bundle.getString("INCREASE_POPSIZE_FACTOR"));
+	public static double STOP_TOL_FUN = Double.parseDouble(bundle.getString("STOP_TOL_FUN"));
+	public static double STOP_TOL_FUN_HIST = Double.parseDouble(bundle.getString("STOP_TOL_FUN_HIST"));
 }

@@ -65,10 +65,13 @@ public class Helper {
 	public static double getError(Individual individual) {
 		return getError(individual.getFunctionValue());
 	}
+	
+	public static double getGlobalOptimum() {
+		return Properties.FUNCTION_NUMBER * 100;
+	}
 
 	public static double getError(double functionValue) {
-		double globalOptimum = Properties.FUNCTION_NUMBER * 100;
-		return Math.abs(globalOptimum - functionValue);
+		return Math.abs(getGlobalOptimum() - functionValue);
 	}
 	
 	public static Individual newIndividualInitialized() {

@@ -27,42 +27,33 @@ public abstract class Algorithm {
 		Helper.COUNT_EVALUATIONS = 0;
 	}
 	
-	public Population initializePopulation(Initializable initializable) {
-		return new Population(initializable);
+	protected boolean terminated(Population population) {
+		return Helper.terminateRun(population);
 	}
 	
-	public boolean terminated(Population population) {
-		return Helper.terminateRun(population);
+	protected void executeRoud(Initializable initializable, Statistic statistic, int round) throws Exception {
+		initializeRun(round);
+		Population population = new Population(initializable);
+		while (!terminated(population)) {
+			this.run(population, statistic, round);
+		}
+		statistic.addRound(population);
 	}
 
 	/**
 	 * @throws Exception
 	 */
 	public void main() throws Exception {
-		
+		Statistic statistic = new Statistic(this);
 		for (int functionNumber : Properties.FUNCTIONS) { // loop functions
-
 			Helper.changeFunction(Properties.INDIVIDUAL_SIZE, functionNumber);
-			
-			Statistic statistic = new Statistic(this);
-			
+			statistic.startFunction();
 			Initializable initializable = this.getIntializable();
-			
 			for (int round = 0; round < Properties.MAX_RUNS; round++) { // loop rounds or generations
-	
-				initializeRun(round);
-
-				Population population = this.initializePopulation(initializable);
-
-				while (!terminated(population)) {
-					
-					this.run(population, statistic, round);
-					
-				}
-				statistic.addRound(population);
+				executeRoud(initializable, statistic, round);
 			}
-			
-			statistic.finalize();
+			statistic.endFunction();
 		}
+		statistic.end();
 	}
 }
