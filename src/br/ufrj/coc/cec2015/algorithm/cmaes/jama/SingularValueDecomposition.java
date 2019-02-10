@@ -1,7 +1,6 @@
 package br.ufrj.coc.cec2015.algorithm.cmaes.jama;
-import br.ufrj.coc.cec2015.algorithm.cmaes.jama.util.Maths;
 
-   /** Singular Value Decomposition.
+/** Singular Value Decomposition.
    <P>
    For an m-by-n matrix A with m >= n, the singular value decomposition is
    an m-by-n orthogonal matrix U, an n-by-n diagonal matrix S, and

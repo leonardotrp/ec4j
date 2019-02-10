@@ -7,7 +7,7 @@ import java.util.ResourceBundle;
  */
 public class PSOProperties {
 
-	static ResourceBundle bundle = ResourceBundle.getBundle(PSOProperties.class.getPackage().getName() + ".pso");
+	static ResourceBundle bundle = ResourceBundle.getBundle("pso");
 	
 	public static double FI_SELF = Double.parseDouble(bundle.getString("ACCELERATION_COEFFICIENT_SELF"));
 	public static double FI_SOCIAL = Double.parseDouble(bundle.getString("ACCELERATION_COEFFICIENT_SOCIAL"));

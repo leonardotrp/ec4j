@@ -11,45 +11,70 @@ import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.LongSummaryStatistics;
 import java.util.Map;
+import java.util.UUID;
 
 import br.ufrj.coc.cec2015.algorithm.Algorithm;
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Population;
 
 public class Statistic {
-	static String RESULT_ROOT = '/' + Statistic.class.getPackage().getName().replace('.', '/');
+	static String ID = UUID.randomUUID().toString();
 
 	private BufferedWriter fileFunctionErrors;
 	private BufferedWriter fileRoundErrors;
 	private BufferedWriter fileEvolutionOfErrors;
 	private List<Double> roundErros = new ArrayList<Double>(Properties.MAX_RUNS);
-	private static double[] EVALUATION_LIMITS = new double[] { /*0.000001, 0.00001, 0.0001, */0.001, 0.01, /*0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, */0.10, /*0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, */0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0 };
+	private List<Long> timeRounds = new ArrayList<Long>(Properties.MAX_RUNS);
+	private static double[] EVALUATION_LIMITS = new double[] { 
+		0.000001, 
+		0.00001, 
+		0.0001, 
+		0.001, 
+		0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 
+		0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 
+		0.20, 0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 0.27, 0.28, 0.29, 
+		0.30, 0.31, 0.32, 0.33, 0.34, 0.35, 0.36, 0.37, 0.38, 0.39,
+		0.40, 0.41, 0.42, 0.43, 0.44, 0.45, 0.46, 0.47, 0.48, 0.49,
+		0.50, 0.51, 0.52, 0.53, 0.54, 0.55, 0.56, 0.57, 0.58, 0.59,
+		0.60,
+		0.7,
+		0.8, 
+		0.9, 
+		1.0
+	};
 	private static Map<Integer, List<Double>> errorEvolution; // <round number, lista de erro em cada rodada para cada instante definido>
-	private int successfulRuns = 0;
+	private int successfulRuns;
 	private String algorithmName;
 	private String prefix;
+	private int populationSize;
 	
 	public Statistic(Algorithm algorithm) throws IOException {
 		super();
 		this.algorithmName = algorithm.getClass().getSimpleName();
-		this.prefix = algorithmName + '_' + algorithm.getVariant();
+		this.prefix = algorithmName + '_' + algorithm.getVariant() + "_P" + Properties.POPULATION_SIZE;
 
-		String fileFunctionErrorsName = getFileName(algorithmName, prefix + "_FUNCTIONS_" + Properties.INDIVIDUAL_SIZE + ".csv");
+		String fileFunctionErrorsName = getFileName(algorithmName, prefix + "_D" + Properties.INDIVIDUAL_SIZE + "_functions.csv");
 		this.fileFunctionErrors = new BufferedWriter(new FileWriter(fileFunctionErrorsName));
 		writeHeadStatistics(this.fileFunctionErrors);
+		
+		startTime();
 	}
 
 	private static String getFileName(String relativePath, String filename) {
 		URI uri;
 		try {
-			uri = new URI(Properties.RESULTS_ROOT + relativePath);
+			String root = Properties.RESULTS_ROOT + ID + '/';
+			uri = new URI(root + relativePath);
 		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
@@ -59,17 +84,45 @@ public class Statistic {
 		return directory.getAbsolutePath() + '\\' + filename;
 	}
 
+	private long initialTime, initialTimeFunction, initialTimeRound;
+	private void startTime() {
+		this.initialTime = Instant.now().toEpochMilli();
+	}
+	private void startTimeFunction() {
+		this.initialTimeFunction = Instant.now().toEpochMilli();
+	}
+	private void startTimeRound() {
+		this.initialTimeRound = Instant.now().toEpochMilli();
+	}
+	public long getTimeSpent(long initialTime) {
+		 return Instant.now().toEpochMilli() - initialTime;
+	}
+	private static double timeInSeconds(double time) {
+		 return (double) time / (double) 1000;
+	}
+	
+	private void initializeFunction() {
+		this.timeRounds.clear();
+		this.roundErros.clear();
+		this.startTimeFunction();
+		errorEvolution = new HashMap<>();
+		this.successfulRuns = 0;
+	}
+
 	public void startFunction() throws IOException {
 		System.out.println("::::::::::::::: " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()) + " :::::::::::::");
+		this.initializeFunction();
 		
-		String fileRoundErrorsName = getFileName(algorithmName, prefix + "_statistics_" + Properties.FUNCTION_NUMBER + '_' + Properties.INDIVIDUAL_SIZE + ".csv");
+		String fileRoundErrorsName = getFileName(algorithmName, prefix + "_F" + Properties.FUNCTION_NUMBER + "_D" + Properties.INDIVIDUAL_SIZE + "_statistics.csv");
 		this.fileRoundErrors = new BufferedWriter(new FileWriter(fileRoundErrorsName));
 		writeHeadStatistics(this.fileRoundErrors);
 
-		String fileEvolutionOfErrorsName = getFileName(algorithmName, prefix + "_" + Properties.FUNCTION_NUMBER + '_' + Properties.INDIVIDUAL_SIZE + ".csv");
+		String fileEvolutionOfErrorsName = getFileName(algorithmName, prefix + "_F" + Properties.FUNCTION_NUMBER + "_D" + Properties.INDIVIDUAL_SIZE + "_evolution.csv");
 		this.fileEvolutionOfErrors = new BufferedWriter(new FileWriter(fileEvolutionOfErrorsName));
-		
-		errorEvolution = new HashMap<>();
+	}
+	
+	public void startRound() {
+		this.startTimeRound();
 	}
 	
 	public void verifyEvaluationInstant(int round, Population population) {
@@ -118,59 +171,67 @@ public class Statistic {
 		System.out.println(line);
 	}
 	
-	private String formatNumber(Double value) {
+	private static String formatNumber(Double value) {
 		DecimalFormat df = new DecimalFormat("0.000000000000000E0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 	    return df.format(value); // 1.23456789E4		
 	}
 	
+	private static int getBestRound() {
+		int bestRound = 0;
+		int minErrorsCount = Properties.MAX_RUNS;
+		double minimum = Double.MAX_VALUE;
+		for (int round = 1; round <= Properties.MAX_RUNS; round++) {
+			List<Double> roundErrors = errorEvolution.get(round - 1);
+			if (roundErrors.size() < minErrorsCount) {
+				bestRound = round;
+				minimum = roundErrors.get(roundErrors.size() - 1);
+			}
+			else if (roundErrors.size() == minErrorsCount) {
+				Double minRoundError = roundErrors.stream().min(Comparator.comparing(Double::valueOf)).get();
+				if (minRoundError < minimum) {
+					bestRound = round;
+					minimum = minRoundError;
+				}
+			}
+		}
+		return bestRound;
+	}
+	
 	private void writeEvolutionOfErros() throws IOException {
 		writeHeadEvolutionOfErrors();
-		int bestRound = 0;
 		for (int indexEvaluation = 0; indexEvaluation < EVALUATION_LIMITS.length; indexEvaluation++) {
-			Double mean = 0.0;
-			Double minimum = Double.MAX_VALUE;
-			int countErrors = 0;
+			BigDecimal mean = new BigDecimal(0.0);
 			Object[] values = new Object[Properties.MAX_RUNS + 2];
 			values[0] = EVALUATION_LIMITS[indexEvaluation];
-			for (int round = 0; round < Properties.MAX_RUNS; round++) {
-				List<Double> roundErros = errorEvolution.get(round);
-				
+			for (int round = 1; round <= Properties.MAX_RUNS; round++) {
+				List<Double> roundErros = errorEvolution.get(round - 1);
+				values[round] = "-";
 				if (indexEvaluation < roundErros.size()) {
 					Double error = roundErros.get(indexEvaluation);
 					if (error != null) {
-						mean += error;
-						values[round + 1] = formatNumber(error);
-						if (error < minimum) {
-							bestRound = round + 1;
-							minimum = error;
-						}
-						countErrors++;
+						mean = mean.add(new BigDecimal(error));
+						values[round] = formatNumber(error);
 					}
-					else {
-						values[round + 1] = "-";
-					}
-				}
-				else {
-					values[round + 1] = "-";
 				}
 			}
-			mean = countErrors > 0 ? (mean / countErrors) : mean;
-			values[Properties.MAX_RUNS + 1] = mean > 0 ? formatNumber(mean) : "-";
+			mean = mean.divide(new BigDecimal(Properties.MAX_RUNS), 15, RoundingMode.HALF_UP);
+			values[Properties.MAX_RUNS + 1] = mean.doubleValue() > 0 ? formatNumber(mean.doubleValue()) : "-";
 
 			writeLineEvolutionOfErrors(values);
 		}
+		int bestRound = getBestRound();
 		this.fileEvolutionOfErrors.write("\nBest Round = " + bestRound);
 		System.out.println("\nBest Round = " + bestRound);
 	}
-	
+
 	private void writeHeadStatistics(BufferedWriter writer) throws IOException {
-		String strFormat = "%-10s, %-22s, %-22s, %-22s, %-22s, %-22s, %-10s, %-10s\n";
-		String head = String.format(strFormat + '\n', "FUNCTION", "BEST", "WORST", "MEDIAN", "MEAN", "STD", "POPSIZE", "SR");
+		String strFormat = "%-10s, %-22s, %-22s, %-22s, %-22s, %-22s, %-10s, %-10s, %-10s\n";
+		String head = String.format(strFormat + '\n', "FUNCTION", "BEST", "WORST", "MEDIAN", "MEAN", "STD", "POPSIZE", "TIME(s)", "SR");
 		writer.write(head);
 		System.err.println(head);
 	}
 
-	private void writeLineStatistic(BufferedWriter writer, String label, List<Double> errors, Double successfulRate) throws IOException {
+	private void writeLineStatistic(BufferedWriter writer, String label, List<Double> errors, Long timeSpent, Double successfulRate) throws IOException {
 		String strSuccessfulRate = "";
 		if (successfulRate != null)
 			strSuccessfulRate = formatNumber(successfulRate);
@@ -184,25 +245,37 @@ public class Statistic {
 		String meanStr = formatNumber(mean);
 		String standardDeviation = formatNumber(calculateStandardDeviation(errors, mean));
 		
-		String strFormat = "%-10s, %-22s, %-22s, %-22s, %-22s, %-22s, %-10s, %-10s\n";
-		String line = String.format(strFormat, label, best, worst, median, meanStr, standardDeviation, errors.size(), strSuccessfulRate);
+		String strFormat = "%-10s, %-22s, %-22s, %-22s, %-22s, %-22s, %-10s, %-10s, %-10s\n";
+		String line = String.format(strFormat, label, best, worst, median, meanStr, standardDeviation, this.populationSize, timeInSeconds(timeSpent), strSuccessfulRate);
 		writer.write(line);
 		System.out.println(line);
 	}
 
 	public void addRound(Population population) throws IOException {
+		this.populationSize = population.size();
 		List<Double> errors = calculateErrors(population);
-		this.writeLineStatistic(this.fileRoundErrors, "Round(" + (this.roundErros.size() + 1) + ")", errors, null);
+		Long timeSpent = this.getTimeSpent(this.initialTimeRound);
+		this.timeRounds.add(timeSpent);
+		this.writeLineStatistic(this.fileRoundErrors, "Round(" + (this.roundErros.size() + 1) + ")", errors, timeSpent, null);
 		this.roundErros.add(population.getBestError());
 		if (population.isMinErrorValueFound())
 			this.successfulRuns++;
 	}
+	
+	private double getAvgTimeSpentRound() {
+		LongSummaryStatistics stats = this.timeRounds.stream().mapToLong((x) -> x).summaryStatistics();
+		return (double) stats.getAverage();
+	}
 
 	public void endFunction() throws IOException {
 		double successfulRate = (double) this.successfulRuns / Properties.MAX_RUNS;
-		
-		this.writeLineStatistic(this.fileFunctionErrors, "F(" + Properties.FUNCTION_NUMBER + ")", this.roundErros, successfulRate);
-		this.writeLineStatistic(this.fileRoundErrors, "F(" + Properties.FUNCTION_NUMBER + ")", this.roundErros, successfulRate);
+		long avgTimeSpent = (long) this.getAvgTimeSpentRound();
+
+		long timeSpentFunction = this.getTimeSpent(this.initialTimeFunction);		
+		this.writeLineStatistic(this.fileFunctionErrors, "F(" + Properties.FUNCTION_NUMBER + ")", this.roundErros, avgTimeSpent, successfulRate);
+
+		this.writeLineStatistic(this.fileRoundErrors, "F(" + Properties.FUNCTION_NUMBER + ")", this.roundErros, avgTimeSpent, successfulRate);
+		this.fileRoundErrors.write("\nTotal time = " + timeInSeconds(timeSpentFunction));
 		this.fileRoundErrors.close();
 		
 		this.writeEvolutionOfErros();
@@ -210,8 +283,8 @@ public class Statistic {
 	}
 
 	public void end() throws IOException {
+		this.fileFunctionErrors.write("\nTotal time = " + timeInSeconds(getTimeSpent(this.initialTime)));
 		this.fileFunctionErrors.close();
-
 		System.out.println("::::::::::::::: " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()) + " :::::::::::::");
 	}
 	

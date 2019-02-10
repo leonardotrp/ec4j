@@ -303,7 +303,7 @@ public class DEHelper {
 		List<Individual> partners = selectPartners(population); // X1, X2, X3, X4
 		Individual destiny = selectDestiny(population); // strategy 'DE/current-to-{rand/best/pbest}/N'
 		
-		if (isEigenvectorCrossover() && Math.random() < 0.5)
+		if (isEigenvectorCrossover() && Math.random() <= DEProperties.EIG_RATE)
 			return generateTrialVectorEig(current, base, destiny, partners);
 		else
 			return generateTrialVectorBin(current, base, destiny, partners);

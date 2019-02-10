@@ -32,6 +32,7 @@ public abstract class Algorithm {
 	}
 	
 	protected void executeRoud(Initializable initializable, Statistic statistic, int round) throws Exception {
+		statistic.startRound();
 		initializeRun(round);
 		Population population = new Population(initializable);
 		while (!terminated(population)) {

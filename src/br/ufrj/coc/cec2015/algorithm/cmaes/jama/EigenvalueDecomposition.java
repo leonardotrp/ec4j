@@ -1,5 +1,4 @@
 package br.ufrj.coc.cec2015.algorithm.cmaes.jama;
-import br.ufrj.coc.cec2015.algorithm.cmaes.jama.util.Maths;
 
 /** Eigenvalues and eigenvectors of a real matrix. 
 <P>

@@ -6,7 +6,7 @@ import java.util.ResourceBundle;
  * @author Leonardo
  */
 public class DEProperties {
-	static ResourceBundle bundle = ResourceBundle.getBundle(DEProperties.class.getPackage().getName() + ".de");
+	static ResourceBundle bundle = ResourceBundle.getBundle("de");
 	
 	public static double CROSSOVER_RATE = Double.parseDouble(bundle.getString("CROSSOVER_RATE"));
 	public static double DIFFERENTIAL_WEIGHT = Double.parseDouble(bundle.getString("DIFFERENTIAL_WEIGHT"));
@@ -19,6 +19,8 @@ public class DEProperties {
 	public static boolean EXTERNAL_ARCHIVE = Boolean.parseBoolean(bundle.getString("EXTERNAL_ARCHIVE"));
 	public static double ADAPTATION_RATE = Double.parseDouble(bundle.getString("ADAPTATION_RATE"));
 	public static double GREEDINESS = Double.parseDouble(bundle.getString("GREEDINESS"));
+
+	public static double EIG_RATE = Double.parseDouble(bundle.getString("EIG_RATE"));
 
 	public enum Strategy {
 		BEST, RAND, RE_BASE, RE_ALL, // BEST_2_OPT, RAND_2_OPT, RE_2_OPT
@@ -82,14 +84,6 @@ public class DEProperties {
 		if (Strategy.CURRENT_TO_pBEST.equals(STRATEGY)) {
 			int populationSize = Properties.INDIVIDUAL_SIZE * 10;
 			Properties.setPopulationSize(populationSize);
-		}
-		*/
+		}*/
 	}
-	
-	// Restart DE with Increase Population Size (inspired in IPOP-CMAES)
-	public static boolean INCREASE_POPULATION = Boolean.parseBoolean(bundle.getString("INCREASE_POPULATION"));
-	public static int NUMBER_OF_RESTARTS = Integer.parseInt(bundle.getString("NUMBER_OF_RESTARTS"));
-	public static int INCREASE_POPSIZE_FACTOR = Integer.parseInt(bundle.getString("INCREASE_POPSIZE_FACTOR"));
-	public static double STOP_TOL_FUN = Double.parseDouble(bundle.getString("STOP_TOL_FUN"));
-	public static double STOP_TOL_FUN_HIST = Double.parseDouble(bundle.getString("STOP_TOL_FUN_HIST"));
 }

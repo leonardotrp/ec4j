@@ -6,7 +6,7 @@ import java.util.ResourceBundle;
  * @author Leonardo
  */
 public class ABCProperties {
-	static ResourceBundle bundle = ResourceBundle.getBundle(ABCProperties.class.getPackage().getName() + ".abc");
+	static ResourceBundle bundle = ResourceBundle.getBundle("abc");
 	
 	public static int MAX_TRIAL = Integer.parseInt(bundle.getString("MAX_TRIAL"));
 	public static double MR = Double.parseDouble(bundle.getString("MR")); // MCAB

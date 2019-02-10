@@ -8,8 +8,6 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-import br.ufrj.coc.cec2015.algorithm.cmaes.jama.util.Maths;
-
 /**
    Jama = Java Matrix class.
    <P>

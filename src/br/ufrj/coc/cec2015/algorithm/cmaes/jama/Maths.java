@@ -1,4 +1,4 @@
-package br.ufrj.coc.cec2015.algorithm.cmaes.jama.util;
+package br.ufrj.coc.cec2015.algorithm.cmaes.jama;
 
 public class Maths {
 
