@@ -94,7 +94,7 @@ public class Statistic {
 	private void startTimeRound() {
 		this.initialTimeRound = Instant.now().toEpochMilli();
 	}
-	public long getTimeSpent(long initialTime) {
+	public long getTimeElapsed(long initialTime) {
 		 return Instant.now().toEpochMilli() - initialTime;
 	}
 	private static double timeInSeconds(double time) {
@@ -182,16 +182,16 @@ public class Statistic {
 		double minimum = Double.MAX_VALUE;
 		for (int round = 1; round <= Properties.MAX_RUNS; round++) {
 			List<Double> roundErrors = errorEvolution.get(round - 1);
-			if (roundErrors.size() < minErrorsCount) {
+			int countErros = (int) roundErrors.stream().filter(error -> error != null).count();
+			Double minRoundError = roundErrors.stream().filter(error -> error != null).min(Comparator.comparing(Double::valueOf)).get();
+			if (countErros < minErrorsCount) {
+				minErrorsCount = countErros;
 				bestRound = round;
-				minimum = roundErrors.get(roundErrors.size() - 1);
+				minimum = minRoundError;
 			}
-			else if (roundErrors.size() == minErrorsCount) {
-				Double minRoundError = roundErrors.stream().min(Comparator.comparing(Double::valueOf)).get();
-				if (minRoundError < minimum) {
-					bestRound = round;
-					minimum = minRoundError;
-				}
+			else if (countErros == minErrorsCount && minRoundError < minimum) {
+				bestRound = round;
+				minimum = minRoundError;
 			}
 		}
 		return bestRound;
@@ -254,9 +254,9 @@ public class Statistic {
 	public void addRound(Population population) throws IOException {
 		this.populationSize = population.size();
 		List<Double> errors = calculateErrors(population);
-		Long timeSpent = this.getTimeSpent(this.initialTimeRound);
-		this.timeRounds.add(timeSpent);
-		this.writeLineStatistic(this.fileRoundErrors, "Round(" + (this.roundErros.size() + 1) + ")", errors, timeSpent, null);
+		Long timeElapsed = this.getTimeElapsed(this.initialTimeRound);
+		this.timeRounds.add(timeElapsed);
+		this.writeLineStatistic(this.fileRoundErrors, "Round(" + (this.roundErros.size() + 1) + ")", errors, timeElapsed, null);
 		this.roundErros.add(population.getBestError());
 		if (population.isMinErrorValueFound())
 			this.successfulRuns++;
@@ -271,19 +271,19 @@ public class Statistic {
 		double successfulRate = (double) this.successfulRuns / Properties.MAX_RUNS;
 		long avgTimeSpent = (long) this.getAvgTimeSpentRound();
 
-		long timeSpentFunction = this.getTimeSpent(this.initialTimeFunction);		
-		this.writeLineStatistic(this.fileFunctionErrors, "F(" + Properties.FUNCTION_NUMBER + ")", this.roundErros, avgTimeSpent, successfulRate);
-
 		this.writeLineStatistic(this.fileRoundErrors, "F(" + Properties.FUNCTION_NUMBER + ")", this.roundErros, avgTimeSpent, successfulRate);
-		this.fileRoundErrors.write("\nTotal time = " + timeInSeconds(timeSpentFunction));
+		long timeElapsedFunction = this.getTimeElapsed(this.initialTimeFunction);		
+		this.fileRoundErrors.write("\nTotal time = " + timeInSeconds(timeElapsedFunction));
 		this.fileRoundErrors.close();
+
+		this.writeLineStatistic(this.fileFunctionErrors, "F(" + Properties.FUNCTION_NUMBER + ")", this.roundErros, avgTimeSpent, successfulRate);
 		
 		this.writeEvolutionOfErros();
 		this.fileEvolutionOfErrors.close();
 	}
 
 	public void end() throws IOException {
-		this.fileFunctionErrors.write("\nTotal time = " + timeInSeconds(getTimeSpent(this.initialTime)));
+		this.fileFunctionErrors.write("\nTotal time = " + timeInSeconds(getTimeElapsed(this.initialTime)));
 		this.fileFunctionErrors.close();
 		System.out.println("::::::::::::::: " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()) + " :::::::::::::");
 	}
