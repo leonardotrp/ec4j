@@ -15,7 +15,7 @@ public class PSO extends Algorithm {
 	}
 	
 	@Override
-	public void setCurrentVariant(String variant) {
+	public void initialize(String variant) {
 		PSOProperties.setVariant(variant);
 	}
 	

@@ -5,41 +5,14 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Population;
-import br.ufrj.coc.cec2015.functions.testfunc;
 
 public class Helper {
-	public static final testfunc FITNESS_FUNCTIONS = new testfunc();
-	public static int COUNT_EVALUATIONS = 0;
-
-	public static void initializeRun() {
-		COUNT_EVALUATIONS = 0;
-	}
-
-	public static void changeFunction(int dim, int functionNumber) {
-		Properties.FUNCTION_NUMBER = functionNumber;
-		try {
-			Helper.FITNESS_FUNCTIONS.loadConstants(dim, functionNumber);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public static double evaluate(double[] input) {
-		double functionValue = 0.0;
-		try {
-			functionValue = Helper.FITNESS_FUNCTIONS.exec_func(input, input.length, Properties.FUNCTION_NUMBER);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		COUNT_EVALUATIONS++;
-		return functionValue;
-	}
 	
 	public static boolean terminateRun(Population population) {
 		if (population.size() > 0) {
 			double errorValue = population.getBestError();
 			population.setMinErrorValueFound(errorValue <= Properties.MIN_ERROR_VALUE);
-			return population.isMinErrorValueFound() || (Helper.COUNT_EVALUATIONS >= Properties.MAX_FES);
+			return population.isMinErrorValueFound() || Properties.ARGUMENTS.get().isMaxFESReached();
 		}
 		return false;
 	}
@@ -66,17 +39,14 @@ public class Helper {
 		return getError(individual.getFunctionValue());
 	}
 	
-	public static double getGlobalOptimum() {
-		return Properties.FUNCTION_NUMBER * 100;
-	}
-
 	public static double getError(double functionValue) {
-		return Math.abs(getGlobalOptimum() - functionValue);
+		double optimumValue = Properties.ARGUMENTS.get().getFunctionNumber() * 100;
+		return Math.abs(optimumValue - functionValue);
 	}
-	
+		
 	public static Individual newIndividualInitialized() {
-		Individual individual = new Individual(Properties.INDIVIDUAL_SIZE);
-		double functionValue = Helper.evaluate(individual.getId());
+		Individual individual = new Individual(Properties.ARGUMENTS.get().getIndividualSize());
+		double functionValue = Properties.ARGUMENTS.get().evaluateFunction(individual.getId());
 		individual.setFunctionValue(functionValue);
 		return individual;
 	}

@@ -17,15 +17,14 @@ public abstract class Algorithm {
 		};
 	}
 	
-	public abstract String getVariant();
-	
 	public abstract String[] getVariants();
 	
-	public abstract void setCurrentVariant(String variant);
-
-	public void initializeRun(int round) {
-		Helper.COUNT_EVALUATIONS = 0;
+	private void initializeRound(int round) {
+		Properties.HELPER.set(newInstanceHelper());
+		Properties.ARGUMENTS.get().initializeCountEvaluations();
 	}
+	
+	protected abstract AlgorithmHelper newInstanceHelper();
 	
 	protected boolean terminated(Population population) {
 		return Helper.terminateRun(population);
@@ -33,7 +32,7 @@ public abstract class Algorithm {
 	
 	protected void executeRoud(Initializable initializable, Statistic statistic, int round) throws Exception {
 		statistic.startRound();
-		initializeRun(round);
+		initializeRound(round);
 		Population population = new Population(initializable);
 		while (!terminated(population)) {
 			this.run(population, statistic, round);
@@ -41,20 +40,26 @@ public abstract class Algorithm {
 		statistic.addRound(population);
 	}
 
-	/**
-	 * @throws Exception
-	 */
-	public void main() throws Exception {
-		Statistic statistic = new Statistic(this);
-		for (int functionNumber : Properties.FUNCTIONS) { // loop functions
-			Helper.changeFunction(Properties.INDIVIDUAL_SIZE, functionNumber);
-			statistic.startFunction();
-			Initializable initializable = this.getIntializable();
-			for (int round = 0; round < Properties.MAX_RUNS; round++) { // loop rounds or generations
-				executeRoud(initializable, statistic, round);
-			}
-			statistic.endFunction();
+	public void main(String name, int individualSize, String variant) throws Exception {
+		for (int functionNumber : Properties.FUNCTION_NUMBERS) { // loop functions
+			Runnable runnable = () -> {
+				try {
+					AlgorithmArguments arguments = new AlgorithmArguments(name, variant, functionNumber, individualSize);
+					Properties.ARGUMENTS.set(arguments);
+
+					Statistic statistic = new Statistic();
+					Initializable initializable = this.getIntializable();
+					for (int round = 0; round < Properties.MAX_RUNS; round++) { // loop rounds or generations
+						executeRoud(initializable, statistic, round);
+					}
+					statistic.close();
+
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			};
+			Thread thread = new Thread(runnable);
+			thread.start();
 		}
-		statistic.end();
 	}
 }

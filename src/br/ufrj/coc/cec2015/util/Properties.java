@@ -3,6 +3,10 @@ package br.ufrj.coc.cec2015.util;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.stream.Stream;
+
+import br.ufrj.coc.cec2015.algorithm.AlgorithmArguments;
+import br.ufrj.coc.cec2015.algorithm.AlgorithmHelper;
 
 /**
  * @author Leonardo
@@ -10,51 +14,42 @@ import java.util.ResourceBundle;
 public class Properties {
 	static ResourceBundle bundle = ResourceBundle.getBundle("cec2015");
 
+	public static ThreadLocal<AlgorithmHelper> HELPER = new ThreadLocal<>();
+	public static ThreadLocal<AlgorithmArguments> ARGUMENTS = new ThreadLocal<>();
+
 	public static double[] SEARCH_RANGE;
 	static {
 		double min = Double.parseDouble(bundle.getString("SEARCH_RANGE_MIN"));
 		double max = Double.parseDouble(bundle.getString("SEARCH_RANGE_MAX"));
 		SEARCH_RANGE = new double[] { min, max };
 	}
-
 	public static int MAX_RUNS = Integer.parseInt(bundle.getString("MAX_RUNS"));
 	public static double MIN_ERROR_VALUE = 1.0 * Double.parseDouble(bundle.getString("MIN_ERROR_VALUE"));
+	public static String RESULTS_ROOT = Properties.class.getResource("/") + bundle.getString("RESULTS_ROOT");
 
-	public static int FUNCTION_NUMBER;
-	public static int[] FUNCTIONS;
+	// -------------------------------------------------------------------------------
+	// -------------------- CEC 2015 FUNCTIONS ---------------------------------------
+	// -------------------------------------------------------------------------------
+	public static int[] FUNCTION_NUMBERS;
 	static {
 		String[] functionNumbers = bundle.getString("FUNCTIONS").split(",");
-		FUNCTIONS = new int[functionNumbers.length];
+		FUNCTION_NUMBERS = new int[functionNumbers.length];
 		for (int index = 0; index < functionNumbers.length; index++)
-			FUNCTIONS[index] = Integer.parseInt(functionNumbers[index]);
+			FUNCTION_NUMBERS[index] = Integer.parseInt(functionNumbers[index]);
 	}
 
+	// -------------------------------------------------------------------------------
+	// -------------------- ALGORITHMS -----------------------------------------------
+	// -------------------------------------------------------------------------------
 	public static String[] ALGORITHMS = bundle.getString("ALGORITHMS").split(",");
-	private static Map<String, Integer> POPULATION_SIZES = new HashMap<>(ALGORITHMS.length);
+	public static Map<String, Integer> POPULATION_SIZES = new HashMap<>(ALGORITHMS.length);
 	static {
 		for (String algorithm : ALGORITHMS)
 			POPULATION_SIZES.put(algorithm, Integer.parseInt(bundle.getString("POPULATION_SIZE." + algorithm)));
 	}
-	private static String CURRENT_ALGORITHM;
-	public static int POPULATION_SIZE;
-	public static void resetPopulationSize() {
-		POPULATION_SIZE = POPULATION_SIZES.get(CURRENT_ALGORITHM);
-	}
-	public static void setCurrentAlgorithm(String algorithm) {
-		CURRENT_ALGORITHM = algorithm;
-		resetPopulationSize();
-	}
-	public static String[] INDIVIDUAL_SIZES = bundle.getString("INDIVIDUAL_SIZE").split(",");
-	public static int INDIVIDUAL_SIZE;
-	public static int MAX_FES;
-	public static void setCurrentIndividualSize(int individualSize) {
-		INDIVIDUAL_SIZE = individualSize;
-		MAX_FES = 10000 * INDIVIDUAL_SIZE;
-	}
-	public static void setPopulationSize(int populationSize) {
-		POPULATION_SIZE = populationSize;
-	}
-	
 
-	public static String RESULTS_ROOT = Properties.class.getResource("/") + bundle.getString("RESULTS_ROOT");
+	// -------------------------------------------------------------------------------
+	// -------------------- DIMENSIONS -----------------------------------------------
+	// -------------------------------------------------------------------------------
+	public static int[] INDIVIDUAL_SIZES = Stream.of(bundle.getString("INDIVIDUAL_SIZE").split(",")).mapToInt(Integer::parseInt).toArray();
 }

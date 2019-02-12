@@ -15,7 +15,7 @@ public class ABC extends Algorithm {
 	}
 	
 	@Override
-	public void setCurrentVariant(String variant) {
+	public void initialize(String variant) {
 		ABCProperties.setVariant(variant);
 	}
 	

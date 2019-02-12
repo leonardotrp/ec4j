@@ -16,11 +16,11 @@ import br.ufrj.coc.cec2015.util.Statistic;
 public class CMAES extends Algorithm {
 	private CMAEvolutionStrategy cma;
 	
-	@Override
-	public void initializeRun(int round) {
-		super.initializeRun(round);
+	//@Override
+	//public void initializeRun(int round) {
+	//	super.initializeRun(round);
 		//Properties.resetPopulationSize();
-	}
+	//}
 	
 	@Override
 	public void run(Population population, Statistic statistic, int round) throws Exception {
@@ -177,6 +177,6 @@ public class CMAES extends Algorithm {
 	}
 
 	@Override
-	public void setCurrentVariant(String variant) {
+	public void initialize(String variant) {
 	}
 }

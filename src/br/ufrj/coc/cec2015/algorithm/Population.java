@@ -19,7 +19,7 @@ public class Population implements Cloneable {
 	}
 
 	public Population(Initializable initializable) {
-		this(initializable, Properties.POPULATION_SIZE);
+		this(initializable, Properties.ARGUMENTS.get().getPopulationSize());
 	}
 	
 	public void load(double[][] population) {
@@ -119,14 +119,14 @@ public class Population implements Cloneable {
 	@Override
 	public Population clone() throws CloneNotSupportedException {
 		Population clone = (Population) super.clone();
-		clone.individuals = new ArrayList<Individual>(Properties.POPULATION_SIZE);
+		clone.individuals = new ArrayList<Individual>(Properties.ARGUMENTS.get().getPopulationSize());
 		clone.individuals.addAll(this.individuals);
 		return clone;
 	}
 	
 	public Object cloneAll() throws CloneNotSupportedException {
 		Population clone = (Population) super.clone();
-		clone.individuals = new ArrayList<Individual>(Properties.POPULATION_SIZE);
+		clone.individuals = new ArrayList<Individual>(Properties.ARGUMENTS.get().getPopulationSize());
 		for (Individual individual : this.individuals) {
 			Individual individualClone = (Individual) individual.clone();
 			clone.individuals.add(individualClone);
