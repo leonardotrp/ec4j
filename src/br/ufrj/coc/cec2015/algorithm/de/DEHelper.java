@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 
 import br.ufrj.coc.cec2015.algorithm.AlgorithmHelper;
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Population;
+import br.ufrj.coc.cec2015.math.MatrixUtil;
+import br.ufrj.coc.cec2015.math.MatrixUtil.EigenMethod;
 import br.ufrj.coc.cec2015.util.Helper;
 import br.ufrj.coc.cec2015.util.Properties;
 
@@ -247,48 +247,11 @@ public class DEHelper implements AlgorithmHelper {
 		else
 			return generateTrialVectorBin(current, base, destiny, partners);
 	}
-	private static RealMatrix getEigenDecomposition(Population population) {
-		int D = Properties.ARGUMENTS.get().getIndividualSize();
-		int NP = population.size();
-		
-		// Covariance matrix (12)
-		double[][] C = new double[D][D];
-		double[] m = new double[D];
-
-		for (int j = 0; j < D; ++j) {
-			m[j] = population.get(0).get(j);
-		}
-
-		for (int i = 1; i < NP; ++i) {
-			for (int j = 0; j < D; ++j) {
-				m[j] += population.get(i).get(j);
-			}
-		}
-
-		for (int i = 0; i < D; ++i) {
-			m[i] /= NP;
-		}
-		
-		for (int i = 0; i < D; ++i) {
-			for (int j = 0; j < D; ++j) {
-				C[i][j] = 0;
-				for (int k = 0; k < NP; ++k) {
-					C[i][j] += (population.get(k).get(i) - m[i]) * (population.get(k).get(j) - m[j]);
-				}
-				C[i][j] /= (NP - 1);
-			}
-		}
-		
-		// Eigendecomposition (14)
-		RealMatrix RM_C = new Array2DRowRealMatrix(C);
-		RealMatrix RM_Q = new EigenDecomposition(RM_C).getV();
-		return RM_Q;
-	}
 	// ======================================= JADE =======================================
 	private RealMatrix eigenDecomposition;
-	private JADEFunctions jadeFunctions;
+	private JADEHelper jadeFunctions;
 	private void initialize() {
-		jadeFunctions = new JADEFunctions();
+		jadeFunctions = new JADEHelper();
 		if (this.properties.isJADE())
 			jadeFunctions.initialize();
 		this.eigenDecomposition = null;
@@ -297,7 +260,9 @@ public class DEHelper implements AlgorithmHelper {
 		if (this.properties.isJADE())
 			jadeFunctions.initializeGeneration(this.population);
 		if (this.properties.isEigenvectorCrossover()) {
-			eigenDecomposition = getEigenDecomposition(this.population);
+			EigenMethod eigenMethod = EigenMethod.valueOf(DEProperties.EIG_METHOD);			
+			RealMatrix covarianceMatrix = MatrixUtil.getCovarianceMatrix(this.population.toMatrix());
+			eigenDecomposition = MatrixUtil.getEigenDecomposition(covarianceMatrix, eigenMethod);
 		}
 	}
 	public void generateControlParameters(Individual individual) {

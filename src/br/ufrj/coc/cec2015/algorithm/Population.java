@@ -133,4 +133,14 @@ public class Population implements Cloneable {
 		}
 		return clone;
 	}
+	
+	public double[][] toMatrix() {
+		int populationSize = this.size();
+		int individualSize = this.get(0).size();
+		double[][] matrix = new double[populationSize][individualSize];
+		for (int i = 0; i < populationSize; i++)
+			for (int j = 0; j < individualSize; j++)
+				matrix[i][j] = this.get(i).get(j);
+		return matrix;
+	}
 }

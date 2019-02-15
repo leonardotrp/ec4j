@@ -12,7 +12,7 @@ import br.ufrj.coc.cec2015.algorithm.Population;
 import br.ufrj.coc.cec2015.util.Helper;
 import br.ufrj.coc.cec2015.util.Statistic;
 
-public class JADEFunctions {
+public class JADEHelper {
 	private double mean_CR, location_F;
 
 	private Population population;
@@ -23,7 +23,7 @@ public class JADEFunctions {
 	// Denote SF as the set of all successful mutation factors in generation g.
 	private List<Double> successDiffWeights = new ArrayList<>();
 	
-	public JADEFunctions() {
+	public JADEHelper() {
 		super();
 	}
 	
