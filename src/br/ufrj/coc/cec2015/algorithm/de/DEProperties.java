@@ -16,7 +16,6 @@ public class DEProperties {
 	public static double ADAPTATION_RATE = Double.parseDouble(bundle.getString("ADAPTATION_RATE"));
 	public static double GREEDINESS = Double.parseDouble(bundle.getString("GREEDINESS"));
 	public static double EIG_RATE = Double.parseDouble(bundle.getString("EIG_RATE"));
-	public static String EIG_METHOD = bundle.getString("EIG_METHOD");
 	public enum Strategy {
 		BEST, RAND, RE_BASE, RE_ALL, // BEST_2_OPT, RAND_2_OPT, RE_2_OPT
 		CURRENT_TO_BEST,

@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 
 import br.ufrj.coc.cec2015.algorithm.AlgorithmHelper;
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Population;
 import br.ufrj.coc.cec2015.math.MatrixUtil;
-import br.ufrj.coc.cec2015.math.MatrixUtil.EigenMethod;
 import br.ufrj.coc.cec2015.util.Helper;
 import br.ufrj.coc.cec2015.util.Properties;
 
@@ -195,41 +195,57 @@ public class DEHelper implements AlgorithmHelper {
 	private double[] generateTrialVectorEig(Individual current, Individual base, Individual destiny, List<Individual> partners) {
 		double differencialWeight = getDifferencialWeight(current);
 		int individualSize = Properties.ARGUMENTS.get().getIndividualSize();
+
 		double[] X = current.getId();
 		double[] V = new double[individualSize]; /* Vi */
 		for (int j = 0; j < individualSize; j++) {
 			V[j] = mutate(j, differencialWeight, base, destiny, partners).doubleValue();
 		}
-
-		double[] QX = new double[individualSize]; /* QX */
-		double[] QV = new double[individualSize]; /* QX */
+		
+		//System.out.println("\nX = " + Arrays.toString(X));
+		//System.out.println("V = " + Arrays.toString(V));
+		
+		RealMatrix Q = eigenDecomposition.getV(); // Qg
+		
+		double[] QX = new double[individualSize];
+		double[] QV = new double[individualSize];
 		for (int j = 0; j < individualSize; j++) {
 			QX[j] = 0;
 			QV[j] = 0;
 			for (int k = 0; k < individualSize; k++) {
-				QX[j] += eigenDecomposition.getEntry(j, k) * QX[j]; /* Qg.Xi */
-				QV[j] += eigenDecomposition.getEntry(j, k) * QV[j]; /* Qg.Vi */
+				//System.out.println("QX["+j+"] = QX["+j+"] + (Q.getEntry("+k+", "+j+") * X["+k+"]) = " + QX[j] + " + (" + Q.getEntry(k, j) + " * " + X[k] + ") = " + (QX[j] + Q.getEntry(k, j) * X[k]));
+				QX[j] += Q.getEntry(k, j) * X[k]; /* Qg.Xi */
+				QV[j] += Q.getEntry(k, j) * V[k]; /* Qg.Vi */
+				//System.out.println("Q.getEntry("+k+", "+j+") * V["+k+"] = " + Q.getEntry(k, j) + " * " + V[k] + " = " + Q.getEntry(k, j) * V[k]);
 			}
 		}
+		
+		//System.out.println("\nQX = " + Arrays.toString(QX));
 
-		double[] QU = new double[individualSize]; /* Vi */
+		double[] QU = new double[individualSize]; /* xover(Qg.Xi, Qg.Vi) */
 		for (int j = 0; j < individualSize; j++) {
 			int randI = Helper.randomInRange(0, individualSize - 1);
 			if (canCrossover(current) || j == randI) {
-				QU[j] = V[j];
+				QU[j] = QV[j];
 			}
 			else {
-				QU[j] = X[j];
+				QU[j] = QX[j];
 			}
 		}
+		
+		//System.out.println("\nQU = " + Arrays.toString(QU));
 
+		RealMatrix QT = eigenDecomposition.getVT(); // Qg*
+		
 		double[] trialVector = new double[individualSize];
 		for (int j = 0; j < individualSize; j++) {
 			trialVector[j] = 0;
 			for (int k = 0; k < individualSize; k++) {
-				trialVector[j] += eigenDecomposition.getEntry(j, k) * QU[j]; /* Qg* . xover(Qg.Xi, Qg.Vi) */
+				//System.out.println("trialVector["+j+"] = trialVector["+j+"] + (QT.getEntry("+k+", "+j+") * QU["+k+"]) = " + trialVector[j] + " + (" + QT.getEntry(k, j) + " * " + QU[k] + ") = " + (trialVector[j] + QT.getEntry(k, j) * QU[k]));
+				trialVector[j] += QT.getEntry(k, j) * QU[k]; /* Qg* . xover(Qg.Xi, Qg.Vi) */
 			}
 		}
+		//System.out.println("\ntrialVector = " + Arrays.toString(trialVector));
 		return trialVector; // Ui,G+1
 	}
 	public double[] generateTrialVector(Individual current /* Xi,G */) {
@@ -248,7 +264,7 @@ public class DEHelper implements AlgorithmHelper {
 			return generateTrialVectorBin(current, base, destiny, partners);
 	}
 	// ======================================= JADE =======================================
-	private RealMatrix eigenDecomposition;
+	private EigenDecomposition eigenDecomposition;
 	private JADEHelper jadeFunctions;
 	private void initialize() {
 		jadeFunctions = new JADEHelper();
@@ -260,9 +276,8 @@ public class DEHelper implements AlgorithmHelper {
 		if (this.properties.isJADE())
 			jadeFunctions.initializeGeneration(this.population);
 		if (this.properties.isEigenvectorCrossover()) {
-			EigenMethod eigenMethod = EigenMethod.valueOf(DEProperties.EIG_METHOD);			
-			RealMatrix covarianceMatrix = MatrixUtil.getCovarianceMatrix(this.population.toMatrix());
-			eigenDecomposition = MatrixUtil.getEigenDecomposition(covarianceMatrix, eigenMethod);
+			//RealMatrix covarianceMatrix = MatrixUtil.getCovarianceMatrix(this.population.toMatrix());
+			eigenDecomposition = MatrixUtil.getEigenDecomposition(this.population);
 		}
 	}
 	public void generateControlParameters(Individual individual) {

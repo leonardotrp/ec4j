@@ -34,31 +34,31 @@ public class DE extends Algorithm {
 		};
 	}
 
-	public DEHelper getDEFunctions() {
+	public DEHelper getDEHelper() {
 		return (DEHelper) Properties.HELPER.get();
 	}
 	
 	@Override
 	public void run(Population population, Statistic statistic, int round) throws Exception {
-		getDEFunctions().initializeGeneration(population);
+		getDEHelper().initializeGeneration(population);
 		for (Individual current : population.getIndividuals()) {
-			getDEFunctions().generateControlParameters(current);
+			getDEHelper().generateControlParameters(current);
 
-			double[] trialVector = getDEFunctions().generateTrialVector(current);
+			double[] trialVector = getDEHelper().generateTrialVector(current);
 			double functionValue = Properties.ARGUMENTS.get().evaluateFunction(trialVector);
 
 			if (functionValue < current.getFunctionValue()) {
 				Individual inferior = current.clone();
-				getDEFunctions().addInferior(inferior); // Xi,g => A
+				getDEHelper().addInferior(inferior); // Xi,g => A
 
 				current.setId(trialVector);
 				current.setFunctionValue(functionValue);
 				population.updateBestError(current);
 
-				getDEFunctions().addSuccessful(current); // CRi => Scr | Fi => Sf
+				getDEHelper().addSuccessful(current); // CRi => Scr | Fi => Sf
 			}
 			statistic.verifyEvaluationInstant(round, population);
 		}
-		getDEFunctions().finalizeGeneration();
+		getDEHelper().finalizeGeneration();
 	}
 }

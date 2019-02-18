@@ -170,7 +170,7 @@ public class Statistic {
 	
 	private int getBestRound() {
 		int bestRound = 0;
-		int minErrorsCount = Properties.MAX_RUNS;
+		int minErrorsCount = Integer.MAX_VALUE;
 		double minimum = Double.MAX_VALUE;
 		for (int round = 1; round <= Properties.MAX_RUNS; round++) {
 			List<Double> roundErrors = errorEvolution.get(round - 1);
