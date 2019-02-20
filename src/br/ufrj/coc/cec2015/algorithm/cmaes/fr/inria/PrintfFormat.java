@@ -26,10 +26,10 @@ package br.ufrj.coc.cec2015.algorithm.cmaes.fr.inria;
 // information for the Java Technology.
 //
 
-import java.util.Enumeration;
-import java.util.Vector;
-import java.util.Locale;
 import java.text.DecimalFormatSymbols;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Vector;
 
 /**
  * PrintfFormat allows the formatting of an array of
@@ -438,6 +438,7 @@ import java.text.DecimalFormatSymbols;
  *              formatting of -0.0f
  *              round up/down when last digits are 50000...
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class PrintfFormat {
 
   /**
@@ -469,7 +470,7 @@ public class PrintfFormat {
    * string is null, zero length, or otherwise
    * malformed.
    */
-  public PrintfFormat(Locale locale, String fmtArg)
+public PrintfFormat(Locale locale, String fmtArg)
           throws IllegalArgumentException {
     dfs = new DecimalFormatSymbols(locale);
     int ePos = 0;
@@ -552,7 +553,7 @@ public class PrintfFormat {
    *     to the beginning of the control string.
    */
   private String nonControl(String s, int start) {
-    String ret = "";
+    //String ret = "";
     cPos = s.indexOf("%", start);
     if (cPos == -1) {
       cPos = s.length();
@@ -568,7 +569,7 @@ public class PrintfFormat {
    * @param o The array of objects to format.
    * @return  The formatted String.
    */
-  public String sprintf(Object[] o) {
+public String sprintf(Object[] o) {
     Enumeration e = vFmt.elements();
     ConversionSpecification cs = null;
     char c = 0;
@@ -1253,7 +1254,7 @@ public class PrintfFormat {
      */
     private char[] fFormatDigits(double x) {
       // int defaultDigits=6;
-      String sx, sxOut;
+      String sx;//, sxOut;
       int i, j, k;
       int n1In, n2In;
       int expon = 0;
@@ -1503,7 +1504,7 @@ public class PrintfFormat {
      * @return the converted double value.
      */
     private String fFormatString(double x) {
-      boolean noDigits = false;
+      //boolean noDigits = false;
       char[] ca6, ca7;
       if (Double.isInfinite(x)) {
         if (x == Double.POSITIVE_INFINITY) {
@@ -1517,7 +1518,7 @@ public class PrintfFormat {
         } else {
           ca6 = "-Inf".toCharArray();
         }
-        noDigits = true;
+        //noDigits = true;
       } else if (Double.isNaN(x)) {
         if (leadingSign) {
           ca6 = "+NaN".toCharArray();
@@ -1526,7 +1527,7 @@ public class PrintfFormat {
         } else {
           ca6 = "NaN".toCharArray();
         }
-        noDigits = true;
+        //noDigits = true;
       } else {
         ca6 = fFormatDigits(x);
       }
@@ -1567,9 +1568,9 @@ public class PrintfFormat {
     private char[] eFormatDigits(double x, char eChar) {
       char[] ca1, ca2, ca3;
       // int defaultDigits=6;
-      String sx, sxOut;
+      String sx;//, sxOut;
       int i, j, k, p;
-      int n1In, n2In;
+      //int n1In, n2In;
       int expon = 0;
       int ePos, rPos, eSize;
       boolean minusSign = false;
@@ -1590,7 +1591,7 @@ public class PrintfFormat {
         ePos = sx.indexOf('e');
       }
       rPos = sx.indexOf('.');
-      if (rPos != -1) {
+      /*if (rPos != -1) {
         n1In = rPos;
       } else if (ePos != -1) {
         n1In = ePos;
@@ -1605,7 +1606,7 @@ public class PrintfFormat {
         }
       } else {
         n2In = 0;
-      }
+      }*/
       if (ePos != -1) {
         int ie = ePos + 1;
         expon = 0;
@@ -2014,7 +2015,7 @@ public class PrintfFormat {
      * @return the converted double value.
      */
     private String eFormatString(double x, char eChar) {
-      boolean noDigits = false;
+      //boolean noDigits = false;
       char[] ca4, ca5;
       if (Double.isInfinite(x)) {
         if (x == Double.POSITIVE_INFINITY) {
@@ -2028,7 +2029,7 @@ public class PrintfFormat {
         } else {
           ca4 = "-Inf".toCharArray();
         }
-        noDigits = true;
+        //noDigits = true;
       } else if (Double.isNaN(x)) {
         if (leadingSign) {
           ca4 = "+NaN".toCharArray();
@@ -2037,7 +2038,7 @@ public class PrintfFormat {
         } else {
           ca4 = "NaN".toCharArray();
         }
-        noDigits = true;
+        //noDigits = true;
       } else {
         ca4 = eFormatDigits(x, eChar);
       }
@@ -2156,7 +2157,7 @@ public class PrintfFormat {
       int savePrecision = precision;
       int i;
       char[] ca4, ca5;
-      boolean noDigits = false;
+      //boolean noDigits = false;
       if (Double.isInfinite(x)) {
         if (x == Double.POSITIVE_INFINITY) {
           if (leadingSign) {
@@ -2169,7 +2170,7 @@ public class PrintfFormat {
         } else {
           ca4 = "-Inf".toCharArray();
         }
-        noDigits = true;
+        //noDigits = true;
       } else if (Double.isNaN(x)) {
         if (leadingSign) {
           ca4 = "+NaN".toCharArray();
@@ -2178,7 +2179,7 @@ public class PrintfFormat {
         } else {
           ca4 = "NaN".toCharArray();
         }
-        noDigits = true;
+        //noDigits = true;
       } else {
         if (!precisionSet) {
           precision = defaultDigits;

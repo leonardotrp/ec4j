@@ -1,10 +1,12 @@
 package br.ufrj.coc.cec2015.algorithm.pso;
 
 import br.ufrj.coc.cec2015.algorithm.Algorithm;
+import br.ufrj.coc.cec2015.algorithm.AlgorithmHelper;
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Initializable;
 import br.ufrj.coc.cec2015.algorithm.Population;
 import br.ufrj.coc.cec2015.util.Helper;
+import br.ufrj.coc.cec2015.util.Properties;
 import br.ufrj.coc.cec2015.util.Statistic;
 
 public class PSO extends Algorithm {
@@ -15,13 +17,12 @@ public class PSO extends Algorithm {
 	}
 	
 	@Override
-	public void initialize(String variant) {
-		PSOProperties.setVariant(variant);
+	protected AlgorithmHelper newInstanceHelper() {
+		return new PSOHelper();
 	}
 	
-	@Override
-	public String getVariant() {
-		return PSOProperties.VARIANT;
+	private PSOHelper getPSOHelper() {
+		return (PSOHelper) Properties.HELPER.get();
 	}
 	
 	@Override
@@ -41,14 +42,14 @@ public class PSO extends Algorithm {
 	@Override
 	public void run(Population swarm, Statistic statistic, int round) throws Exception {
 		
-		PSOHelper.beforeRun(swarm);
+		getPSOHelper().initializeGeneration(swarm);
 		
 		for (int index = 0; index < swarm.size(); index++) {
 			Individual particle = swarm.get(index);
 			
-			PSOHelper.moveParticle(swarm, index);
+			getPSOHelper().moveParticle(index);
 
-			double functionValue = Helper.evaluate(particle.getId());
+			double functionValue = Properties.ARGUMENTS.get().evaluateFunction(particle.getId());
 			updateBest(swarm, particle, functionValue);
 			statistic.verifyEvaluationInstant(round, swarm);
 			/*
@@ -61,8 +62,7 @@ public class PSO extends Algorithm {
 			}
 			*/
 		}
-		
-		PSOHelper.afterRun(swarm);
+		getPSOHelper().afterRun(swarm);
 	}
 
 	private void updateBest(Population swarm, Individual particle, double functionValue) throws CloneNotSupportedException {

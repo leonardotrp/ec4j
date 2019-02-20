@@ -1,10 +1,12 @@
 package br.ufrj.coc.cec2015.algorithm.abc;
 
 import br.ufrj.coc.cec2015.algorithm.Algorithm;
+import br.ufrj.coc.cec2015.algorithm.AlgorithmHelper;
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Initializable;
 import br.ufrj.coc.cec2015.algorithm.Population;
 import br.ufrj.coc.cec2015.algorithm.de.DEProperties;
+import br.ufrj.coc.cec2015.util.Properties;
 import br.ufrj.coc.cec2015.util.Statistic;
 
 public class ABC extends Algorithm {
@@ -15,13 +17,12 @@ public class ABC extends Algorithm {
 	}
 	
 	@Override
-	public void initialize(String variant) {
-		ABCProperties.setVariant(variant);
+	protected AlgorithmHelper newInstanceHelper() {
+		return new ABCHelper();
 	}
-	
-	@Override
-	public String getVariant() {
-		return ABCProperties.VARIANT;
+
+	public ABCHelper getABCHelper() {
+		return (ABCHelper) Properties.HELPER.get();
 	}
 	
 	@Override
@@ -31,7 +32,6 @@ public class ABC extends Algorithm {
 			public Individual newInitialized() {
 				Individual individual = ABCHelper.newInstanceFood();
 				individual.setCrossoverRate(DEProperties.CROSSOVER_RATE);
-				individual.setDifferencialWeight(DEProperties.DIFFERENTIAL_WEIGHT);
 				return individual;
 			}
 		};
@@ -39,14 +39,15 @@ public class ABC extends Algorithm {
 	
 	@Override
 	public void run(Population foodSources, Statistic statistic, int round) throws Exception {
+		getABCHelper().initializeGeneration(foodSources);
 
 		// send employee bees
-		ABCHelper.sendEmployedBees(foodSources, statistic, round);
+		getABCHelper().sendEmployedBees(statistic, round);
 		
 		// send onlooker bees
-		ABCHelper.sendOnLookerBees(foodSources, statistic, round);
+		getABCHelper().sendOnLookerBees(statistic, round);
 		
 		// send sout bees
-		ABCHelper.sendScoutBees(foodSources, statistic, round);
+		getABCHelper().sendScoutBees(statistic, round);
 	}
 }

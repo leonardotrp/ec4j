@@ -1,16 +1,9 @@
 package br.ufrj.coc.cec2015.lab;
 
-import java.util.Arrays;
-
-import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.stat.correlation.Covariance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import br.ufrj.coc.cec2015.math.MatrixUtil;
-import br.ufrj.coc.cec2015.math.MatrixUtil.EigenMethod;
-
-class TestEIG {
+class TestLab {
 	
 	@BeforeEach
 	void setUp() throws Exception {
@@ -18,6 +11,7 @@ class TestEIG {
 
 	@Test
 	void test() {
+		/*
 		// fail("Not yet implemented");
 		double[][] population = new double[5][2];
 		
@@ -25,13 +19,13 @@ class TestEIG {
 		population[0][0] = 1.95;
 		population[0][1] = 93.1; // Pedro
 		population[1][0] = 1.96;
-		population[1][1] = 93.9; // João
+		population[1][1] = 93.9; // Joï¿½o
 		population[2][0] = 1.95;
-		population[2][1] = 89.9; // José
+		population[2][1] = 89.9; // Josï¿½
 		population[3][0] = 1.98;
 		population[3][1] = 95.1; // Renato
 		population[4][0] = 2.10;
-		population[4][1] = 100.2; // André
+		population[4][1] = 100.2; // Andrï¿½
 		/*
 		// Dados do exemplo em https://www.youtube.com/watch?v=vsxljNBuZP0
 		population[0][0] = 1;
@@ -45,7 +39,7 @@ class TestEIG {
 		population[2][0] = -1;
 		population[2][1] = -2;
 		population[2][2] = -1;
-		*/
+		
 		System.out.println("MATRIX");
 		for (int index = 0; index < population.length; index++)
 			System.out.println(Arrays.toString(population[index]));

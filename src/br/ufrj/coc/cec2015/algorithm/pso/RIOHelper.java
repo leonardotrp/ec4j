@@ -10,9 +10,10 @@ import br.ufrj.coc.cec2015.util.Properties;
 import br.ufrj.coc.cec2015.util.Statistic;
 
 public class RIOHelper {
-	public static double[][] distanceMatrix = new double[Properties.POPULATION_SIZE][Properties.POPULATION_SIZE]; /* M */
-	private static List<Double> distances = new ArrayList<>();
-	public static double distanceMedian; /* d_g */
+	private Population cockroaches;
+	private double[][] distanceMatrix; /* M */
+	private List<Double> distances = new ArrayList<>();
+	private double distanceMedian; /* d_g */
 
 	private static double distance(Individual roachI, Individual roachK) {
 		double distance = 0.0;
@@ -22,8 +23,14 @@ public class RIOHelper {
 		return Math.sqrt(distance);
 	}
 	
-	protected static void prepareCockroaches(Population cockroaches) {
-		int N = Properties.POPULATION_SIZE;
+	public RIOHelper(Population cockroaches) {
+		this.cockroaches = cockroaches;
+		this.prepareCockroaches();
+	}
+	
+	private void prepareCockroaches() {
+		int N = this.cockroaches.size();
+		distanceMatrix = new double[N][N]; /* M */
 		distances.clear();
 		
 		for (int indexJ = 0; indexJ < N - 1; indexJ++) {
@@ -40,15 +47,15 @@ public class RIOHelper {
 		distanceMedian = Statistic.calculateMedian(distances);
 	}
 	
-	private static double getDistance(int indexI, int indexK) {
+	private double getDistance(int indexI, int indexK) {
 		return (indexI < indexK) ? distanceMatrix[indexI][indexK] : distanceMatrix[indexK][indexI];
 	}
 	
-	public static void socializing(Population cockroaches, int indexI) {
+	public void socializing(int indexI) {
 		// If a cockroach agent comes within a detection radius of another cockroach agent, then there is
 		// a probability of that these roaches will socialize (or group)
 		List<Individual> neighbors = new ArrayList<>(); /* {j} */
-		for (int indexK = 0; indexK < cockroaches.size(); indexK++) {
+		for (int indexK = 0; indexK < this.cockroaches.size(); indexK++) {
 			if (indexI != indexK) {
 				double distance = getDistance(indexI, indexK);
 				if (distance < distanceMedian) {
@@ -61,7 +68,7 @@ public class RIOHelper {
 		// This socializing is emulated in the algorithm by a sharing of information, where this information is
 		// the darkest known location. In essence, when two cockroach agents meet, there is a chance (stopRateForFriends) that 
 		// they will communicate their knowledge of the search space to each other
-		Individual agent = cockroaches.get(indexI);
+		Individual agent = this.cockroaches.get(indexI);
 		int stopRateForFriendsCount = PSOProperties.STOP_RATE_FOR_FRIENDS.length;
 		for (int indexK = 0; indexK < neighbors.size() /* N_i */; indexK++) {
 			double stopRateForFriends = (indexK < stopRateForFriendsCount) ? PSOProperties.STOP_RATE_FOR_FRIENDS[indexK] : PSOProperties.STOP_RATE_FOR_FRIENDS[stopRateForFriendsCount - 1];
@@ -81,11 +88,11 @@ public class RIOHelper {
 	}
 	
 	public static double[] randomFoodLocation() {
-		return new Individual(Properties.INDIVIDUAL_SIZE).getId();
+		return new Individual(Properties.ARGUMENTS.get().getIndividualSize()).getId();
 	}
 
-	public static void incrementHungerCounters(Population swarm) {
-		for (Individual roach : swarm.getIndividuals()) {
+	public void incrementHungerCounters() {
+		for (Individual roach : this.cockroaches.getIndividuals()) {
 			roach.incrementHungerCount();
 		}
 	}

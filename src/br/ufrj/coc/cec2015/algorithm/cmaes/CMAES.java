@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import br.ufrj.coc.cec2015.algorithm.Algorithm;
+import br.ufrj.coc.cec2015.algorithm.AlgorithmHelper;
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Population;
 import br.ufrj.coc.cec2015.algorithm.cmaes.fr.inria.CMAEvolutionStrategy;
@@ -14,31 +15,34 @@ import br.ufrj.coc.cec2015.util.Properties;
 import br.ufrj.coc.cec2015.util.Statistic;
 
 public class CMAES extends Algorithm {
-	private CMAEvolutionStrategy cma;
-	
-	//@Override
-	//public void initializeRun(int round) {
-	//	super.initializeRun(round);
-		//Properties.resetPopulationSize();
-	//}
+
+	@Override
+	public String[] getVariants() {
+		return new String[] {"IPOP"};
+	}
+
+	@Override
+	protected AlgorithmHelper newInstanceHelper() {
+		return null;
+	}
 	
 	@Override
 	public void run(Population population, Statistic statistic, int round) throws Exception {
 		int irun, nbRuns=1;  // restarts, re-read from properties file below
         double [] fitness; 
         CMASolution bestSolution = null; // initialization to allow compilation
-        long counteval = Helper.COUNT_EVALUATIONS;              // variables used for restart
+        long counteval = Properties.ARGUMENTS.get().getCountEvaluations();   // variables used for restart
         int lambda = 0;
 		
 		for (irun = 0; irun < nbRuns; irun++) {
 
-			cma = new CMAEvolutionStrategy();
+			CMAEvolutionStrategy cma = new CMAEvolutionStrategy();
 
 	    	// read properties file and obtain some values for "private" use
 	    	cma.readProperties(); // reads from file CMAEvolutionStrategy.properties
-	    	cma.setDimension(Properties.INDIVIDUAL_SIZE);
+	    	cma.setDimension(Properties.ARGUMENTS.get().getIndividualSize());
 	    	cma.setInitialX(Properties.SEARCH_RANGE[0], Properties.SEARCH_RANGE[1]);
-	    	cma.options.stopMaxFunEvals = Properties.MAX_FES;
+	    	cma.options.stopMaxFunEvals = Properties.ARGUMENTS.get().getMaxFES();
 	    	cma.options.stopFitness = Properties.MIN_ERROR_VALUE;
 	    	//cma.parameters.setPopulationSize(Properties.POPULATION_SIZE);// ==> λ = 4 + [3.log N] (CMAParameters.java - Linha 195)
 	    	cma.setInitialStandardDeviation(0.3);
@@ -84,7 +88,7 @@ public class CMAES extends Algorithm {
 					//while (!fitfun.isFeasible(pop[i]))     //   not located on (or very close to) the domain boundary,
 		        	double[] resample = cma.resampleSingle(i); //   initialX is feasible and initialStandardDeviations are sufficiently small to prevent quasi-infinite looping here
 		            // compute fitness/objective value
-		        	double functionValue = Helper.evaluate(resample);
+		        	double functionValue = Properties.ARGUMENTS.get().evaluateFunction(resample);
 		        	
 		        	Individual current = population.get(i);
 					current.setId(resample);
@@ -164,19 +168,5 @@ public class CMAES extends Algorithm {
                     + " best function value " + bestSolution.getFitness() 
                     + " at evaluation " + bestSolution.getEvaluationNumber());
         }
-	}
-
-	@Override
-	public String getVariant() {
-		return "IPOP";
-	}
-
-	@Override
-	public String[] getVariants() {
-		return new String[] {"IPOP"};
-	}
-
-	@Override
-	public void initialize(String variant) {
 	}
 }

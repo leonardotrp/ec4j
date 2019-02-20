@@ -90,6 +90,10 @@ public class AlgorithmArguments {
 		return this.countEvaluations >= this.maxFES;
 	}
 	
+	public double getEvolutionFactor() {
+		return 1 - (this.countEvaluations / this.maxFES);
+	}
+	
 	public String getPrefixFile() {
 		return this.name + '_' + this.variant.replace('/', '.') + "_P" + this.populationSize + "_F" + this.functionNumber + "_D" + this.individualSize;
 	}

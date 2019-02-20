@@ -138,10 +138,10 @@ public class CMAMinStep {
     // loop over all design variable directions
     for (int i = 0; i < N; ++i) {
       double z = 0;
-      double z2 = 0;
+      //double z2 = 0;
       for (int j = 0; j < N; ++j) {
         z += Math.pow(1/sigma/diagD[j]*Bmat[i][j]*lowStd[i], 2);   // compute directly vector length squared
-        z2 += Math.pow(1/sigma/diagD[j]*Bmat[i][j], 2);   // compute directly vector length squared
+        //z2 += Math.pow(1/sigma/diagD[j]*Bmat[i][j], 2);   // compute directly vector length squared
       }
       if (z > 1){
         CoVar[i][i] *= z;   // multiply diagonal elements
