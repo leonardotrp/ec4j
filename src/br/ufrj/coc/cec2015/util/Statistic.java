@@ -31,6 +31,7 @@ public class Statistic {
 
 	private BufferedWriter fileRoundErrors;
 	private BufferedWriter fileEvolutionOfErrors;
+	private BufferedWriter fileEvolutionOfPopulationSize;
 	private List<Double> roundErros = new ArrayList<Double>(Properties.MAX_RUNS);
 	private List<Long> timeRounds = new ArrayList<Long>(Properties.MAX_RUNS);
 	private static double[] EVALUATION_LIMITS = new double[] { 
@@ -50,7 +51,29 @@ public class Statistic {
 		0.9, 
 		1.0
 	};
-	private Map<Integer, List<Double>> errorEvolution; // <round number, lista de erro em cada rodada para cada instante definido>
+	class ErrorEvolution {
+		private Integer round;
+		private Double error;
+		private Integer populationSize;
+		public ErrorEvolution(Double error, Integer populationSize) {
+			super();
+			this.error = error;
+			this.populationSize = populationSize;
+		}
+		public Double getError() {
+			return error;
+		}
+		public Integer getPopulationSize() {
+			return populationSize;
+		}
+		public Integer getRound() {
+			return round;
+		}
+		public void setRound(Integer round) {
+			this.round = round;
+		}
+	}
+	private Map<Integer, List<ErrorEvolution>> errorEvolution; // <round number, lista de erro em cada rodada para cada instante definido>
 	private int successfulRuns;
 	
 	public Statistic() {
@@ -108,6 +131,9 @@ public class Statistic {
 
 			String fileEvolutionOfErrorsName = getFileName(algorithmName, prefixFile + "_evolution.csv");
 			this.fileEvolutionOfErrors = new BufferedWriter(new FileWriter(fileEvolutionOfErrorsName));
+
+			String fileEvolutionOfPopulationSizeName = getFileName(algorithmName, prefixFile + "_populationSize.csv");
+			this.fileEvolutionOfPopulationSize = new BufferedWriter(new FileWriter(fileEvolutionOfPopulationSizeName));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -119,9 +145,9 @@ public class Statistic {
 	
 	public void verifyEvaluationInstant(int round, Population population) {
 		int countEvaluations = Properties.ARGUMENTS.get().getCountEvaluations();
-		List<Double> roundErrors = errorEvolution.get(round);
+		List<ErrorEvolution> roundErrors = errorEvolution.get(round);
 		if (roundErrors == null) {
-			roundErrors = new ArrayList<Double>(EVALUATION_LIMITS.length);
+			roundErrors = new ArrayList<ErrorEvolution>(EVALUATION_LIMITS.length);
 			errorEvolution.put(round, roundErrors);
 		}
 		for (int indexEvaluation = 0; indexEvaluation < EVALUATION_LIMITS.length; indexEvaluation++) {
@@ -131,7 +157,7 @@ public class Statistic {
 					for (int index = roundErrors.size(); index < indexEvaluation; index++)
 						roundErrors.add(index, null);
 				}
-				roundErrors.add(indexEvaluation, population.getBestError());
+				roundErrors.add(indexEvaluation, new ErrorEvolution(population.getBestError(), population.size()));
 			}
 		}
 	}
@@ -149,18 +175,24 @@ public class Statistic {
 		String headLine = String.format(sbFormat.toString(), head);
 		
 		this.fileEvolutionOfErrors.write(headLine);
+		this.fileEvolutionOfPopulationSize.write(headLine);
 		System.err.println(headLine);
 	}
 
-	private void writeLineEvolutionOfErrors(Object[] values) throws IOException {
+	private void writeLineEvolutionOfErrors(Object[] errorValues, Object[] populationSizes) throws IOException {
 		StringBuffer sbFormat = new StringBuffer("%-30s");
 		for (int round = 0; round < Properties.MAX_RUNS + 1; round++) {
 			sbFormat.append(", %-22s");
 		}
 		sbFormat.append('\n');
-		String line = String.format(sbFormat.toString(), values);
-		this.fileEvolutionOfErrors.write(line);
-		System.out.println(line);
+
+		String errorLine = String.format(sbFormat.toString(), errorValues);
+		this.fileEvolutionOfErrors.write(errorLine);
+		
+		String popSizeLine = String.format(sbFormat.toString(), populationSizes);
+		this.fileEvolutionOfPopulationSize.write(popSizeLine);
+		
+		System.out.println(errorLine);
 	}
 	
 	private static String formatNumber(Double value) {
@@ -168,51 +200,69 @@ public class Statistic {
 	    return df.format(value); // 1.23456789E4		
 	}
 	
-	private int getBestRound() {
-		int bestRound = 0;
+	private ErrorEvolution getBestRound() {
 		int minErrorsCount = Integer.MAX_VALUE;
 		double minimum = Double.MAX_VALUE;
+		ErrorEvolution best = null;
 		for (int round = 1; round <= Properties.MAX_RUNS; round++) {
-			List<Double> roundErrors = errorEvolution.get(round - 1);
+			List<ErrorEvolution> roundErrors = errorEvolution.get(round - 1);
 			int countErros = (int) roundErrors.stream().filter(error -> error != null).count();
-			Double minRoundError = roundErrors.stream().filter(error -> error != null).min(Comparator.comparing(Double::valueOf)).get();
+			ErrorEvolution minRoundErrorEvolution = roundErrors.stream().filter(error -> error != null).min(Comparator.comparing(ErrorEvolution::getError)).get();
 			if (countErros < minErrorsCount) {
 				minErrorsCount = countErros;
-				bestRound = round;
-				minimum = minRoundError;
+				minimum = minRoundErrorEvolution.getError();
+				best = minRoundErrorEvolution;
+				best.setRound(round);
 			}
-			else if (countErros == minErrorsCount && minRoundError < minimum) {
-				bestRound = round;
-				minimum = minRoundError;
+			else if (countErros == minErrorsCount && minRoundErrorEvolution.getError() < minimum) {
+				minimum = minRoundErrorEvolution.getError();
+				best = minRoundErrorEvolution;
+				best.setRound(round);
 			}
 		}
-		return bestRound;
+		return best;
 	}
 	
 	private void writeEvolutionOfErros() throws IOException {
 		writeHeadEvolutionOfErrors();
 		for (int indexEvaluation = 0; indexEvaluation < EVALUATION_LIMITS.length; indexEvaluation++) {
-			BigDecimal mean = new BigDecimal(0.0);
-			Object[] values = new Object[Properties.MAX_RUNS + 2];
-			values[0] = EVALUATION_LIMITS[indexEvaluation];
+			BigDecimal errorMean = new BigDecimal(0.0);
+			BigDecimal popSizeMean = new BigDecimal(0.0);
+			
+			Object[] errorValues = new Object[Properties.MAX_RUNS + 2];
+			Object[] populationSizes = new Object[Properties.MAX_RUNS + 2];
+			
+			errorValues[0] = EVALUATION_LIMITS[indexEvaluation];
+			populationSizes[0] = EVALUATION_LIMITS[indexEvaluation];
+
 			for (int round = 1; round <= Properties.MAX_RUNS; round++) {
-				List<Double> roundErros = errorEvolution.get(round - 1);
-				values[round] = "-";
+				List<ErrorEvolution> roundErros = errorEvolution.get(round - 1);
+				errorValues[round] = "-";
+				populationSizes[round] = "-";
+
 				if (indexEvaluation < roundErros.size()) {
-					Double error = roundErros.get(indexEvaluation);
-					if (error != null) {
-						mean = mean.add(new BigDecimal(error));
-						values[round] = formatNumber(error);
+					ErrorEvolution errorEvolution = roundErros.get(indexEvaluation);
+					if (errorEvolution != null) {
+						errorMean = errorMean.add(new BigDecimal(errorEvolution.getError()));
+						popSizeMean = popSizeMean.add(new BigDecimal(errorEvolution.getPopulationSize()));
+						
+						errorValues[round] = formatNumber(errorEvolution.getError());
+						populationSizes[round] = errorEvolution.getPopulationSize();
 					}
 				}
 			}
-			mean = mean.divide(new BigDecimal(Properties.MAX_RUNS), 15, RoundingMode.HALF_UP);
-			values[Properties.MAX_RUNS + 1] = mean.doubleValue() > 0 ? formatNumber(mean.doubleValue()) : "-";
+			errorMean = errorMean.divide(new BigDecimal(Properties.MAX_RUNS), 15, RoundingMode.HALF_UP);
+			errorValues[Properties.MAX_RUNS + 1] = errorMean.doubleValue() > 0 ? formatNumber(errorMean.doubleValue()) : "-";
 
-			writeLineEvolutionOfErrors(values);
+			popSizeMean = popSizeMean.divide(new BigDecimal(Properties.MAX_RUNS), 15, RoundingMode.HALF_UP);
+			populationSizes[Properties.MAX_RUNS + 1] = popSizeMean.doubleValue() > 0 ? popSizeMean.doubleValue() : "-";
+			
+			writeLineEvolutionOfErrors(errorValues, populationSizes);
 		}
-		int bestRound = getBestRound();
-		this.fileEvolutionOfErrors.write("\nBest Round = " + bestRound);
+		ErrorEvolution bestRound = getBestRound();
+		this.fileEvolutionOfErrors.write("\nBest Round = " + bestRound.getRound());
+		this.fileEvolutionOfErrors.write("\nBest Error = " + bestRound.getError());
+		this.fileEvolutionOfErrors.write("\nBest Population Size = " + bestRound.getPopulationSize());
 		System.out.println("\nBest Round = " + bestRound);
 	}
 
@@ -269,6 +319,7 @@ public class Statistic {
 
 		this.writeEvolutionOfErros();
 		this.fileEvolutionOfErrors.close();
+		this.fileEvolutionOfPopulationSize.close();
 		System.out.println("::::::::::::::: " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()) + " :::::::::::::");
 	}
 	
