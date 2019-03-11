@@ -22,16 +22,22 @@ import java.util.Locale;
 import java.util.LongSummaryStatistics;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
+
+import org.apache.commons.math3.linear.RealMatrix;
 
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Population;
 
 public class Statistic {
 	static private String ID = UUID.randomUUID().toString();
+	private AtomicInteger integer = new AtomicInteger();
 
 	private BufferedWriter fileRoundErrors;
 	private BufferedWriter fileEvolutionOfErrors;
 	private BufferedWriter fileEvolutionOfPopulationSize;
+	private BufferedWriter filePopulationProjection;
 	private List<Double> roundErros = new ArrayList<Double>(Properties.MAX_RUNS);
 	private List<Long> timeRounds = new ArrayList<Long>(Properties.MAX_RUNS);
 	private static double[] EVALUATION_LIMITS = new double[] { 
@@ -141,6 +147,79 @@ public class Statistic {
 	
 	public void startRound() {
 		this.startTimeRound();
+	}
+	
+	public void writePopulationProjection(Population population, RealMatrix V) {
+		String algorithmName = Properties.ARGUMENTS.get().getName();
+		String prefixFile = /*Properties.ARGUMENTS.get().getPrefixFile() + '_' + */"" + this.integer.incrementAndGet();
+		try {
+			String filePopulationProjectionName = getFileName(algorithmName, prefixFile + "_projection.csv");
+			this.filePopulationProjection = new BufferedWriter(new FileWriter(filePopulationProjectionName));
+			
+			// 1ª coluna: 1º autovetor (x)
+			// 2ª coluna: 2º autovetor (y)
+			// demais coluna: projeção p=(x,y)
+			int individualSize = Properties.ARGUMENTS.get().getIndividualSize();
+			/*
+			System.err.println("\n---------- Q: EIGEN VECTOR --------------");
+			double[][] eigenVector = V.getData();
+			for (int index = 0; index < eigenVector.length; index++)
+				System.err.println(Arrays.toString(eigenVector[index]));
+			System.err.println();
+			*/
+			// ------------------------------ HEAD LINE ------------------------------
+			//StringBuffer sbFormat = new StringBuffer("%-22s, %-22s");
+			StringBuffer sbFormat = new StringBuffer();
+			//Object[] head = new String[2 * individualSize + 2];
+			//head[0] = "V1"; head[1] = "V2";
+			for (int k = 0; k < individualSize; k++) {
+				sbFormat.append("%-22s, %-22s,");
+				//head[2*k + 2] = "VX" + (k + 1);
+				//head[2*k + 3] = "VY" + (k + 1);
+			}
+			sbFormat.append("\n");
+			//String headLine = String.format(sbFormat.toString(), head);
+			//this.filePopulationProjection.write(headLine);
+			
+			// ------------------------------ VALUES ------------------------------
+			IntStream.range(0, population.size())
+				.forEach(index -> {
+					Individual individual = population.get(index);
+
+					double[] VX = new double[individualSize];
+					double[] VY = new double[individualSize];
+
+					//Object[] values = new Object[2 * individualSize + 2];
+					Object[] values = new Object[2*individualSize];
+
+					//values[0] = index < individualSize ? V.getEntry(index, 0) : "";
+					//values[1] = index < individualSize ? V.getEntry(index, 1) : "";
+					
+					for (int idxV = 0; idxV < individualSize; idxV++) {
+						VX[idxV] = 0;
+						VY[idxV] = 0;
+						
+						for (int idxInd = 0; idxInd < individualSize; idxInd++) {
+							VX[idxV] += V.getEntry(idxV, 0) * individual.get(idxInd);
+							VY[idxV] += V.getEntry(idxV, 1) * individual.get(idxInd);
+						}
+
+						values[2*idxV] = VX[idxV];
+						values[2*idxV + 1] = VY[idxV];
+					}
+					String line = String.format(sbFormat.toString(), values);
+					try {
+						this.filePopulationProjection.write(line);
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				});
+
+			this.filePopulationProjection.close();
+
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	public void verifyEvaluationInstant(int round, Population population) {

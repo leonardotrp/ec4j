@@ -16,18 +16,30 @@
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
 		<dependency>
-		    <groupId>org.apache.commons</groupId>
-		    <artifactId>commons-lang3</artifactId>
-		    <version>3.8.1</version>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.8.1</version>
 		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/com.github.oshi/oshi-core -->
 		<dependency>
-		    <groupId>com.github.oshi</groupId>
-		    <artifactId>oshi-core</artifactId>
-		    <version>3.13.0</version>
+			<groupId>com.github.oshi</groupId>
+			<artifactId>oshi-core</artifactId>
+			<version>3.13.0</version>
 		</dependency>
-    
+
+		<!-- https://github.com/jtablesaw/tablesaw -->
+		<dependency>
+			<groupId>tech.tablesaw</groupId>
+			<artifactId>tablesaw-core</artifactId>
+			<version>0.31.0</version>
+		</dependency>
+		<dependency>
+			<groupId>tech.tablesaw</groupId>
+			<artifactId>tablesaw-jsplot</artifactId>
+			<version>0.31.0</version>
+		</dependency>
+		
 	</dependencies>
 
 	<build>

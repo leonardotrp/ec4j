@@ -7,7 +7,7 @@ import br.ufrj.coc.cec2015.util.Helper;
 public class Individual implements Comparable<Individual>, Cloneable {
 	private String uuid = UUID.randomUUID().toString();
 	/**
-	 * identification: sequ�ncia de valores que identificam um indiv�duo (ex: similar ao cromossomo no AG)
+	 * identification: sequência de valores que identificam um indivíduo (ex: similar ao cromossomo no AG)
 	 */
 	private double[] id;
 	private double functionValue;

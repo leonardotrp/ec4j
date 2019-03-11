@@ -56,6 +56,8 @@ public class DE extends Algorithm {
 				population.updateBestError(current);
 
 				getDEHelper().addSuccessful(current); // CRi => Scr | Fi => Sf
+				
+				statistic.writePopulationProjection(population, getDEHelper().getEigenDecomposition().getV());
 			}
 			statistic.verifyEvaluationInstant(round, population);
 		}

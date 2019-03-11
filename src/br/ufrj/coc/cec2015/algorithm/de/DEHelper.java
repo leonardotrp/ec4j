@@ -266,25 +266,28 @@ public class DEHelper implements AlgorithmHelper {
 	}
 	// ======================================= JADE =======================================
 	private EigenDecomposition eigenDecomposition;
-	private JADEHelper jadeFunctions;
+	private JADEHelper jadeHelper;
 	private void initialize() {
-		jadeFunctions = new JADEHelper();
+		jadeHelper = new JADEHelper();
 		if (this.properties.isJADE())
-			jadeFunctions.initialize();
+			jadeHelper.initialize();
 		this.eigenDecomposition = null;
 	}
 	private void initializeGeneration() {
 		if (this.properties.isJADE())
-			jadeFunctions.initializeGeneration(this.population);
+			jadeHelper.initializeGeneration(this.population);
 		if (this.properties.isEigenvectorCrossover()) {
 			//RealMatrix covarianceMatrix = MatrixUtil.getCovarianceMatrix(this.population.toMatrix());
 			eigenDecomposition = MatrixUtil.getEigenDecomposition(this.population);
 		}
 	}
+	public EigenDecomposition getEigenDecomposition() {
+		return eigenDecomposition;
+	}
 	public void generateControlParameters(Individual individual) {
 		if (this.properties.isJADE()) {
-			individual.setCrossoverRate(jadeFunctions.generateCrossoverRate());
-			individual.setDifferencialWeight(jadeFunctions.generateDifferencialWeight());
+			individual.setCrossoverRate(jadeHelper.generateCrossoverRate());
+			individual.setDifferencialWeight(jadeHelper.generateDifferencialWeight());
 		}
 		else {
 			individual.setCrossoverRate(DEProperties.CROSSOVER_RATE);
@@ -293,25 +296,25 @@ public class DEHelper implements AlgorithmHelper {
 	}
 	public void addSuccessful(Individual successful) {
 		if (this.properties.isJADE())
-			jadeFunctions.addSuccessfulControlParameters(successful.getCrossoverRate(), successful.getDifferencialWeight());
+			jadeHelper.addSuccessfulControlParameters(successful.getCrossoverRate(), successful.getDifferencialWeight());
 	}
 	public void addInferior(Individual inferior) {
 		if (this.properties.isJADEWithArchieve())
-			jadeFunctions.addInferior(inferior);
+			jadeHelper.addInferior(inferior);
 	}
 	public void finalizeGeneration() {
 		if (this.properties.isJADE()) {
-			jadeFunctions.updateMeanCrossoverRate();
-			jadeFunctions.updateLocationDifferencialWeight();
+			jadeHelper.updateMeanCrossoverRate();
+			jadeHelper.updateLocationDifferencialWeight();
 		}
 	}
 	// Randomly choose ˜xr2,g <> xr1,g <> xi,g from P union A
 	private Individual randomFromArchieve() {
-		List<Individual> unionPA = new ArrayList<>(this.populationIndexes.size() + this.jadeFunctions.getInferiors().size());
+		List<Individual> unionPA = new ArrayList<>(this.populationIndexes.size() + this.jadeHelper.getInferiors().size());
 		for (Integer populationIndex : this.populationIndexes) {
 			unionPA.add(this.population.get(populationIndex));
 		}
-		unionPA.addAll(this.jadeFunctions.getInferiors());
+		unionPA.addAll(this.jadeHelper.getInferiors());
 		int randomUnionPAIndex = Helper.randomInRange(0, unionPA.size() - 1);
 		
 		Individual individual = unionPA.get(randomUnionPAIndex);
