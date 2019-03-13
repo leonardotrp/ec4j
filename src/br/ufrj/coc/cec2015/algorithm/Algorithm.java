@@ -1,11 +1,13 @@
 package br.ufrj.coc.cec2015.algorithm;
 
+import java.io.File;
+
+import br.ufrj.coc.cec2015.util.FileUtil;
 import br.ufrj.coc.cec2015.util.Helper;
 import br.ufrj.coc.cec2015.util.Properties;
 import br.ufrj.coc.cec2015.util.Statistic;
 
 public abstract class Algorithm {
-	
 	public abstract void run(Population population, Statistic statistic, int round) throws Exception;
 	
 	public Initializable getIntializable() {
@@ -14,9 +16,13 @@ public abstract class Algorithm {
 			public Individual newInitialized() {
 				return Helper.newIndividualInitialized();
 			}
+			@Override
+			public Individual newInitialized(double[] id) {
+				return Helper.newIndividualInitialized(id);
+			}
 		};
 	}
-	
+
 	public abstract String[] getVariants();
 	
 	private void initializeRound(int round) {
@@ -33,7 +39,8 @@ public abstract class Algorithm {
 	protected void executeRoud(Initializable initializable, Statistic statistic, int round) throws Exception {
 		statistic.startRound();
 		initializeRound(round);
-		Population population = new Population(initializable);
+		File initialPopulationFile = FileUtil.getInitialPopulationFile();
+		Population population = initialPopulationFile != null && round == 0 ? new Population(initializable, initialPopulationFile) : new Population(initializable);
 		while (!terminated(population)) {
 			this.run(population, statistic, round);
 		}

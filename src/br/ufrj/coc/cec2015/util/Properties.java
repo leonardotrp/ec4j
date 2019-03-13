@@ -26,6 +26,9 @@ public class Properties {
 	public static int MAX_RUNS = Integer.parseInt(bundle.getString("MAX_RUNS"));
 	public static double MIN_ERROR_VALUE = 1.0 * Double.parseDouble(bundle.getString("MIN_ERROR_VALUE"));
 	public static String RESULTS_ROOT = Properties.class.getResource("/") + bundle.getString("RESULTS_ROOT");
+	public static boolean SHOW_POPULATION_PROJECTIONS = Boolean.parseBoolean(bundle.getString("SHOW_POPULATION_PROJECTIONS"));
+	public static boolean WRITE_POPULATION_PROJECTIONS = Boolean.parseBoolean(bundle.getString("WRITE_POPULATION_PROJECTIONS"));
+	public static String INITIAL_POPULATION_FILE = bundle.getString("INITIAL_POPULATION_FILE");
 
 	// -------------------------------------------------------------------------------
 	// -------------------- CEC 2015 FUNCTIONS ---------------------------------------

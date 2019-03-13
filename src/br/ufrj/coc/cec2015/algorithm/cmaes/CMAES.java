@@ -10,6 +10,7 @@ import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Population;
 import br.ufrj.coc.cec2015.algorithm.cmaes.fr.inria.CMAEvolutionStrategy;
 import br.ufrj.coc.cec2015.algorithm.cmaes.fr.inria.CMASolution;
+import br.ufrj.coc.cec2015.math.MatrixUtil;
 import br.ufrj.coc.cec2015.util.Helper;
 import br.ufrj.coc.cec2015.util.Properties;
 import br.ufrj.coc.cec2015.util.Statistic;
@@ -33,11 +34,16 @@ public class CMAES extends Algorithm {
         CMASolution bestSolution = null; // initialization to allow compilation
         long counteval = Properties.ARGUMENTS.get().getCountEvaluations();   // variables used for restart
         int lambda = 0;
-		
+
 		for (irun = 0; irun < nbRuns; irun++) {
 
 			CMAEvolutionStrategy cma = new CMAEvolutionStrategy();
 
+            if (population.getEigenvectors() == null) {
+            	population.setEigenvectors(MatrixUtil.getEigenDecomposition(population).getV());
+            	cma.setPopulation(population.toMatrix());
+            }
+			
 	    	// read properties file and obtain some values for "private" use
 	    	cma.readProperties(); // reads from file CMAEvolutionStrategy.properties
 	    	cma.setDimension(Properties.ARGUMENTS.get().getIndividualSize());
@@ -69,7 +75,6 @@ public class CMAES extends Algorithm {
 	            cma.setCountEval(counteval); // somehow a hack 
 	            fitness = cma.init(); // provides array to assign fitness values
 	            System.err.println("Increase population size from " + cma.parameters.getPopulationSize() + " to " + newPopulationSize);
-	            //Properties.setPopulationSize(newPopulationSize);
 	        }
 
 	        // set additional termination criterion
@@ -79,7 +84,8 @@ public class CMAES extends Algorithm {
 			double lastTime = 0, alastTime = 0; // for smarter console output
             while(cma.stopConditions.isFalse()) {
 		        // --- core iteration step ---
-		        double[][] pop = cma.samplePopulation(); // get a new population of solutions
+
+            	double[][] pop = cma.samplePopulation(); // get a new population of solutions
 		        population.load(pop);
 		        for(int i = 0; i < population.size(); ++i) {    // for each candidate solution i
 		        	// a simple way to handle constraints that define a convex feasible domain  
@@ -101,7 +107,7 @@ public class CMAES extends Algorithm {
 		        }
 		        cma.updateDistribution(fitness);         // pass fitness array to update search distribution
 		        // --- end core iteration step ---
-		
+
 		        // stopping conditions can be changed in file CMAEvolutionStrategy.properties 
 		        cma.readProperties();
 		

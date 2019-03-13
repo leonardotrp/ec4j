@@ -1,13 +1,10 @@
 package br.ufrj.coc.cec2015.util;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
@@ -25,6 +22,8 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
+import javax.swing.JFrame;
+
 import org.apache.commons.math3.linear.RealMatrix;
 
 import br.ufrj.coc.cec2015.algorithm.Individual;
@@ -32,30 +31,30 @@ import br.ufrj.coc.cec2015.algorithm.Population;
 
 public class Statistic {
 	static private String ID = UUID.randomUUID().toString();
-	private AtomicInteger integer = new AtomicInteger();
+	private AtomicInteger counter = new AtomicInteger();
+	private ChartProjection projection;
 
 	private BufferedWriter fileRoundErrors;
 	private BufferedWriter fileEvolutionOfErrors;
 	private BufferedWriter fileEvolutionOfPopulationSize;
-	private BufferedWriter filePopulationProjection;
 	private List<Double> roundErros = new ArrayList<Double>(Properties.MAX_RUNS);
 	private List<Long> timeRounds = new ArrayList<Long>(Properties.MAX_RUNS);
 	private static double[] EVALUATION_LIMITS = new double[] { 
-		0.000001, 
-		0.00001, 
-		0.0001, 
+		/*0.000001, 
+		0.00001,
+		0.0001,*/
 		0.001, 
-		0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 
-		0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 
-		0.20, 0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 0.27, 0.28, 0.29, 
-		0.30, 0.31, 0.32, 0.33, 0.34, 0.35, 0.36, 0.37, 0.38, 0.39,
-		0.40, 0.41, 0.42, 0.43, 0.44, 0.45, 0.46, 0.47, 0.48, 0.49,
-		0.50, 0.51, 0.52, 0.53, 0.54, 0.55, 0.56, 0.57, 0.58, 0.59,
-		0.60,
-		0.7,
-		0.8, 
-		0.9, 
-		1.0
+		0.01/*, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09*/, 
+		0.10/*, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19*/, 
+		0.20/*, 0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 0.27, 0.28, 0.29*/, 
+		0.30/*, 0.31, 0.32, 0.33, 0.34, 0.35, 0.36, 0.37, 0.38, 0.39*/,
+		0.40/*, 0.41, 0.42, 0.43, 0.44, 0.45, 0.46, 0.47, 0.48, 0.49*/,
+		0.50/*, 0.51, 0.52, 0.53, 0.54, 0.55, 0.56, 0.57, 0.58, 0.59*/,
+		0.60/*, 0.61, 0.62, 0.63, 0.64, 0.65, 0.66, 0.67, 0.68, 0.69*/,
+		0.70/*, 0.71, 0.72, 0.73, 0.74, 0.75, 0.76, 0.77, 0.78, 0.79*/,
+		0.80/*, 0.81, 0.82, 0.83, 0.84, 0.85, 0.86, 0.87, 0.88, 0.89*/,
+		0.90/*, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99*/, 
+		1.00
 	};
 	class ErrorEvolution {
 		private Integer round;
@@ -85,20 +84,16 @@ public class Statistic {
 	public Statistic() {
 		super();
 		start();
+		if (Properties.SHOW_POPULATION_PROJECTIONS)
+			showProjection();
 	}
-
-	private String getFileName(String relativePath, String filename) {
-		URI uri;
-		try {
-			String root = Properties.RESULTS_ROOT + ID + '/';
-			uri = new URI(root + relativePath);
-		} catch (URISyntaxException e) {
-			throw new RuntimeException(e);
-		}
-		File directory = new File(uri);
-		if (!directory.exists())
-			directory.mkdirs();
-		return directory.getAbsolutePath() + '\\' + filename;
+	
+	private void showProjection() {
+		this.projection = new ChartProjection("Scatter Chart");
+		this.projection.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.projection.pack();
+		this.projection.setLocationRelativeTo(null);
+		this.projection.setVisible(true);
 	}
 
 	private long initialTimeFunction, initialTimeRound;
@@ -131,14 +126,14 @@ public class Statistic {
 			String algorithmName = Properties.ARGUMENTS.get().getName();
 			String prefixFile = Properties.ARGUMENTS.get().getPrefixFile();
 			
-			String fileRoundErrorsName = getFileName(algorithmName, prefixFile + "_statistics.csv");
+			String fileRoundErrorsName = FileUtil.getFileName(ID, algorithmName, prefixFile + "_statistics.csv");
 			this.fileRoundErrors = new BufferedWriter(new FileWriter(fileRoundErrorsName));
 			writeHeadStatistics(this.fileRoundErrors);
 
-			String fileEvolutionOfErrorsName = getFileName(algorithmName, prefixFile + "_evolution.csv");
+			String fileEvolutionOfErrorsName = FileUtil.getFileName(ID, algorithmName, prefixFile + "_evolution.csv");
 			this.fileEvolutionOfErrors = new BufferedWriter(new FileWriter(fileEvolutionOfErrorsName));
 
-			String fileEvolutionOfPopulationSizeName = getFileName(algorithmName, prefixFile + "_populationSize.csv");
+			String fileEvolutionOfPopulationSizeName = FileUtil.getFileName(ID, algorithmName, prefixFile + "_populationSize.csv");
 			this.fileEvolutionOfPopulationSize = new BufferedWriter(new FileWriter(fileEvolutionOfPopulationSizeName));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -147,79 +142,6 @@ public class Statistic {
 	
 	public void startRound() {
 		this.startTimeRound();
-	}
-	
-	public void writePopulationProjection(Population population, RealMatrix V) {
-		String algorithmName = Properties.ARGUMENTS.get().getName();
-		String prefixFile = /*Properties.ARGUMENTS.get().getPrefixFile() + '_' + */"" + this.integer.incrementAndGet();
-		try {
-			String filePopulationProjectionName = getFileName(algorithmName, prefixFile + "_projection.csv");
-			this.filePopulationProjection = new BufferedWriter(new FileWriter(filePopulationProjectionName));
-			
-			// 1ª coluna: 1º autovetor (x)
-			// 2ª coluna: 2º autovetor (y)
-			// demais coluna: projeção p=(x,y)
-			int individualSize = Properties.ARGUMENTS.get().getIndividualSize();
-			/*
-			System.err.println("\n---------- Q: EIGEN VECTOR --------------");
-			double[][] eigenVector = V.getData();
-			for (int index = 0; index < eigenVector.length; index++)
-				System.err.println(Arrays.toString(eigenVector[index]));
-			System.err.println();
-			*/
-			// ------------------------------ HEAD LINE ------------------------------
-			//StringBuffer sbFormat = new StringBuffer("%-22s, %-22s");
-			StringBuffer sbFormat = new StringBuffer();
-			//Object[] head = new String[2 * individualSize + 2];
-			//head[0] = "V1"; head[1] = "V2";
-			for (int k = 0; k < individualSize; k++) {
-				sbFormat.append("%-22s, %-22s,");
-				//head[2*k + 2] = "VX" + (k + 1);
-				//head[2*k + 3] = "VY" + (k + 1);
-			}
-			sbFormat.append("\n");
-			//String headLine = String.format(sbFormat.toString(), head);
-			//this.filePopulationProjection.write(headLine);
-			
-			// ------------------------------ VALUES ------------------------------
-			IntStream.range(0, population.size())
-				.forEach(index -> {
-					Individual individual = population.get(index);
-
-					double[] VX = new double[individualSize];
-					double[] VY = new double[individualSize];
-
-					//Object[] values = new Object[2 * individualSize + 2];
-					Object[] values = new Object[2*individualSize];
-
-					//values[0] = index < individualSize ? V.getEntry(index, 0) : "";
-					//values[1] = index < individualSize ? V.getEntry(index, 1) : "";
-					
-					for (int idxV = 0; idxV < individualSize; idxV++) {
-						VX[idxV] = 0;
-						VY[idxV] = 0;
-						
-						for (int idxInd = 0; idxInd < individualSize; idxInd++) {
-							VX[idxV] += V.getEntry(idxV, 0) * individual.get(idxInd);
-							VY[idxV] += V.getEntry(idxV, 1) * individual.get(idxInd);
-						}
-
-						values[2*idxV] = VX[idxV];
-						values[2*idxV + 1] = VY[idxV];
-					}
-					String line = String.format(sbFormat.toString(), values);
-					try {
-						this.filePopulationProjection.write(line);
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				});
-
-			this.filePopulationProjection.close();
-
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
 	}
 	
 	public void verifyEvaluationInstant(int round, Population population) {
@@ -233,11 +155,45 @@ public class Statistic {
 			int evaluationValue = (int) (EVALUATION_LIMITS[indexEvaluation] * Properties.ARGUMENTS.get().getMaxFES());			
 			if (countEvaluations == evaluationValue) {
 				if (indexEvaluation > 0 && indexEvaluation > roundErrors.size()) {
+					ErrorEvolution lastErrorEvolution = (roundErrors.size() > 0) ? roundErrors.get(roundErrors.size() - 1) : null;
 					for (int index = roundErrors.size(); index < indexEvaluation; index++)
-						roundErrors.add(index, null);
+						roundErrors.add(index, lastErrorEvolution);
 				}
 				roundErrors.add(indexEvaluation, new ErrorEvolution(population.getBestError(), population.size()));
+				writeProjection(round, population);
 			}
+		}
+	}
+	
+	private void writeProjection(int round, Population population) {
+		RealMatrix eigenvectors = population.getEigenvectors();
+		// 1ª coluna: 1º autovetor (x axis)
+		// 2ª coluna: 2º autovetor (y axis)
+		// demais colunas: projeção p = (x, y)
+		if (eigenvectors == null || !Properties.SHOW_POPULATION_PROJECTIONS)
+			return;
+
+		int individualSize = Properties.ARGUMENTS.get().getIndividualSize();
+		double[][] projectionsData = new double[population.size()][2];
+		IntStream.range(0, population.size()).forEach(idxIndividual -> {
+			Individual individual = population.get(idxIndividual);
+			double x = 0, y = 0;
+			for (int idxId = 0; idxId < individualSize; idxId++) {
+				x += eigenvectors.getEntry(idxId, 0) * individual.get(idxId);
+				y += eigenvectors.getEntry(idxId, 1) * individual.get(idxId);
+			}
+			projectionsData[idxIndividual] = new double[] {x, y};
+		});
+		String algorithmName = Properties.ARGUMENTS.get().getName();
+		
+		// atualiza as projeções no plano
+		String chartTitle = algorithmName + " - Função F" + Properties.ARGUMENTS.get().getFunctionNumber() + " - Dimensão " + Properties.ARGUMENTS.get().getIndividualSize();
+		String seriesDescription = "População - " + Properties.ARGUMENTS.get().getPopulationSize() + " Indivíduos";
+		this.projection.update(projectionsData, chartTitle, seriesDescription);
+		
+		if (Properties.WRITE_POPULATION_PROJECTIONS) {
+			String pngChartFilename = FileUtil.getFileName(ID, algorithmName + "/projections/" + round, "projection_round" + round + "_" + this.counter.incrementAndGet() + ".png");
+			this.projection.exportToPng(pngChartFilename);
 		}
 	}
 	
@@ -342,7 +298,7 @@ public class Statistic {
 		this.fileEvolutionOfErrors.write("\nBest Round = " + bestRound.getRound());
 		this.fileEvolutionOfErrors.write("\nBest Error = " + bestRound.getError());
 		this.fileEvolutionOfErrors.write("\nBest Population Size = " + bestRound.getPopulationSize());
-		System.out.println("\nBest Round = " + bestRound);
+		System.out.println("\nBest Round = " + bestRound.getRound());
 	}
 
 	private void writeHeadStatistics(BufferedWriter writer) throws IOException {

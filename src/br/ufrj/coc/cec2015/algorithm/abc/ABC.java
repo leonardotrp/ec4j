@@ -34,6 +34,11 @@ public class ABC extends Algorithm {
 				individual.setCrossoverRate(DEProperties.CROSSOVER_RATE);
 				return individual;
 			}
+
+			@Override
+			public Individual newInitialized(double[] id) {
+				return null;
+			}
 		};
 	}
 	

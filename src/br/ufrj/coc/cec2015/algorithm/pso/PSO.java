@@ -36,6 +36,11 @@ public class PSO extends Algorithm {
 				particle.setHungerCount(Helper.randomInRange(0, PSOProperties.HUNGER_INTERVAL - 1));
 				return particle;
 			}
+
+			@Override
+			public Individual newInitialized(double[] id) {
+				return null;
+			}
 		};
 	}	
 	

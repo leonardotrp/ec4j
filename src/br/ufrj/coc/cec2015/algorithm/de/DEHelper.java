@@ -279,10 +279,10 @@ public class DEHelper implements AlgorithmHelper {
 		if (this.properties.isEigenvectorCrossover()) {
 			//RealMatrix covarianceMatrix = MatrixUtil.getCovarianceMatrix(this.population.toMatrix());
 			eigenDecomposition = MatrixUtil.getEigenDecomposition(this.population);
+			if (this.population.getEigenvectors() == null) // save the first eigenvectors
+				this.population.setEigenvectors(eigenDecomposition.getV());
+
 		}
-	}
-	public EigenDecomposition getEigenDecomposition() {
-		return eigenDecomposition;
 	}
 	public void generateControlParameters(Individual individual) {
 		if (this.properties.isJADE()) {

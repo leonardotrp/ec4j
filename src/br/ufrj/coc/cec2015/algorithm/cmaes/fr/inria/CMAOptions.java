@@ -117,6 +117,7 @@ public class CMAOptions implements java.io.Serializable {
   /** if chosen > 0 the console output from functions <code>print...</code> is saved
    * additionally into a file, by default <tt>outcmaesdisp.dat</tt> */
   public int writeDisplayToFile = 1;
+  public int writeDisplayToConsole = 1;
   /** only for >= 1 results are always exactly reproducible, as otherwise the update of the
    * eigensystem is conducted depending on time measurements, defaut is 0.2 */
   public double maxTimeFractionForEigendecomposition = 0.2;
@@ -160,6 +161,7 @@ public class CMAOptions implements java.io.Serializable {
             maxTimeFractionForWriteToDefaultFiles);
     stopnow = "now".equals(getFirstToken(properties.getProperty("stop")));
     writeDisplayToFile = getFirstToken(properties.getProperty("writeDisplayToFile"), writeDisplayToFile);
+    writeDisplayToConsole = getFirstToken(properties.getProperty("writeDisplayToConsole"), writeDisplayToConsole);
     checkEigenSystem = getFirstToken(properties.getProperty("checkEigenSystem"), checkEigenSystem);
   }
 

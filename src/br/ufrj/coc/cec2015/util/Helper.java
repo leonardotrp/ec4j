@@ -50,4 +50,11 @@ public class Helper {
 		individual.setFunctionValue(functionValue);
 		return individual;
 	}
+
+	public static Individual newIndividualInitialized(double[] id) {
+		Individual individual = new Individual(id);
+		double functionValue = Properties.ARGUMENTS.get().evaluateFunction(individual.getId());
+		individual.setFunctionValue(functionValue);
+		return individual;
+	}
 }

@@ -48,6 +48,7 @@ public class Individual implements Comparable<Individual>, Cloneable {
 	public Individual(double[] id) {
 		super();
 		this.id = id;
+		this.bestKnown = this.id.clone();
 	}
 	
 	public double[] getId() {

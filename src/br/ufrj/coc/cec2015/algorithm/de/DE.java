@@ -24,16 +24,25 @@ public class DE extends Algorithm {
 	@Override
 	public Initializable getIntializable() {
 		return new Initializable() {
+			private void setParameters(Individual individual) {
+				individual.setCrossoverRate(DEProperties.CROSSOVER_RATE);
+				individual.setDifferencialWeight(DEProperties.DIFFERENTIAL_WEIGHT);
+			}
 			@Override
 			public Individual newInitialized() {
 				Individual individual = Helper.newIndividualInitialized();
-				individual.setCrossoverRate(DEProperties.CROSSOVER_RATE);
-				individual.setDifferencialWeight(DEProperties.DIFFERENTIAL_WEIGHT);
+				setParameters(individual);
+				return individual;
+			}
+			@Override
+			public Individual newInitialized(double[] id) {
+				Individual individual = Helper.newIndividualInitialized(id);
+				setParameters(individual);
 				return individual;
 			}
 		};
 	}
-
+	
 	public DEHelper getDEHelper() {
 		return (DEHelper) Properties.HELPER.get();
 	}
@@ -53,11 +62,9 @@ public class DE extends Algorithm {
 
 				current.setId(trialVector);
 				current.setFunctionValue(functionValue);
-				population.updateBestError(current);
+				population.updateBestError(current);	
 
 				getDEHelper().addSuccessful(current); // CRi => Scr | Fi => Sf
-				
-				statistic.writePopulationProjection(population, getDEHelper().getEigenDecomposition().getV());
 			}
 			statistic.verifyEvaluationInstant(round, population);
 		}

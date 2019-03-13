@@ -1,7 +1,20 @@
 package br.ufrj.coc.cec2015.algorithm;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.apache.commons.math3.linear.RealMatrix;
 
 import br.ufrj.coc.cec2015.util.Helper;
 import br.ufrj.coc.cec2015.util.Properties;
@@ -11,6 +24,7 @@ public class Population implements Cloneable {
 	private Initializable initializable;
 	private Individual best; // global best
 	private boolean minErrorValueFound;
+	private RealMatrix eigenvectors;
 	
 	public Population(Initializable initializable, int populationSize) {
 		super();
@@ -22,19 +36,10 @@ public class Population implements Cloneable {
 		this(initializable, Properties.ARGUMENTS.get().getPopulationSize());
 	}
 	
-	public void load(double[][] population) {
-		this.individuals = new ArrayList<Individual>(population.length);
-		double bestError = Double.MAX_VALUE;
-		for (int index = 0; index < population.length; index++) {
-			Individual individual = new Individual(population[index]);
-			this.individuals.add(individual);
-			
-			double error = Helper.getError(individual);
-			if (index == 0 || error < bestError) {
-				bestError = error;
-				this.best = individual;
-			}
-		}
+	public Population(Initializable initializable, File csvPopulationFile) {
+		super();
+		this.initializable = initializable;
+		this.load(csvPopulationFile);
 	}
 	
 	public void increase(int newSize) {
@@ -92,6 +97,14 @@ public class Population implements Cloneable {
 		this.minErrorValueFound = minErrorValueFound;
 	}
 
+	public RealMatrix getEigenvectors() {
+		return eigenvectors;
+	}
+
+	public void setEigenvectors(RealMatrix eigenvectors) {
+		this.eigenvectors = eigenvectors;
+	}
+
 	public int size() {
 		return this.individuals == null ? 0 : this.individuals.size();
 	}
@@ -103,11 +116,11 @@ public class Population implements Cloneable {
 	public Individual get(int index) {
 		return this.individuals.get(index);
 	}
-	
+
 	public int indexOf(Individual individual) {
 		return this.individuals.indexOf(individual);
 	}
-	
+
 	public void updateBestError(Individual individual) {
 		double error = Helper.getError(individual);
 		double bestError = Helper.getError(this.best);
@@ -115,7 +128,7 @@ public class Population implements Cloneable {
 			this.best = (Individual) individual.clone();
 		}
 	}
-	
+
 	@Override
 	public Population clone() throws CloneNotSupportedException {
 		Population clone = (Population) super.clone();
@@ -123,7 +136,7 @@ public class Population implements Cloneable {
 		clone.individuals.addAll(this.individuals);
 		return clone;
 	}
-	
+
 	public Object cloneAll() throws CloneNotSupportedException {
 		Population clone = (Population) super.clone();
 		clone.individuals = new ArrayList<Individual>(Properties.ARGUMENTS.get().getPopulationSize());
@@ -133,7 +146,72 @@ public class Population implements Cloneable {
 		}
 		return clone;
 	}
-	
+
+	public void write(File csvFile) throws IOException {
+		int populationSize = this.size();
+		int individualSize = this.get(0).size();
+
+		StringBuffer sbFormat = new StringBuffer("%s");
+		for (int j = 0; j < individualSize - 1; j++)
+			sbFormat.append(",%s");
+		sbFormat.append("\n");
+		String format = sbFormat.toString();
+
+		BufferedWriter writer = new BufferedWriter(new FileWriter(csvFile));
+
+		Object[] values = new Object[individualSize];
+		for (int i = 0; i < populationSize; i++) {
+			for (int j = 0; j < individualSize; j++)
+				values[j] = this.get(i).get(j);
+			String line = String.format(format, values);
+			writer.write(line);
+		}
+
+		writer.close();
+	}
+
+	public void load(double[][] population) {
+		this.individuals = new ArrayList<Individual>(population.length);
+		double bestError = Double.MAX_VALUE;
+		for (int index = 0; index < population.length; index++) {
+			Individual individual = this.initializable.newInitialized();
+			individual.setId(population[index]);
+			this.individuals.add(individual);
+			
+			double error = Helper.getError(individual);
+			if (index == 0 || error < bestError) {
+				bestError = error;
+				this.best = individual;
+			}
+		}
+	}
+
+	public void load(File csvFile) {
+		Function<String, Individual> mapToItem = (line) -> {
+			String[] arrayIdStr = line.split(",");
+			double[] id = Arrays.stream(arrayIdStr).mapToDouble(Double::parseDouble).toArray();
+			return this.initializable.newInitialized(id);
+		};
+		try {
+			InputStream is = new FileInputStream(csvFile);
+			BufferedReader br = new BufferedReader(new InputStreamReader(is));
+			this.individuals = br.lines().map(mapToItem).collect(Collectors.toList());
+
+			double bestError = Double.MAX_VALUE;
+			for (Individual individual : this.individuals) {
+				double error = Helper.getError(individual);
+				if (error < bestError) {
+					bestError = error;
+					this.best = individual;
+				}
+			}
+			
+			br.close();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}		
+	}
+
 	public double[][] toMatrix() {
 		int populationSize = this.size();
 		int individualSize = this.get(0).size();
