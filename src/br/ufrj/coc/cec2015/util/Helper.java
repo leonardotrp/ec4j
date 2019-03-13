@@ -35,6 +35,15 @@ public class Helper {
 		return random;
 	}
 	
+	public static double checkLimits(double value) {
+		if (value < Properties.SEARCH_RANGE[0])
+			return Properties.SEARCH_RANGE[0];
+		else if (value > Properties.SEARCH_RANGE[1])
+			return Properties.SEARCH_RANGE[1];
+		else
+			return value;
+	}
+	
 	public static double getError(Individual individual) {
 		return getError(individual.getFunctionValue());
 	}

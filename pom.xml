@@ -28,11 +28,11 @@
 			<version>3.13.0</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/jfree/jfreechart -->
+		<!-- https://mvnrepository.com/artifact/org.jfree/jfreechart -->
 		<dependency>
-		    <groupId>jfree</groupId>
+		    <groupId>org.jfree</groupId>
 		    <artifactId>jfreechart</artifactId>
-		    <version>1.0.13</version>
+		    <version>1.0.19</version>
 		</dependency>
 
 		<!-- https://github.com/jtablesaw/tablesaw

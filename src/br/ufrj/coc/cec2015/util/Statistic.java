@@ -32,7 +32,7 @@ import br.ufrj.coc.cec2015.algorithm.Population;
 public class Statistic {
 	static private String ID = UUID.randomUUID().toString();
 	private AtomicInteger counter = new AtomicInteger();
-	private ChartProjection projection;
+	private JFrameProjections frameProjections;
 
 	private BufferedWriter fileRoundErrors;
 	private BufferedWriter fileEvolutionOfErrors;
@@ -84,16 +84,16 @@ public class Statistic {
 	public Statistic() {
 		super();
 		start();
-		if (Properties.SHOW_POPULATION_PROJECTIONS)
+		if (Properties.USE_PROJECTIONS)
 			showProjection();
 	}
 	
 	private void showProjection() {
-		this.projection = new ChartProjection("Scatter Chart");
-		this.projection.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.projection.pack();
-		this.projection.setLocationRelativeTo(null);
-		this.projection.setVisible(true);
+		this.frameProjections = new JFrameProjections("Scatter Chart");
+		this.frameProjections.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.frameProjections.pack();
+		this.frameProjections.setLocationRelativeTo(null);
+		this.frameProjections.setVisible(Properties.SHOW_PROJECTIONS);
 	}
 
 	private long initialTimeFunction, initialTimeRound;
@@ -160,21 +160,31 @@ public class Statistic {
 						roundErrors.add(index, lastErrorEvolution);
 				}
 				roundErrors.add(indexEvaluation, new ErrorEvolution(population.getBestError(), population.size()));
-				writeProjection(round, population);
+				exportProjections(round);
 			}
+		}
+		updateProjections(round, population);
+	}
+	
+	private void exportProjections(int round) {
+		if (Properties.USE_PROJECTIONS && Properties.EXPORT_PROJECTIONS) {
+			String projectionsPath = Properties.ARGUMENTS.get().getName() + "/projections/F" + Properties.ARGUMENTS.get().getFunctionNumber() + "/" + round;
+			String pngChartFilename = FileUtil.getFileName(ID, projectionsPath, "projection_round" + round + "_" + this.counter.incrementAndGet() + ".png");
+			this.frameProjections.exportToPng(pngChartFilename);
 		}
 	}
 	
-	private void writeProjection(int round, Population population) {
-		RealMatrix eigenvectors = population.getEigenvectors();
+	private void updateProjections(int round, Population population) {
 		// 1ª coluna: 1º autovetor (x axis)
 		// 2ª coluna: 2º autovetor (y axis)
 		// demais colunas: projeção p = (x, y)
-		if (eigenvectors == null || !Properties.SHOW_POPULATION_PROJECTIONS)
+		RealMatrix eigenvectors = population.getEigenvectors();
+
+		if (eigenvectors == null || !Properties.USE_PROJECTIONS)
 			return;
 
 		int individualSize = Properties.ARGUMENTS.get().getIndividualSize();
-		double[][] projectionsData = new double[population.size()][2];
+		double[][] projectionsSeries = new double[population.size()][2];
 		IntStream.range(0, population.size()).forEach(idxIndividual -> {
 			Individual individual = population.get(idxIndividual);
 			double x = 0, y = 0;
@@ -182,19 +192,11 @@ public class Statistic {
 				x += eigenvectors.getEntry(idxId, 0) * individual.get(idxId);
 				y += eigenvectors.getEntry(idxId, 1) * individual.get(idxId);
 			}
-			projectionsData[idxIndividual] = new double[] {x, y};
+			projectionsSeries[idxIndividual] = new double[] {x, y};
 		});
-		String algorithmName = Properties.ARGUMENTS.get().getName();
 		
 		// atualiza as projeções no plano
-		String chartTitle = algorithmName + " - Função F" + Properties.ARGUMENTS.get().getFunctionNumber() + " - Dimensão " + Properties.ARGUMENTS.get().getIndividualSize();
-		String seriesDescription = "População - " + Properties.ARGUMENTS.get().getPopulationSize() + " Indivíduos";
-		this.projection.update(projectionsData, chartTitle, seriesDescription);
-		
-		if (Properties.WRITE_POPULATION_PROJECTIONS) {
-			String pngChartFilename = FileUtil.getFileName(ID, algorithmName + "/projections/" + round, "projection_round" + round + "_" + this.counter.incrementAndGet() + ".png");
-			this.projection.exportToPng(pngChartFilename);
-		}
+		this.frameProjections.update(projectionsSeries, round);
 	}
 	
 	private void writeHeadEvolutionOfErrors() throws IOException {
@@ -355,6 +357,10 @@ public class Statistic {
 		this.writeEvolutionOfErros();
 		this.fileEvolutionOfErrors.close();
 		this.fileEvolutionOfPopulationSize.close();
+		
+		if (this.frameProjections != null)
+			this.frameProjections.close();
+		
 		System.out.println("::::::::::::::: " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()) + " :::::::::::::");
 	}
 	

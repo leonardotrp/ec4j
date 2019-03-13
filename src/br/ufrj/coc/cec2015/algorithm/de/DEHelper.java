@@ -1,6 +1,7 @@
 package br.ufrj.coc.cec2015.algorithm.de;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -151,7 +152,7 @@ public class DEHelper implements AlgorithmHelper {
 
 		return partners;
 	}
-	private BigDecimal mutate(int j, double differencialWeight, Individual base, Individual destiny, List<Individual> partners) {
+	private double mutate(int j, double differencialWeight, Individual base, Individual destiny, List<Individual> partners) {
 		BigDecimal xBaseG = new BigDecimal(base.get(j)), mutatedValue = xBaseG;
 		BigDecimal F = new BigDecimal(differencialWeight), difference;
 		
@@ -171,7 +172,7 @@ public class DEHelper implements AlgorithmHelper {
 			mutatedValue = mutatedValue.add(F.multiply(difference));
 		}
 		
-		return mutatedValue;
+		return Helper.checkLimits(mutatedValue.doubleValue());
 	}
 	private double getDifferencialWeight(Individual current) {
 		boolean rouletteOthers = this.properties.isRouletteStrategyOthers();
@@ -185,7 +186,7 @@ public class DEHelper implements AlgorithmHelper {
 			int randI = Helper.randomInRange(0, individualSize - 1);
 			
 			if (canCrossover(current) || j == randI) {
-				trialVector[j] = mutate(j, differencialWeight, base, destiny, partners).doubleValue();
+				trialVector[j] = mutate(j, differencialWeight, base, destiny, partners);
 			}
 			else {
 				trialVector[j] = current.get(j);
@@ -200,11 +201,8 @@ public class DEHelper implements AlgorithmHelper {
 		double[] X = current.getId();
 		double[] V = new double[individualSize]; /* Vi */
 		for (int j = 0; j < individualSize; j++) {
-			V[j] = mutate(j, differencialWeight, base, destiny, partners).doubleValue();
+			V[j] = mutate(j, differencialWeight, base, destiny, partners);
 		}
-		
-		//System.out.println("\nX = " + Arrays.toString(X));
-		//System.out.println("V = " + Arrays.toString(V));
 		
 		RealMatrix Q = eigenDecomposition.getV(); // Qg
 		
@@ -214,15 +212,11 @@ public class DEHelper implements AlgorithmHelper {
 			QX[j] = 0;
 			QV[j] = 0;
 			for (int k = 0; k < individualSize; k++) {
-				//System.out.println("QX["+j+"] = QX["+j+"] + (Q.getEntry("+k+", "+j+") * X["+k+"]) = " + QX[j] + " + (" + Q.getEntry(k, j) + " * " + X[k] + ") = " + (QX[j] + Q.getEntry(k, j) * X[k]));
 				QX[j] += Q.getEntry(k, j) * X[k]; /* Qg.Xi */
 				QV[j] += Q.getEntry(k, j) * V[k]; /* Qg.Vi */
-				//System.out.println("Q.getEntry("+k+", "+j+") * V["+k+"] = " + Q.getEntry(k, j) + " * " + V[k] + " = " + Q.getEntry(k, j) * V[k]);
 			}
 		}
 		
-		//System.out.println("\nQX = " + Arrays.toString(QX));
-
 		double[] QU = new double[individualSize]; /* xover(Qg.Xi, Qg.Vi) */
 		for (int j = 0; j < individualSize; j++) {
 			int randI = Helper.randomInRange(0, individualSize - 1);
@@ -234,20 +228,26 @@ public class DEHelper implements AlgorithmHelper {
 			}
 		}
 		
-		//System.out.println("\nQU = " + Arrays.toString(QU));
-
 		RealMatrix QT = eigenDecomposition.getVT(); // Qg*
 		
 		double[] trialVector = new double[individualSize];
 		for (int j = 0; j < individualSize; j++) {
 			trialVector[j] = 0;
 			for (int k = 0; k < individualSize; k++) {
-				//System.out.println("trialVector["+j+"] = trialVector["+j+"] + (QT.getEntry("+k+", "+j+") * QU["+k+"]) = " + trialVector[j] + " + (" + QT.getEntry(k, j) + " * " + QU[k] + ") = " + (trialVector[j] + QT.getEntry(k, j) * QU[k]));
 				trialVector[j] += QT.getEntry(k, j) * QU[k]; /* Qg* . xover(Qg.Xi, Qg.Vi) */
 			}
+			trialVector[j] = Helper.checkLimits(trialVector[j]);
 		}
-		//System.out.println("\ntrialVector = " + Arrays.toString(trialVector));
 		return trialVector; // Ui,G+1
+	}
+	private double getEigRate() {
+		double eigRate = DEProperties.EIG_RATE;
+		if (DEProperties.EIG_RATE_ADAPTATIVE) {
+			BigDecimal factor = new BigDecimal(Properties.ARGUMENTS.get().getCountEvaluations());
+			factor = factor.divide(new BigDecimal(Properties.ARGUMENTS.get().getMaxFES()), 5, RoundingMode.HALF_UP);
+			eigRate = factor.doubleValue();
+		}
+		return eigRate;
 	}
 	public double[] generateTrialVector(Individual current /* Xi,G */) {
 		this.initializePopulationIndexes();
@@ -259,7 +259,7 @@ public class DEHelper implements AlgorithmHelper {
 		List<Individual> partners = this.selectPartners(); // X1, X2, X3, X4
 		Individual destiny = this.selectDestiny(); // strategy 'DE/current-to-{rand/best/pbest}/N'
 		
-		if (this.properties.isEigenvectorCrossover() && Math.random() <= DEProperties.EIG_RATE)
+		if (this.properties.isEigenvectorCrossover() && Math.random() <= getEigRate())
 			return generateTrialVectorEig(current, base, destiny, partners);
 		else
 			return generateTrialVectorBin(current, base, destiny, partners);
