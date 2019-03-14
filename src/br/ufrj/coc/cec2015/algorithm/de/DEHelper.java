@@ -12,6 +12,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 import br.ufrj.coc.cec2015.algorithm.AlgorithmHelper;
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Population;
+import br.ufrj.coc.cec2015.algorithm.de.DEProperties.EigRateAdaptation;
 import br.ufrj.coc.cec2015.math.MatrixUtil;
 import br.ufrj.coc.cec2015.util.Helper;
 import br.ufrj.coc.cec2015.util.Properties;
@@ -242,9 +243,11 @@ public class DEHelper implements AlgorithmHelper {
 	}
 	private double getEigRate() {
 		double eigRate = DEProperties.EIG_RATE;
-		if (DEProperties.EIG_RATE_ADAPTATIVE) {
+		if (DEProperties.EIG_RATE_ADAPTATION != null) { // default 0 ... 1
 			BigDecimal factor = new BigDecimal(Properties.ARGUMENTS.get().getCountEvaluations());
 			factor = factor.divide(new BigDecimal(Properties.ARGUMENTS.get().getMaxFES()), 5, RoundingMode.HALF_UP);
+			if (DEProperties.EIG_RATE_ADAPTATION.equals(EigRateAdaptation.DESC))
+				factor = BigDecimal.valueOf(1).subtract(factor).setScale(5); // 1 ... 0
 			eigRate = factor.doubleValue();
 		}
 		return eigRate;

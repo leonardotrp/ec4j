@@ -8,17 +8,19 @@ public class AlgorithmArguments {
 	
 	private String name;
 	private String variant;
+	private String info;
 	private int functionNumber;
 	private int populationSize;
 	private int individualSize;
 	private int countEvaluations;
 	private int maxFES;
 
-	public AlgorithmArguments(String name, String variant, int functionNumber, int individualSize) {
+	public AlgorithmArguments(String name, String variant, String info, int functionNumber, int individualSize) {
 		super();
 
 		this.name = name;
 		this.variant = variant;
+		this.info = info;
 		this.functionNumber = functionNumber;
 		this.populationSize = Properties.POPULATION_SIZES.get(name);
 		this.individualSize = individualSize;
@@ -37,6 +39,10 @@ public class AlgorithmArguments {
 
 	public String getVariant() {
 		return variant;
+	}
+
+	public String getInfo() {
+		return info;
 	}
 
 	public int getFunctionNumber() {

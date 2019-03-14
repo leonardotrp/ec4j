@@ -24,6 +24,7 @@ public abstract class Algorithm {
 	}
 
 	public abstract String[] getVariants();
+	public abstract String getInfo();
 	
 	private void initializeRound(int round) {
 		Properties.HELPER.set(newInstanceHelper());
@@ -51,7 +52,7 @@ public abstract class Algorithm {
 		for (int functionNumber : Properties.FUNCTION_NUMBERS) { // loop functions
 			Runnable runnable = () -> {
 				try {
-					AlgorithmArguments arguments = new AlgorithmArguments(name, variant, functionNumber, individualSize);
+					AlgorithmArguments arguments = new AlgorithmArguments(name, variant, this.getInfo(), functionNumber, individualSize);
 					Properties.ARGUMENTS.set(arguments);
 
 					Statistic statistic = new Statistic();

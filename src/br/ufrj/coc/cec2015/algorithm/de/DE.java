@@ -22,6 +22,11 @@ public class DE extends Algorithm {
 	}
 
 	@Override
+	public String getInfo() {
+		return DEProperties.INFO;
+	}
+
+	@Override
 	public Initializable getIntializable() {
 		return new Initializable() {
 			private void setParameters(Individual individual) {

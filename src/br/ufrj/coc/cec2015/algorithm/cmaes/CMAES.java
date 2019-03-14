@@ -21,6 +21,11 @@ public class CMAES extends Algorithm {
 	public String[] getVariants() {
 		return new String[] {"IPOP"};
 	}
+	
+	@Override
+	public String getInfo() {
+		return null;
+	}
 
 	@Override
 	protected AlgorithmHelper newInstanceHelper() {

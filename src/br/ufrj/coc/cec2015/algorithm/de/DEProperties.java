@@ -12,11 +12,26 @@ public class DEProperties {
 	public static double CROSSOVER_RATE = Double.parseDouble(bundle.getString("CROSSOVER_RATE"));
 	public static double DIFFERENTIAL_WEIGHT = Double.parseDouble(bundle.getString("DIFFERENTIAL_WEIGHT"));
 	public static String[] VARIANTS = bundle.getString("VARIANTS").split(",");
+	public static String INFO = bundle.getString("INFO");
 	public static boolean EXTERNAL_ARCHIVE = Boolean.parseBoolean(bundle.getString("EXTERNAL_ARCHIVE"));
 	public static double ADAPTATION_RATE = Double.parseDouble(bundle.getString("ADAPTATION_RATE"));
 	public static double GREEDINESS = Double.parseDouble(bundle.getString("GREEDINESS"));
 	public static double EIG_RATE = Double.parseDouble(bundle.getString("EIG_RATE"));
-	public static boolean EIG_RATE_ADAPTATIVE = Boolean.parseBoolean(bundle.getString("EIG_RATE_ADAPTATIVE"));
+	public enum EigRateAdaptation {
+		ASC, DESC
+	}
+	private static String EIG_RATE_ADAPTATIVE = bundle.getString("EIG_RATE_ADAPTATION");
+	public static EigRateAdaptation EIG_RATE_ADAPTATION;
+	static {
+		boolean useEigRateAdaptation = EIG_RATE_ADAPTATIVE.equals("True") || EIG_RATE_ADAPTATIVE.equals("Asc") || EIG_RATE_ADAPTATIVE.equals("Desc");
+		if (useEigRateAdaptation) {
+			if (EIG_RATE_ADAPTATIVE.equals("True"))
+				EIG_RATE_ADAPTATION = EigRateAdaptation.ASC;
+			else
+				EIG_RATE_ADAPTATION = EigRateAdaptation.valueOf(EIG_RATE_ADAPTATIVE.toUpperCase());
+		}
+			
+	}
 	public enum Strategy {
 		BEST, RAND, RE_BASE, RE_ALL, // BEST_2_OPT, RAND_2_OPT, RE_2_OPT
 		CURRENT_TO_BEST,

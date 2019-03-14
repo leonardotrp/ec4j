@@ -17,6 +17,11 @@ public class ABC extends Algorithm {
 	}
 	
 	@Override
+	public String getInfo() {
+		return null;
+	}
+	
+	@Override
 	protected AlgorithmHelper newInstanceHelper() {
 		return new ABCHelper();
 	}

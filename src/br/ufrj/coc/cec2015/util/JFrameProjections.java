@@ -1,11 +1,11 @@
 package br.ufrj.coc.cec2015.util;
 
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Ellipse2D;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -22,10 +22,10 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.title.TextTitle;
+import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.util.ShapeUtilities;
 
 public class JFrameProjections extends JFrame {
 	private static final long serialVersionUID = 9036503967468200772L;
@@ -34,6 +34,7 @@ public class JFrameProjections extends JFrame {
 	private static String DEFAULT_SERIES_DESCRIPTION = "População (" + Properties.ARGUMENTS.get().getPopulationSize() + ")";
 
 	private XYSeries series = new XYSeries(DEFAULT_SERIES_DESCRIPTION);
+	private XYSeries best = new XYSeries("Melhor indivíduo");
 	private final ChartPanel chartPanel;
 
 	public JFrameProjections(String s) {
@@ -45,8 +46,9 @@ public class JFrameProjections extends JFrame {
 
 	private void initialize() {
 		double[][] initialData = new double[1][2];
+		this.best.add(0, 0);
 		for (int i = 0; i < initialData.length; i++) {
-			series.add(initialData[i][0], initialData[i][1]);
+			this.series.add(initialData[i][0], initialData[i][1]);
 		}
 	}
 
@@ -54,7 +56,7 @@ public class JFrameProjections extends JFrame {
 		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 	}
 
-	public void update(double[][] projectionsSeries, int round) {
+	public void update(double[][] projectionsSeries, int bestIndex, int round) {
 		String algorithmName = Properties.ARGUMENTS.get().getName();
 		String chartTitle = "Projeções no plano formado pelas componentes principais V1 e V2";
 		String subTitleMain = algorithmName + " - Função F" + Properties.ARGUMENTS.get().getFunctionNumber() + " - Dimensão " + Properties.ARGUMENTS.get().getIndividualSize();
@@ -67,8 +69,13 @@ public class JFrameProjections extends JFrame {
 				chartPanel.getChart().addSubtitle(new TextTitle("Rodada " + (round + 1)));
 
 				series.clear();
+				best.clear();
 				for (int i = 0; i < projectionsSeries.length; i++) {
-					series.add(projectionsSeries[i][0], projectionsSeries[i][1]);
+					XYDataItem dataItem = new XYDataItem(projectionsSeries[i][0], projectionsSeries[i][1]);
+					if (i == bestIndex)
+						best.add(dataItem);
+					else
+						series.add(dataItem);
 				}
 			}
 		});
@@ -80,12 +87,15 @@ public class JFrameProjections extends JFrame {
 		XYPlot xyPlot = (XYPlot) jfreechart.getPlot();
 
 		XYItemRenderer renderer = xyPlot.getRenderer();
-		renderer.setSeriesPaint(0, Color.BLUE);// change rendered color to cyan
-		renderer.setSeriesShape(0, ShapeUtilities.createDiamond(3.0f));
-		renderer.setSeriesStroke(0, new BasicStroke(4));// the thickness of any lines being rendered
+		renderer.setSeriesPaint(0, Color.BLUE);
+		renderer.setSeriesShape(0, new Ellipse2D.Double(-3, -3, 6, 6));
+		
+		renderer.setSeriesPaint(1, Color.RED);
+		renderer.setSeriesShape(1, new Ellipse2D.Double(-4, -4, 8, 8));
 
 		adjustAxis((NumberAxis) xyPlot.getDomainAxis(), true);
 		adjustAxis((NumberAxis) xyPlot.getRangeAxis(), false);
+		
 		xyPlot.setBackgroundPaint(Color.WHITE);
 		xyPlot.setDomainGridlinePaint(Color.LIGHT_GRAY);
 		xyPlot.setRangeGridlinePaint(Color.LIGHT_GRAY);
@@ -93,20 +103,21 @@ public class JFrameProjections extends JFrame {
 		return new ChartPanel(jfreechart) {
 			@Override
 			public Dimension getPreferredSize() {
-				return new Dimension(800, 600);
+				return new Dimension(800, 650);
 			}
 		};
 	}
 
 	private void adjustAxis(NumberAxis axis, boolean vertical) {
-		axis.setRange(Properties.SEARCH_RANGE[0] * 2, Properties.SEARCH_RANGE[1] * 2);
+		axis.setRange(Properties.SEARCH_RANGE[0] - 50, Properties.SEARCH_RANGE[1] + 50);
 		axis.setTickUnit(new NumberTickUnit(25));
 		axis.setVerticalTickLabels(vertical);
 	}
 
 	private XYDataset createSampleData() {
 		XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
-		xySeriesCollection.addSeries(series);
+		xySeriesCollection.addSeries(this.series);
+		xySeriesCollection.addSeries(this.best);
 		return xySeriesCollection;
 	}
 

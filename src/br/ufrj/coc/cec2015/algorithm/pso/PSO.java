@@ -15,6 +15,11 @@ public class PSO extends Algorithm {
 	public String[] getVariants() {
 		return PSOProperties.VARIANTS;
 	}
+
+	@Override
+	public String getInfo() {
+		return null;
+	}
 	
 	@Override
 	protected AlgorithmHelper newInstanceHelper() {

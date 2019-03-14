@@ -20,7 +20,6 @@ import java.util.LongSummaryStatistics;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
 
 import javax.swing.JFrame;
 
@@ -185,7 +184,8 @@ public class Statistic {
 
 		int individualSize = Properties.ARGUMENTS.get().getIndividualSize();
 		double[][] projectionsSeries = new double[population.size()][2];
-		IntStream.range(0, population.size()).forEach(idxIndividual -> {
+		int bestIndex = 0;
+		for (int idxIndividual = 0; idxIndividual < population.size(); idxIndividual++) {
 			Individual individual = population.get(idxIndividual);
 			double x = 0, y = 0;
 			for (int idxId = 0; idxId < individualSize; idxId++) {
@@ -193,10 +193,11 @@ public class Statistic {
 				y += eigenvectors.getEntry(idxId, 1) * individual.get(idxId);
 			}
 			projectionsSeries[idxIndividual] = new double[] {x, y};
-		});
-		
+			if (population.getBest() == individual)
+				bestIndex = idxIndividual;
+		};
 		// atualiza as projeções no plano
-		this.frameProjections.update(projectionsSeries, round);
+		this.frameProjections.update(projectionsSeries, bestIndex, round);
 	}
 	
 	private void writeHeadEvolutionOfErrors() throws IOException {
@@ -297,10 +298,15 @@ public class Statistic {
 			writeLineEvolutionOfErrors(errorValues, populationSizes);
 		}
 		ErrorEvolution bestRound = getBestRound();
-		this.fileEvolutionOfErrors.write("\nBest Round = " + bestRound.getRound());
-		this.fileEvolutionOfErrors.write("\nBest Error = " + bestRound.getError());
-		this.fileEvolutionOfErrors.write("\nBest Population Size = " + bestRound.getPopulationSize());
-		System.out.println("\nBest Round = " + bestRound.getRound());
+
+		StringBuffer resume = new StringBuffer();
+		resume.append("\nInformação: " + Properties.ARGUMENTS.get().getInfo());
+		resume.append("\nBest Round: " + bestRound.getRound());
+		resume.append("\nBest Error: " + bestRound.getError());
+		resume.append("\nBest Population Size: " + bestRound.getPopulationSize());
+		
+		this.fileEvolutionOfErrors.write(resume.toString());
+		System.out.println(resume.toString());
 	}
 
 	private void writeHeadStatistics(BufferedWriter writer) throws IOException {
