@@ -9,6 +9,8 @@ import java.awt.geom.Ellipse2D;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JFrame;
 
@@ -27,17 +29,17 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-public class JFrameProjections extends JFrame {
+public class ProjectionChart2D extends JFrame {
 	private static final long serialVersionUID = 9036503967468200772L;
 
-	private static String DEFAULT_CHART_TITLE = "Scatter Chart";
+	private static String DEFAULT_CHART_TITLE = "Chart Projection";
 	private static String DEFAULT_SERIES_DESCRIPTION = "População (" + Properties.ARGUMENTS.get().getPopulationSize() + ")";
 
 	private XYSeries series = new XYSeries(DEFAULT_SERIES_DESCRIPTION);
 	private XYSeries best = new XYSeries("Melhor indivíduo");
 	private final ChartPanel chartPanel;
 
-	public JFrameProjections(String s) {
+	public ProjectionChart2D(String s) {
 		super(s);
 		initialize();
 		chartPanel = createProjectionsPanel();
@@ -56,26 +58,82 @@ public class JFrameProjections extends JFrame {
 		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 	}
 
-	public void update(double[][] projectionsSeries, int bestIndex, int round) {
-		String algorithmName = Properties.ARGUMENTS.get().getName();
-		String chartTitle = "Projeções no plano formado pelas componentes principais V1 e V2";
-		String subTitleMain = algorithmName + " - Função F" + Properties.ARGUMENTS.get().getFunctionNumber() + " - Dimensão " + Properties.ARGUMENTS.get().getIndividualSize();
+	public class ProjectionData {
+		private double[][] series;
+		private int best;
+		private String title;
+		private List<String> subTitles = new ArrayList<String>();
+		private String pngFilename;
+
+		public ProjectionData() {
+			super();
+		}
+
+		public double[][] getSeries() {
+			return series;
+		}
+
+		public void setSeries(double[][] series) {
+			this.series = series;
+		}
+
+		public int getBest() {
+			return best;
+		}
+
+		public void setBest(int best) {
+			this.best = best;
+		}
+
+		public String getTitle() {
+			return title;
+		}
+
+		public void setTitle(String title) {
+			this.title = title;
+		}
+
+		public List<String> getSubTitles() {
+			return subTitles;
+		}
+
+		public String getPngFilename() {
+			return pngFilename;
+		}
+
+		public void setPngFilename(String pngFilename) {
+			this.pngFilename = pngFilename;
+		}
+	}
+
+	public void update(ProjectionData data) {
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				chartPanel.getChart().setTitle(chartTitle);
+				chartPanel.getChart().setTitle(data.getTitle());
+
 				chartPanel.getChart().clearSubtitles();
-				chartPanel.getChart().addSubtitle(new TextTitle(subTitleMain));
-				chartPanel.getChart().addSubtitle(new TextTitle("Rodada " + (round + 1)));
+				for (String subTitle : data.getSubTitles())
+					chartPanel.getChart().addSubtitle(new TextTitle(subTitle));
 
 				series.clear();
 				best.clear();
-				for (int i = 0; i < projectionsSeries.length; i++) {
-					XYDataItem dataItem = new XYDataItem(projectionsSeries[i][0], projectionsSeries[i][1]);
-					if (i == bestIndex)
+
+				for (int i = 0; i < data.series.length; i++) {
+					XYDataItem dataItem = new XYDataItem(data.series[i][0], data.series[i][1]);
+					if (i == data.best)
 						best.add(dataItem);
 					else
 						series.add(dataItem);
+				}
+
+				if (data.getPngFilename() != null) {
+					try {
+						OutputStream out = new FileOutputStream(data.getPngFilename());
+						ChartUtilities.writeChartAsPNG(out, chartPanel.getChart(), chartPanel.getWidth(), chartPanel.getHeight());
+					} catch (IOException ex) {
+						throw new RuntimeException(ex);
+					}
 				}
 			}
 		});
@@ -89,13 +147,13 @@ public class JFrameProjections extends JFrame {
 		XYItemRenderer renderer = xyPlot.getRenderer();
 		renderer.setSeriesPaint(0, Color.BLUE);
 		renderer.setSeriesShape(0, new Ellipse2D.Double(-3, -3, 6, 6));
-		
+
 		renderer.setSeriesPaint(1, Color.RED);
 		renderer.setSeriesShape(1, new Ellipse2D.Double(-4, -4, 8, 8));
 
 		adjustAxis((NumberAxis) xyPlot.getDomainAxis(), true);
 		adjustAxis((NumberAxis) xyPlot.getRangeAxis(), false);
-		
+
 		xyPlot.setBackgroundPaint(Color.WHITE);
 		xyPlot.setDomainGridlinePaint(Color.LIGHT_GRAY);
 		xyPlot.setRangeGridlinePaint(Color.LIGHT_GRAY);
@@ -119,19 +177,5 @@ public class JFrameProjections extends JFrame {
 		xySeriesCollection.addSeries(this.series);
 		xySeriesCollection.addSeries(this.best);
 		return xySeriesCollection;
-	}
-
-	public void exportToPng(String pngFilename) {
-		EventQueue.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					OutputStream out = new FileOutputStream(pngFilename);
-					ChartUtilities.writeChartAsPNG(out, chartPanel.getChart(), chartPanel.getWidth(), chartPanel.getHeight());
-				} catch (IOException ex) {
-					throw new RuntimeException(ex);
-				}
-			}
-		});
 	}
 }

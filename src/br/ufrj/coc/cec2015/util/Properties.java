@@ -30,7 +30,23 @@ public class Properties {
 	
 	public static boolean USE_PROJECTIONS = Boolean.parseBoolean(bundle.getString("USE_PROJECTIONS"));
 	public static boolean SHOW_PROJECTIONS = Boolean.parseBoolean(bundle.getString("SHOW_PROJECTIONS"));
+	enum UpdateProjections {
+		ALL, INSTANT
+	}
+	private static UpdateProjections UPDATE_PROJECTIONS;
+	static {
+		String strExportProjections = bundle.getString("EXPORT_PROJECTIONS");
+		if (strExportProjections != null)
+			UPDATE_PROJECTIONS = UpdateProjections.valueOf(bundle.getString("UPDATE_PROJECTIONS").toUpperCase());
+	}
+	public static boolean isUpdateProjectionsAll() {
+		return UpdateProjections.ALL.equals(UPDATE_PROJECTIONS) && (ARGUMENTS.get().getCountEvaluations() % EXPORT_BY_EVALUATIONS_MOD == 0);
+	}
+	public static boolean isUpdateProjectionsInstant() {
+		return UpdateProjections.INSTANT.equals(UPDATE_PROJECTIONS);
+	}
 	public static boolean EXPORT_PROJECTIONS = Boolean.parseBoolean(bundle.getString("EXPORT_PROJECTIONS"));
+	public static int EXPORT_BY_EVALUATIONS_MOD = Integer.parseInt(bundle.getString("EXPORT_BY_EVALUATIONS_MOD"));
 	
 
 	// -------------------------------------------------------------------------------

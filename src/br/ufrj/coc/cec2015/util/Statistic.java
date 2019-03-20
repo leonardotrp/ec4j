@@ -27,11 +27,12 @@ import org.apache.commons.math3.linear.RealMatrix;
 
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Population;
+import br.ufrj.coc.cec2015.util.ProjectionChart2D.ProjectionData;
 
 public class Statistic {
 	static private String ID = UUID.randomUUID().toString();
 	private AtomicInteger counter = new AtomicInteger();
-	private JFrameProjections frameProjections;
+	private ProjectionChart2D projectionChart2D;
 
 	private BufferedWriter fileRoundErrors;
 	private BufferedWriter fileEvolutionOfErrors;
@@ -83,16 +84,17 @@ public class Statistic {
 	public Statistic() {
 		super();
 		start();
-		if (Properties.USE_PROJECTIONS)
-			showProjection();
+		initializeProjection();
 	}
 	
-	private void showProjection() {
-		this.frameProjections = new JFrameProjections("Scatter Chart");
-		this.frameProjections.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.frameProjections.pack();
-		this.frameProjections.setLocationRelativeTo(null);
-		this.frameProjections.setVisible(Properties.SHOW_PROJECTIONS);
+	private void initializeProjection() {
+		if (Properties.USE_PROJECTIONS) {
+			this.projectionChart2D = new ProjectionChart2D("Projection Chart 2D");
+			this.projectionChart2D.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			this.projectionChart2D.pack();
+			this.projectionChart2D.setLocationRelativeTo(null);
+			this.projectionChart2D.setVisible(Properties.SHOW_PROJECTIONS);
+		}
 	}
 
 	private long initialTimeFunction, initialTimeRound;
@@ -159,21 +161,15 @@ public class Statistic {
 						roundErrors.add(index, lastErrorEvolution);
 				}
 				roundErrors.add(indexEvaluation, new ErrorEvolution(population.getBestError(), population.size()));
-				exportProjections(round);
+				if (Properties.isUpdateProjectionsInstant())
+					updateProjections2D(round, population);
 			}
 		}
-		updateProjections(round, population);
+		if (Properties.isUpdateProjectionsAll())
+			updateProjections2D(round, population);
 	}
 	
-	private void exportProjections(int round) {
-		if (Properties.USE_PROJECTIONS && Properties.EXPORT_PROJECTIONS) {
-			String projectionsPath = Properties.ARGUMENTS.get().getName() + "/projections/F" + Properties.ARGUMENTS.get().getFunctionNumber() + "/" + round;
-			String pngChartFilename = FileUtil.getFileName(ID, projectionsPath, "projection_round" + round + "_" + this.counter.incrementAndGet() + ".png");
-			this.frameProjections.exportToPng(pngChartFilename);
-		}
-	}
-	
-	private void updateProjections(int round, Population population) {
+	private void updateProjections2D(int round, Population population) {
 		// 1ª coluna: 1º autovetor (x axis)
 		// 2ª coluna: 2º autovetor (y axis)
 		// demais colunas: projeção p = (x, y)
@@ -196,8 +192,21 @@ public class Statistic {
 			if (population.getBest() == individual)
 				bestIndex = idxIndividual;
 		};
+
 		// atualiza as projeções no plano
-		this.frameProjections.update(projectionsSeries, bestIndex, round);
+		ProjectionData projectionData = this.projectionChart2D.new ProjectionData();
+		projectionData.setSeries(projectionsSeries);
+		projectionData.setBest(bestIndex);
+		projectionData.setTitle("Projeções no plano formado pelas componentes principais V1 e V2");
+		projectionData.getSubTitles().add(Properties.ARGUMENTS.get().getName() + " - Função F" + Properties.ARGUMENTS.get().getFunctionNumber() + " - Dimensão " + Properties.ARGUMENTS.get().getIndividualSize());
+		projectionData.getSubTitles().add("Rodada (" + (round + 1) + ")");
+		if (Properties.EXPORT_PROJECTIONS) {
+			String projectionsPath = Properties.ARGUMENTS.get().getName() + "/projections/F" + Properties.ARGUMENTS.get().getFunctionNumber() + "/" + round;
+			String pngChartFilename = FileUtil.getFileName(ID, projectionsPath, "projection_round" + round + "_" + this.counter.incrementAndGet() + ".png");
+			projectionData.setPngFilename(pngChartFilename);
+		}
+		
+		this.projectionChart2D.update(projectionData);
 	}
 	
 	private void writeHeadEvolutionOfErrors() throws IOException {
@@ -364,8 +373,8 @@ public class Statistic {
 		this.fileEvolutionOfErrors.close();
 		this.fileEvolutionOfPopulationSize.close();
 		
-		if (this.frameProjections != null)
-			this.frameProjections.close();
+		if (this.projectionChart2D != null)
+			this.projectionChart2D.close();
 		
 		System.out.println("::::::::::::::: " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()) + " :::::::::::::");
 	}

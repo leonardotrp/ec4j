@@ -67,11 +67,12 @@ public class CMAES extends Algorithm {
 			// set up restarts
 	        nbRuns = 1+cma.options.getFirstToken(cma.getProperties().getProperty("numberOfRestarts"), 1);
 	        double incPopSizeFactor = cma.options.getFirstToken(cma.getProperties().getProperty("incPopSizeFactor"), 1.);
-	         
+
 	        // initialize
 	        if (irun == 0) {
 	        	fitness = cma.init(); // finalize setting of population size lambda, get fitness array
-	        	lambda = cma.parameters.getPopulationSize(); // retain lambda for restart
+	        	//lambda = cma.parameters.getPopulationSize(); // retain lambda for restart
+	        	lambda = Properties.ARGUMENTS.get().getPopulationSize();
 	    		cma.writeToDefaultFilesHeaders(0); // overwrite output files
 	    	}
 	    	else {
@@ -85,7 +86,7 @@ public class CMAES extends Algorithm {
 	        // set additional termination criterion
 	        if (nbRuns > 1) 
 	           cma.options.stopMaxIter = (long) (100 + 200*Math.pow(cma.getDimension(),2)*Math.sqrt(cma.parameters.getLambda()));
-			
+
 			double lastTime = 0, alastTime = 0; // for smarter console output
             while(cma.stopConditions.isFalse()) {
 		        // --- core iteration step ---
@@ -100,14 +101,14 @@ public class CMAES extends Algorithm {
 		        	double[] resample = cma.resampleSingle(i); //   initialX is feasible and initialStandardDeviations are sufficiently small to prevent quasi-infinite looping here
 		            // compute fitness/objective value
 		        	double functionValue = Properties.ARGUMENTS.get().evaluateFunction(resample);
-		        	
+
 		        	Individual current = population.get(i);
 					current.setId(resample);
 					current.setFunctionValue(functionValue);
 					population.updateBestError(current);
-		
+
 					statistic.verifyEvaluationInstant(round, population);
-		        	
+
 		        	fitness[i] = Helper.getError(functionValue); // fitfun.valueOf() is to be minimized
 		        }
 		        cma.updateDistribution(fitness);         // pass fitness array to update search distribution
@@ -115,10 +116,10 @@ public class CMAES extends Algorithm {
 
 		        // stopping conditions can be changed in file CMAEvolutionStrategy.properties 
 		        cma.readProperties();
-		
+
 		        // the remainder is output
 		        cma.writeToDefaultFiles();
-		
+
 		        // screen output
 		        boolean printsomething = true; // for a convenient switch to false
 		        if (printsomething && System.currentTimeMillis() - alastTime > 20e3) {
@@ -132,7 +133,7 @@ public class CMAES extends Algorithm {
 		            lastTime = System.currentTimeMillis();
 		        }
             } // iteration loop
-            
+
     		// evaluate mean value as it is the best estimator for the optimum
             //double funcValMeanX = Helper.evaluate(cma.getMeanX());
     		//cma.setFitnessOfMeanX(Helper.getError(funcValMeanX)); // updates the best ever solution 
@@ -148,18 +149,16 @@ public class CMAES extends Algorithm {
             cma.println("Terminated (run " + (irun+1) + ") due to");
             for (String s : cma.stopConditions.getMessages()) 
                 cma.println("      " + s);
-    		cma.println("    best function value " + cma.getBestFunctionValue() 
-    				+ " at evaluation " + cma.getBestEvaluationNumber());
+    		cma.println("    best function value " + cma.getBestFunctionValue() + " at evaluation " + cma.getBestEvaluationNumber());
 
             // quit restart loop if MaxFunEvals or target Fitness are reached
             boolean quit = false;
             for (String s : cma.stopConditions.getMessages()) 
-                if (s.startsWith("MaxFunEvals") ||
-                    s.startsWith("Fitness")) 
+                if (s.startsWith("MaxFunEvals") || s.startsWith("Fitness")) 
                     quit = true;
             if (quit)
                 break;
-            
+
             counteval = cma.getCountEval();
 
             if (irun < nbRuns-1) // after Manual stop give time out to change stopping condition 
