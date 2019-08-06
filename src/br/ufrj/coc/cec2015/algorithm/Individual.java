@@ -15,6 +15,7 @@ public class Individual implements Comparable<Individual>, Cloneable {
 	// used in adaptative/self-adaptative DE
 	private double differencialWeight; // Fi
 	private double crossoverRate; // CRi
+	private boolean F_flag, CR_flag; // DPADE: false=left | true=right
 	
 	// used in ABC
 	private int trial = 0;
@@ -101,6 +102,22 @@ public class Individual implements Comparable<Individual>, Cloneable {
 
 	public void setCrossoverRate(double crossoverRate) {
 		this.crossoverRate = crossoverRate;
+	}
+
+	public boolean isF_flag() {
+		return F_flag;
+	}
+
+	public void setF_flag(boolean f_flag) {
+		F_flag = f_flag;
+	}
+
+	public boolean isCR_flag() {
+		return CR_flag;
+	}
+
+	public void setCR_flag(boolean cR_flag) {
+		CR_flag = cR_flag;
 	}
 
 	public int getTrial() {

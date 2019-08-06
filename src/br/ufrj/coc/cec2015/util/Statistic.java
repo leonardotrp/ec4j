@@ -437,4 +437,14 @@ public class Statistic {
 		}
 		return dividend.divide(divisor, 15, RoundingMode.HALF_UP).doubleValue();
 	}
+
+	public static double calculateWeightedMean(List<Double> numbers) {
+		BigDecimal mean = new BigDecimal(0.0);
+		for (Double number : numbers) {
+			BigDecimal bdNumber = new BigDecimal(number);
+			mean = mean.add(bdNumber);
+		}
+		mean = mean.divide(new BigDecimal(numbers.size()), 15, RoundingMode.HALF_UP);
+		return mean.doubleValue();
+	}
 }
