@@ -30,23 +30,15 @@
 
 		<!-- https://mvnrepository.com/artifact/org.jfree/jfreechart -->
 		<dependency>
-		    <groupId>org.jfree</groupId>
-		    <artifactId>jfreechart</artifactId>
-		    <version>1.0.19</version>
+			<groupId>org.jfree</groupId>
+			<artifactId>jfreechart</artifactId>
+			<version>1.0.19</version>
 		</dependency>
 
-		<!-- https://github.com/jtablesaw/tablesaw
-		<dependency>
-			<groupId>tech.tablesaw</groupId>
-			<artifactId>tablesaw-core</artifactId>
-			<version>0.31.0</version>
-		</dependency>
-		<dependency>
-			<groupId>tech.tablesaw</groupId>
-			<artifactId>tablesaw-jsplot</artifactId>
-			<version>0.31.0</version>
-		</dependency>
-		-->
+		<!-- https://github.com/jtablesaw/tablesaw <dependency> <groupId>tech.tablesaw</groupId> 
+			<artifactId>tablesaw-core</artifactId> <version>0.31.0</version> </dependency> 
+			<dependency> <groupId>tech.tablesaw</groupId> <artifactId>tablesaw-jsplot</artifactId> 
+			<version>0.31.0</version> </dependency> -->
 	</dependencies>
 
 	<build>

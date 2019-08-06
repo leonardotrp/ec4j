@@ -41,7 +41,7 @@ public abstract class Algorithm {
 		statistic.startRound();
 		initializeRound(round);
 		File initialPopulationFile = FileUtil.getInitialPopulationFile();
-		Population population = initialPopulationFile != null && round == 0 ? new Population(initializable, initialPopulationFile) : new Population(initializable);
+		Population population = initialPopulationFile != null && initialPopulationFile.exists() && round == 0 ? new Population(initializable, initialPopulationFile) : new Population(initializable);
 		while (!terminated(population)) {
 			this.run(population, statistic, round);
 		}

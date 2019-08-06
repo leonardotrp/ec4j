@@ -23,11 +23,12 @@ public class DEHelper implements AlgorithmHelper {
 	private double[] cumulativeVector;
 	private List<Integer> populationIndexes;
 	private DEProperties properties;
+	private EigenDecomposition eigenDecomposition;
 
 	public DEHelper() {
 		super();
 		this.properties = new DEProperties();
-		initialize();
+		this.eigenDecomposition = null;
 	}
 
 	@Override
@@ -35,11 +36,30 @@ public class DEHelper implements AlgorithmHelper {
 		this.population = population;
 		this.initializeCumulativeVector();
 		this.initializePopulationIndexes();
-		this.initializeGeneration();
+
+		if (this.properties.isEigenvectorCrossover()) {
+			//RealMatrix covarianceMatrix = MatrixUtil.getCovarianceMatrix(this.population.toMatrix());
+			this.eigenDecomposition = MatrixUtil.getEigenDecomposition(this.population);
+			if (this.population.getEigenvectors() == null) // save the first eigenvectors
+				this.population.setEigenvectors(this.eigenDecomposition.getV());
+
+		}
 	}
 	
 	public DEProperties getProperties() {
 		return this.properties;
+	}
+	
+	public Population getPopulation() {
+		return this.population;
+	}
+
+	public Population getSortedPopulation() {
+		return this.sortedPopulation;
+	}
+	
+	public List<Integer> getPopulationIndexes() {
+		return this.populationIndexes;
 	}
 	
 	// --------------------------------------------------------------------------------
@@ -71,7 +91,7 @@ public class DEHelper implements AlgorithmHelper {
 		this.populationIndexes.remove(index);
 		return populationIndex;
 	}
-	private void removePopulationIndex(int populationIndex) {
+	protected void removePopulationIndex(int populationIndex) {
 		if (this.populationIndexes.contains(populationIndex)) {
 			int index = this.populationIndexes.indexOf(populationIndex);
 			this.populationIndexes.remove(index);
@@ -105,19 +125,12 @@ public class DEHelper implements AlgorithmHelper {
 		int drwanIndex = rouletteWheel();
 		return this.sortedPopulation.remove(drwanIndex);
 	}
-	private Individual selectDestiny() {
+	public Individual selectDestiny() {
 		if (this.properties.isCurrentToStrategy()) {
 			if (this.properties.isCurrentToBestStrategy())
 				return population.getBest();
 			else if (this.properties.isCurrentToRandStrategy())
 				return population.get(randomPopulationIndex());
-			else if (this.properties.isJADE()) {
-				BigDecimal p = new BigDecimal(DEProperties.GREEDINESS);
-				//BigDecimal percentTop = p.multiply(BigDecimal.valueOf(100)); // 100 . p%
-				int indexLastTop = p.multiply(BigDecimal.valueOf(Properties.ARGUMENTS.get().getIndividualSize())).intValue();
-				int indexTop = indexLastTop == 0 ? 0 : Helper.randomInRange(0, indexLastTop);
-				return this.sortedPopulation.get(indexTop);
-			}
 		}
 		return null;
 	}
@@ -137,13 +150,16 @@ public class DEHelper implements AlgorithmHelper {
 		}
 		return base;
 	}
+	protected Individual getIndividualX2() {
+		return this.population.get(randomPopulationIndex());
+	}
 	private List<Individual> selectPartners() {
 		boolean rouletteSelection = this.properties.isRouletteStrategyOthers();
 		List<Individual> partners = new ArrayList<Individual>();
 		
 		partners.add(rouletteSelection ? spinRoulette() : this.population.get(randomPopulationIndex())); // X1
 
-		Individual X2 = this.properties.isJADEWithArchieve() ? this.randomFromArchieve() : this.population.get(randomPopulationIndex());
+		Individual X2 = this.getIndividualX2();
 		partners.add(X2); // X2
 
 		if (this.properties.getMutationDifferenceCount() > 1) {
@@ -267,64 +283,17 @@ public class DEHelper implements AlgorithmHelper {
 		else
 			return generateTrialVectorBin(current, base, destiny, partners);
 	}
-	// ======================================= JADE =======================================
-	private EigenDecomposition eigenDecomposition;
-	private JADEHelper jadeHelper;
-	private void initialize() {
-		jadeHelper = new JADEHelper();
-		if (this.properties.isJADE())
-			jadeHelper.initialize();
-		this.eigenDecomposition = null;
-	}
-	private void initializeGeneration() {
-		if (this.properties.isJADE())
-			jadeHelper.initializeGeneration(this.population);
-		if (this.properties.isEigenvectorCrossover()) {
-			//RealMatrix covarianceMatrix = MatrixUtil.getCovarianceMatrix(this.population.toMatrix());
-			eigenDecomposition = MatrixUtil.getEigenDecomposition(this.population);
-			if (this.population.getEigenvectors() == null) // save the first eigenvectors
-				this.population.setEigenvectors(eigenDecomposition.getV());
-
-		}
+	public void addInferior(Individual inferior) {
+		// nothing
 	}
 	public void generateControlParameters(Individual individual) {
-		if (this.properties.isJADE()) {
-			individual.setCrossoverRate(jadeHelper.generateCrossoverRate());
-			individual.setDifferencialWeight(jadeHelper.generateDifferencialWeight());
-		}
-		else {
-			individual.setCrossoverRate(DEProperties.CROSSOVER_RATE);
-			individual.setDifferencialWeight(DEProperties.DIFFERENTIAL_WEIGHT);
-		}
+		individual.setCrossoverRate(DEProperties.CROSSOVER_RATE);
+		individual.setDifferencialWeight(DEProperties.DIFFERENTIAL_WEIGHT);
 	}
 	public void addSuccessful(Individual successful) {
-		if (this.properties.isJADE())
-			jadeHelper.addSuccessfulControlParameters(successful.getCrossoverRate(), successful.getDifferencialWeight());
-	}
-	public void addInferior(Individual inferior) {
-		if (this.properties.isJADEWithArchieve())
-			jadeHelper.addInferior(inferior);
+		// nothing
 	}
 	public void finalizeGeneration() {
-		if (this.properties.isJADE()) {
-			jadeHelper.updateMeanCrossoverRate();
-			jadeHelper.updateLocationDifferencialWeight();
-		}
-	}
-	// Randomly choose ˜xr2,g <> xr1,g <> xi,g from P union A
-	private Individual randomFromArchieve() {
-		List<Individual> unionPA = new ArrayList<>(this.populationIndexes.size() + this.jadeHelper.getInferiors().size());
-		for (Integer populationIndex : this.populationIndexes) {
-			unionPA.add(this.population.get(populationIndex));
-		}
-		unionPA.addAll(this.jadeHelper.getInferiors());
-		int randomUnionPAIndex = Helper.randomInRange(0, unionPA.size() - 1);
-		
-		Individual individual = unionPA.get(randomUnionPAIndex);
-
-		int index = population.indexOf(individual);
-		this.removePopulationIndex(index);
-				
-		return individual;
+		// nothing
 	}
 }
