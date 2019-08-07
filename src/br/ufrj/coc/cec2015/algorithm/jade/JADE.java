@@ -11,7 +11,7 @@ public class JADE extends DE {
 	}
 	@Override
 	public String[] getVariants() {
-		return new String[] {"DE/current-to-pbest/1/Eig"};
+		return new String[] {"DE/current-to-pbest/1/Bin", "DE/current-to-pbest/1/Eig"};
 	}
 	public DEHelper getDEHelper() {
 		return (JADEHelper) super.getDEHelper();

@@ -334,12 +334,12 @@ public class DEHelper implements AlgorithmHelper {
 	 * 
 	 * @return double
 	 */
-	protected double generateCrossoverRate(double mean_CR) {
+	protected double generateCrossoverRate(double mean_CR, double min, double max) {
 		double standardDeviation = 0.1;
 		// generate crossover rate to individual
 		NormalDistribution d = new NormalDistribution(mean_CR, standardDeviation);
 		double cr = d.sample();
-		return (cr < 0.0) ? 0.0 : (cr > 1.0) ? 1.0 : cr;
+		return (cr < min) ? min : (cr > max) ? max : cr;
 	}
 
 	/**
@@ -349,10 +349,10 @@ public class DEHelper implements AlgorithmHelper {
 	 * 
 	 * @return double
 	 */
-	protected double generateDifferencialWeight(double location_F) {
+	protected double generateDifferencialWeight(double location_F, double min, double max) {
 		double scale = 0.1;
 		CauchyDistribution c = new CauchyDistribution(location_F, scale);
 		double f = c.sample();
-		return (f >= 1.0) ? 1.0 : (f <= 0) ? this.generateDifferencialWeight(location_F) : f;
+		return (f > max) ? max : (f <= min) ? this.generateDifferencialWeight(location_F, min, max) : f;
 	}
 }

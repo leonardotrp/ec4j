@@ -87,8 +87,8 @@ public class JADEHelper extends DEHelper {
 	}
 
 	public void generateControlParameters(Individual individual) {
-		individual.setCrossoverRate(super.generateCrossoverRate(this.mean_CR));
-		individual.setDifferencialWeight(super.generateDifferencialWeight(this.location_F));
+		individual.setCrossoverRate(super.generateCrossoverRate(this.mean_CR, 0.0, 1.0));
+		individual.setDifferencialWeight(super.generateDifferencialWeight(this.location_F, 0.0, 1.0));
 	}
 
 	public void addSuccessful(Individual successful) {

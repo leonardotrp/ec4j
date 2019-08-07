@@ -1,9 +1,9 @@
 package br.ufrj.coc.cec2015.algorithm.dpade;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Population;
@@ -55,8 +55,8 @@ public class DPADEHelper extends JADEHelper {
 	private void selectIndividualsByF() {
 		int countLeft = (int) (this.propability_F1 * super.getPopulation().size());
 		List<Individual> individuals = new ArrayList<Individual>(super.getPopulation().getIndividuals());
-		while (countLeft-- < 0) {
-			int index = Helper.randomInRange(0, individuals.size());
+		while (countLeft-- > 0) {
+			int index = Helper.randomInRange(0, individuals.size() - 1);
 			individuals.get(index).setF_flag(false);
 			individuals.remove(index);
 		}
@@ -69,8 +69,8 @@ public class DPADEHelper extends JADEHelper {
 	private void selectIndividualsByCR() {
 		int countLeft = (int) (this.propability_CR1 * super.getPopulation().size());
 		List<Individual> individuals = new ArrayList<Individual>(super.getPopulation().getIndividuals());
-		while (countLeft-- < 0) {
-			int index = Helper.randomInRange(0, individuals.size());
+		while (countLeft-- > 0) {
+			int index = Helper.randomInRange(0, individuals.size() - 1);
 			individuals.get(index).setCR_flag(false);
 			individuals.remove(index);
 		}
@@ -89,8 +89,17 @@ public class DPADEHelper extends JADEHelper {
 	}
 
 	public void generateControlParameters(Individual individual) {
-		individual.setCrossoverRate(super.generateCrossoverRate(individual.isCR_flag() ? this.mean_CR1 : this.mean_CR2));
-		individual.setDifferencialWeight(super.generateDifferencialWeight(individual.isF_flag() ? this.mean_F1 : this.mean_F2));
+		double cr, f;
+		if (individual.isCR_flag()) {
+			cr = super.generateCrossoverRate(this.mean_CR1, this.CR_low, this.CR_medium);
+			f = super.generateDifferencialWeight(this.mean_F1, this.F_low, this.F_medium);
+		}
+		else {
+			cr = super.generateCrossoverRate(this.mean_CR2, this.CR_medium, this.CR_high);
+			f = super.generateDifferencialWeight(this.mean_F2, this.F_medium, this.F_high);
+		}
+		individual.setCrossoverRate(cr);
+		individual.setDifferencialWeight(f);
 	}
 
 	public void addSuccessful(Individual successful) {
@@ -145,16 +154,20 @@ public class DPADEHelper extends JADEHelper {
 			this.sr_CR2 = sr_CR2;
 		}
 		public double getF1Factor() {
-			return this.sr_F1 / (this.sr_F1 + this.sr_F2);
+			BigDecimal sumF = new BigDecimal(this.sr_F1).add(new BigDecimal(this.sr_F2));
+			return new BigDecimal(this.sr_F1).divide(sumF, 15, RoundingMode.HALF_UP).doubleValue();
 		}
 		public double getF2Factor() {
-			return this.sr_F2 / (this.sr_F1 + this.sr_F2);
+			BigDecimal sumF = new BigDecimal(this.sr_F1).add(new BigDecimal(this.sr_F2));
+			return new BigDecimal(this.sr_F2).divide(sumF, 15, RoundingMode.HALF_UP).doubleValue();
 		}
 		public double getCR1Factor() {
-			return this.sr_CR1 / (this.sr_CR1 + this.sr_CR2);
+			BigDecimal sumCR = new BigDecimal(this.sr_CR1).add(new BigDecimal(this.sr_CR2));
+			return new BigDecimal(this.sr_CR1).divide(sumCR, 15, RoundingMode.HALF_UP).doubleValue();
 		}
 		public double getCR2Factor() {
-			return this.sr_CR2 / (this.sr_CR1 + this.sr_CR2);
+			BigDecimal sumCR = new BigDecimal(this.sr_CR1).add(new BigDecimal(this.sr_CR2));
+			return new BigDecimal(this.sr_CR2).divide(sumCR, 15, RoundingMode.HALF_UP).doubleValue();
 		}
 	}
 
@@ -162,19 +175,17 @@ public class DPADEHelper extends JADEHelper {
 	 * Equations (20) e (21)
 	 */
 	private SuccessRates calculateSuccessfulRates() {
-		Stream<Individual> streamIndividuals = this.getPopulation().getIndividuals().stream();
-		
 		// SR_F1, SR_F2
-		long count_F1 = streamIndividuals.filter(i -> !i.isF_flag()).count();
-		double sr_F1 = (this.successF1.size() / count_F1) * EPSILON; 
+		long count_F1 = this.getPopulation().getIndividuals().stream().filter(i -> !i.isF_flag()).count();
+		double sr_F1 = new BigDecimal(this.successF1.size()).divide(new BigDecimal(count_F1), 15, RoundingMode.HALF_UP).add(new BigDecimal(EPSILON)).doubleValue(); 
 		long count_F2 = Math.abs(this.getPopulation().size() - count_F1);
-		double sr_F2 = (this.successF2.size() / count_F2) * EPSILON; 
+		double sr_F2 = new BigDecimal(this.successF2.size()).divide(new BigDecimal(count_F2), 15, RoundingMode.HALF_UP).add(new BigDecimal(EPSILON)).doubleValue();
 		
 		// SR_CR1, SR_CR2
-		long count_CR1 = streamIndividuals.filter(i -> !i.isCR_flag()).count();
-		double sr_CR1 = (this.successF1.size() / count_CR1) * EPSILON; 
-		long count_CR2 = Math.abs(this.getPopulation().size() - count_F1);
-		double sr_CR2 = (this.successF2.size() / count_CR2) * EPSILON;
+		long count_CR1 = this.getPopulation().getIndividuals().stream().filter(i -> !i.isCR_flag()).count();
+		double sr_CR1 = new BigDecimal(this.successCR1.size()).divide(new BigDecimal(count_CR1), 15, RoundingMode.HALF_UP).add(new BigDecimal(EPSILON)).doubleValue();
+		long count_CR2 = Math.abs(this.getPopulation().size() - count_CR1);
+		double sr_CR2 = new BigDecimal(this.successCR2.size()).divide(new BigDecimal(count_CR2), 15, RoundingMode.HALF_UP).add(new BigDecimal(EPSILON)).doubleValue();
 		
 		return new SuccessRates(sr_F1, sr_F2, sr_CR1, sr_CR2);
 	}
