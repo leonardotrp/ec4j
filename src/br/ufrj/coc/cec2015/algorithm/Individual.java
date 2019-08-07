@@ -16,6 +16,7 @@ public class Individual implements Comparable<Individual>, Cloneable {
 	private double differencialWeight; // Fi
 	private double crossoverRate; // CRi
 	private boolean F_flag, CR_flag; // DPADE: false=left | true=right
+	private double improvedFunctionValue;
 	
 	// used in ABC
 	private int trial = 0;
@@ -84,8 +85,9 @@ public class Individual implements Comparable<Individual>, Cloneable {
 		return this.functionValue;
 	}
 
-	public void setFunctionValue(double fitness) {
-		this.functionValue = fitness;
+	public void setFunctionValue(double functionValue) {
+		this.improvedFunctionValue = Math.abs(this.functionValue - functionValue);
+		this.functionValue = functionValue;
 	}
 	
 	public double getDifferencialWeight() {
@@ -118,6 +120,14 @@ public class Individual implements Comparable<Individual>, Cloneable {
 
 	public void setCR_flag(boolean cR_flag) {
 		CR_flag = cR_flag;
+	}
+
+	public double getImprovedFunctionValue() {
+		return improvedFunctionValue;
+	}
+
+	public void setImprovedFunctionValue(double improvedFunctionValue) {
+		this.improvedFunctionValue = improvedFunctionValue;
 	}
 
 	public int getTrial() {
