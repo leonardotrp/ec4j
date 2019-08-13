@@ -52,7 +52,8 @@ public class CMAES extends Algorithm {
 	    	// read properties file and obtain some values for "private" use
 	    	cma.readProperties(); // reads from file CMAEvolutionStrategy.properties
 	    	cma.setDimension(Properties.ARGUMENTS.get().getIndividualSize());
-	    	cma.setInitialX(Properties.SEARCH_RANGE[0], Properties.SEARCH_RANGE[1]);
+			double[] range = Properties.getSearchRange();
+	    	cma.setInitialX(range[0], range[1]);
 	    	cma.options.stopMaxFunEvals = Properties.ARGUMENTS.get().getMaxFES();
 	    	cma.options.stopFitness = Properties.MIN_ERROR_VALUE;
 	    	//cma.parameters.setPopulationSize(Properties.POPULATION_SIZE);// ==> λ = 4 + [3.log N] (CMAParameters.java - Linha 195)

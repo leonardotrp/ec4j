@@ -28,7 +28,8 @@ public class PSOHelper implements AlgorithmHelper {
 	}
 	
 	public static double getVelocityRangeValue() {
-		double rangeValue = Math.abs(Properties.SEARCH_RANGE[1] - Properties.SEARCH_RANGE[0]);
+		double[] range = Properties.getSearchRange();
+		double rangeValue = Math.abs(range[1] - range[0]);
 		return rangeValue;
 	}
 	

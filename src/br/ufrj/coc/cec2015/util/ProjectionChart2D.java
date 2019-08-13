@@ -167,7 +167,8 @@ public class ProjectionChart2D extends JFrame {
 	}
 
 	private void adjustAxis(NumberAxis axis, boolean vertical) {
-		axis.setRange(Properties.SEARCH_RANGE[0] - 50, Properties.SEARCH_RANGE[1] + 50);
+		double[] range = Properties.getSearchRange();
+		axis.setRange(range[0] - 50, range[1] + 50);
 		axis.setTickUnit(new NumberTickUnit(25));
 		axis.setVerticalTickLabels(vertical);
 	}

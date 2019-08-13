@@ -145,10 +145,11 @@ public class ABCHelper implements AlgorithmHelper {
 			mutatedValue += sigma * (this.foodSources.getBest().get(indexForChange) /*X(gbest,j)*/ - food.get(indexForChange) /*X(i,j)*/);
 		}
 
-		if (mutatedValue < Properties.SEARCH_RANGE[0])
-			mutatedValue = Properties.SEARCH_RANGE[0];
-		if (mutatedValue > Properties.SEARCH_RANGE[1])
-			mutatedValue = Properties.SEARCH_RANGE[1];
+		double[] range = Properties.getSearchRange();
+		if (mutatedValue < range[0])
+			mutatedValue = range[0];
+		if (mutatedValue > range[1])
+			mutatedValue = range[1];
 		
 		return mutatedValue;
 	}

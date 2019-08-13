@@ -31,15 +31,17 @@ public class Helper {
 	}
 	
 	public static double randomData() {
-		double random = randomInRange(Properties.SEARCH_RANGE[0], Properties.SEARCH_RANGE[1]);
+		double[] range = Properties.getSearchRange();
+		double random = randomInRange(range[0], range[1]);
 		return random;
 	}
 	
 	public static double checkLimits(double value) {
-		if (value < Properties.SEARCH_RANGE[0])
-			return Properties.SEARCH_RANGE[0];
-		else if (value > Properties.SEARCH_RANGE[1])
-			return Properties.SEARCH_RANGE[1];
+		double[] range = Properties.getSearchRange();
+		if (value < range[0])
+			return range[0];
+		else if (value > range[1])
+			return range[1];
 		else
 			return value;
 	}
@@ -49,7 +51,7 @@ public class Helper {
 	}
 	
 	public static double getError(double functionValue) {
-		double optimumValue = Properties.ARGUMENTS.get().getFunctionNumber() * 100;
+		double optimumValue = 0.0;//Properties.ARGUMENTS.get().getFunctionNumber() * 100;
 		return Math.abs(optimumValue - functionValue);
 	}
 		

@@ -17,11 +17,22 @@ public class Properties {
 	public static ThreadLocal<AlgorithmHelper> HELPER = new ThreadLocal<>();
 	public static ThreadLocal<AlgorithmArguments> ARGUMENTS = new ThreadLocal<>();
 
-	public static double[] SEARCH_RANGE;
+	private static double[] SEARCH_RANGE;
 	static {
 		double min = Double.parseDouble(bundle.getString("SEARCH_RANGE_MIN"));
 		double max = Double.parseDouble(bundle.getString("SEARCH_RANGE_MAX"));
 		SEARCH_RANGE = new double[] { min, max };
+	}
+	public static double[] getSearchRange() {
+		int functionNumber = ARGUMENTS.get().getFunctionNumber();
+		try {
+			double min = Double.parseDouble(bundle.getString("SEARCH_RANGE_MIN." + functionNumber));
+			double max = Double.parseDouble(bundle.getString("SEARCH_RANGE_MAX." + functionNumber));
+			SEARCH_RANGE = new double[] { min, max };
+		}
+		catch (Exception e) {
+		}
+		return SEARCH_RANGE;
 	}
 	public static int MAX_RUNS = Integer.parseInt(bundle.getString("MAX_RUNS"));
 	public static double MIN_ERROR_VALUE = 1.0 * Double.parseDouble(bundle.getString("MIN_ERROR_VALUE"));
