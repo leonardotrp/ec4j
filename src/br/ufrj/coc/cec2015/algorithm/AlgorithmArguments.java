@@ -1,7 +1,7 @@
 package br.ufrj.coc.cec2015.algorithm;
 
-//import br.ufrj.coc.cec2014.functions.testfunc;
-import br.ufrj.coc.base.functions.testfunc;
+import br.ufrj.coc.cec2014.functions.testfunc;
+//import br.ufrj.coc.base.functions.testfunc;
 import br.ufrj.coc.cec2015.util.Properties;
 
 public class AlgorithmArguments {

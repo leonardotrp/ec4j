@@ -319,10 +319,12 @@ public class Statistic {
 		ErrorEvolution bestRound = getBestRound();
 
 		StringBuffer resume = new StringBuffer();
-		resume.append("\nInformaÃ§Ã£o: " + Properties.ARGUMENTS.get().getInfo());
-		resume.append("\nBest Round: " + bestRound.getRound());
-		resume.append("\nBest Error: " + bestRound.getError());
-		resume.append("\nBest Population Size: " + bestRound.getPopulationSize());
+		resume.append("\nInformação: " + Properties.ARGUMENTS.get().getInfo());
+		resume.append("\nNúmero de Avaliações: " + Properties.ARGUMENTS.get().getCountEvaluations());
+		resume.append("\nNúmero de Gerações: " + Properties.ARGUMENTS.get().getCountGenerations());
+		resume.append("\nMelhor Rodada: " + bestRound.getRound());
+		resume.append("\nMenor Erro: " + bestRound.getError());
+		//resume.append("\nBest Population Size: " + bestRound.getPopulationSize());
 
 		this.fileEvolutionOfErrors.write(resume.toString());
 		System.out.println(resume.toString());
