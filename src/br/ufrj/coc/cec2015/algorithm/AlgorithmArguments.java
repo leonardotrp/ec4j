@@ -14,6 +14,7 @@ public class AlgorithmArguments {
 	private int populationSize;
 	private int individualSize;
 	private int countEvaluations;
+	private int countGenerations;
 	private int maxFES;
 
 	public AlgorithmArguments(String name, String variant, String info, int functionNumber, int individualSize) {
@@ -66,14 +67,23 @@ public class AlgorithmArguments {
 		return countEvaluations;
 	}
 
-	public void initializeCountEvaluations() {
+	public int getCountGenerations() {
+		return countGenerations;
+	}
+
+	public void initialize() {
 		this.countEvaluations = 0;
+		this.countGenerations = 0;
 	}
 
 	public void incrementCountEvaluations() {
 		this.countEvaluations++;
 	}
 
+	public void incrementCountGenerations() {
+		this.countGenerations++;
+	}
+	
 	public int getMaxFES() {
 		return maxFES;
 	}
@@ -94,7 +104,11 @@ public class AlgorithmArguments {
 	}
 
 	public boolean isMaxFESReached() {
-		return this.countEvaluations >= this.maxFES;
+		return Properties.STOP_BY_MAX_FES && this.countEvaluations >= this.maxFES;
+	}
+
+	public boolean isMaxGenerationsReached() {
+		return Properties.STOP_BY_MAX_GEN && this.countGenerations >= Properties.MAX_GENERATIONS;
 	}
 	
 	public double getEvolutionFactor() {

@@ -11,7 +11,7 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 
-import br.ufrj.coc.cec2015.algorithm.AlgorithmHelper;
+import br.ufrj.coc.cec2015.algorithm.BaseAlgorithmHelper;
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Population;
 import br.ufrj.coc.cec2015.algorithm.de.DEProperties.EigRateAdaptation;
@@ -19,8 +19,7 @@ import br.ufrj.coc.cec2015.math.MatrixUtil;
 import br.ufrj.coc.cec2015.util.Helper;
 import br.ufrj.coc.cec2015.util.Properties;
 
-public class DEHelper implements AlgorithmHelper {
-	private Population population;
+public class DEHelper extends BaseAlgorithmHelper {
 	private Population sortedPopulation;
 	private double[] cumulativeVector;
 	private List<Integer> populationIndexes;
@@ -35,26 +34,23 @@ public class DEHelper implements AlgorithmHelper {
 
 	@Override
 	public void initializeGeneration(Population population) {
-		this.population = population;
+		super.initializeGeneration(population);
+		
 		this.initializeCumulativeVector();
 		this.initializePopulationIndexes();
 
 		if (this.properties.isEigenvectorCrossover()) {
 			// RealMatrix covarianceMatrix =
-			// MatrixUtil.getCovarianceMatrix(this.population.toMatrix());
-			this.eigenDecomposition = MatrixUtil.getEigenDecomposition(this.population);
-			if (this.population.getEigenvectors() == null) // save the first eigenvectors
-				this.population.setEigenvectors(this.eigenDecomposition.getV());
+			// MatrixUtil.getCovarianceMatrix(super.getPopulation().toMatrix());
+			this.eigenDecomposition = MatrixUtil.getEigenDecomposition(super.getPopulation());
+			if (super.getPopulation().getEigenvectors() == null) // save the first eigenvectors
+				super.getPopulation().setEigenvectors(this.eigenDecomposition.getV());
 
 		}
 	}
 
 	public DEProperties getProperties() {
 		return this.properties;
-	}
-
-	public Population getPopulation() {
-		return this.population;
 	}
 
 	public Population getSortedPopulation() {
@@ -70,10 +66,10 @@ public class DEHelper implements AlgorithmHelper {
 	// ----------------------------------------------------
 	// --------------------------------------------------------------------------------
 	private void initializeCumulativeVector() {
-		cumulativeVector = new double[this.population.size()];
-		cumulativeVector[0] = this.population.size();
+		cumulativeVector = new double[super.getPopulation().size()];
+		cumulativeVector[0] = super.getPopulation().size();
 		cumulativeVector[1] = cumulativeVector[0] + cumulativeVector[0] * 0.8;
-		for (int index = 2; index < this.population.size(); index++) {
+		for (int index = 2; index < super.getPopulation().size(); index++) {
 			cumulativeVector[index] = cumulativeVector[index - 1]
 					+ (cumulativeVector[index - 1] - cumulativeVector[index - 2]) * 0.8;
 		}
@@ -84,13 +80,13 @@ public class DEHelper implements AlgorithmHelper {
 	// ---------------------------------------------------
 	// --------------------------------------------------------------------------------
 	private void initializePopulationIndexes() {
-		if (this.populationIndexes == null || this.populationIndexes.size() != this.population.size())
-			this.populationIndexes = new ArrayList<Integer>(this.population.size()); // lista com os índices da
+		if (this.populationIndexes == null || this.populationIndexes.size() != super.getPopulation().size())
+			this.populationIndexes = new ArrayList<Integer>(super.getPopulation().size()); // lista com os índices da
 																						// população, para nunca
 																						// selecionar um índice
 																						// repetido desnecessariamente
 		this.populationIndexes.clear();
-		for (int index = 0; index < this.population.size(); index++) {
+		for (int index = 0; index < super.getPopulation().size(); index++) {
 			this.populationIndexes.add(index);
 		}
 	}
@@ -118,7 +114,7 @@ public class DEHelper implements AlgorithmHelper {
 
 	private void initializeSortedPopulation() {
 		try {
-			this.sortedPopulation = (Population) this.population.clone();
+			this.sortedPopulation = (Population) super.getPopulation().clone();
 			Collections.sort(this.sortedPopulation.getIndividuals());
 		} catch (CloneNotSupportedException e) {
 			throw new RuntimeException(e);
@@ -128,7 +124,7 @@ public class DEHelper implements AlgorithmHelper {
 	private int rouletteWheel() {
 		double pin = Helper.randomInRange(0.0, 1.0) * this.cumulativeVector[this.sortedPopulation.size() - 1];
 		int indexResult = 0;
-		for (int index = 0; index < this.population.size(); index++) {
+		for (int index = 0; index < super.getPopulation().size(); index++) {
 			if (this.cumulativeVector[index] >= pin) {
 				indexResult = index;
 				break;
@@ -145,9 +141,9 @@ public class DEHelper implements AlgorithmHelper {
 	public Individual selectDestiny() {
 		if (this.properties.isCurrentToStrategy()) {
 			if (this.properties.isCurrentToBestStrategy())
-				return population.getBest();
+				return super.getPopulation().getBest();
 			else if (this.properties.isCurrentToRandStrategy())
-				return population.get(randomPopulationIndex());
+				return super.getPopulation().get(randomPopulationIndex());
 		}
 		return null;
 	}
@@ -155,11 +151,11 @@ public class DEHelper implements AlgorithmHelper {
 	private Individual selectBase(Individual current) {
 		Individual base = null;
 		if (this.properties.isBestStrategy()) {
-			base = this.population.getBest();
+			base = super.getPopulation().getBest();
 		} else if (this.properties.isCurrentToStrategy()) {
 			base = current;
 		} else if (this.properties.isRandStrategy()) {
-			base = this.population.get(randomPopulationIndex());
+			base = super.getPopulation().get(randomPopulationIndex());
 		} else if (this.properties.isRouletteStrategy()) {
 			base = spinRoulette();
 		}
@@ -167,21 +163,21 @@ public class DEHelper implements AlgorithmHelper {
 	}
 
 	protected Individual getIndividualX2() {
-		return this.population.get(randomPopulationIndex());
+		return super.getPopulation().get(randomPopulationIndex());
 	}
 
 	private List<Individual> selectPartners() {
 		boolean rouletteSelection = this.properties.isRouletteStrategyOthers();
 		List<Individual> partners = new ArrayList<Individual>();
 
-		partners.add(rouletteSelection ? spinRoulette() : this.population.get(randomPopulationIndex())); // X1
+		partners.add(rouletteSelection ? spinRoulette() : super.getPopulation().get(randomPopulationIndex())); // X1
 
 		Individual X2 = this.getIndividualX2();
 		partners.add(X2); // X2
 
 		if (this.properties.getMutationDifferenceCount() > 1) {
-			partners.add(rouletteSelection ? spinRoulette() : population.get(randomPopulationIndex())); // X3
-			partners.add(rouletteSelection ? spinRoulette() : population.get(randomPopulationIndex())); // X4
+			partners.add(rouletteSelection ? spinRoulette() : super.getPopulation().get(randomPopulationIndex())); // X3
+			partners.add(rouletteSelection ? spinRoulette() : super.getPopulation().get(randomPopulationIndex())); // X4
 		}
 
 		return partners;
@@ -299,7 +295,7 @@ public class DEHelper implements AlgorithmHelper {
 		initializeSortedPopulation();
 
 		Individual base = this.selectBase(current); // XBase
-		removePopulationIndex(this.population.indexOf(base));
+		removePopulationIndex(super.getPopulation().indexOf(base));
 
 		List<Individual> partners = this.selectPartners(); // X1, X2, X3, X4
 		Individual destiny = this.selectDestiny(); // strategy 'DE/current-to-{rand/best/pbest}/N'

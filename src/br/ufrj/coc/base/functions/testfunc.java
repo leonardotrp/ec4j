@@ -221,15 +221,15 @@ public class testfunc {
 			f_out+=0.0;
 			break;
 		case 2:
-			f_out=ackley_func(x_in,0.0,dim,OShift,M,1,1); // -5.12, 5.12
+			f_out=ackley_func(x_in,0.0,dim,OShift,M,1,1); // -32, 32
 			f_out+=0.0;
 			break;
 		case 3:	
-			f_out=griewank_func(x_in,0.0,dim,OShift,M,1,1); // -32, 32
+			f_out=griewank_func(x_in,0.0,dim,OShift,M,1,1); // -600, 600
 			f_out+=0.0;
 			break;
 		case 4:	
-			f_out=rastrigin_func(x_in,0.0,dim,OShift,M,1,0); // -600, 600
+			f_out=rastrigin_func(x_in,0.0,dim,OShift,M,1,0); // -5.12, 5.12
 			f_out+=0.0;
 			break;
 		/*

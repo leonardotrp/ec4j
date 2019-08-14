@@ -2,18 +2,19 @@ package br.ufrj.coc.cec2015.algorithm.pso;
 
 import java.util.Collections;
 
-import br.ufrj.coc.cec2015.algorithm.AlgorithmHelper;
+import br.ufrj.coc.cec2015.algorithm.BaseAlgorithmHelper;
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Population;
 import br.ufrj.coc.cec2015.util.Helper;
 import br.ufrj.coc.cec2015.util.Properties;
 
-public class PSOHelper implements AlgorithmHelper {
+public class PSOHelper extends BaseAlgorithmHelper {
 	private Population swarm;
 	private RIOHelper rioHelper;
 	
 	@Override
 	public void initializeGeneration(Population swarm) {
+		super.initializeGeneration(swarm);
 		this.swarm = swarm;
 		if (PSOProperties.isRIO())
 			rioHelper = new RIOHelper(this.swarm);

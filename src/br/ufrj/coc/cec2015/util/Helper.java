@@ -12,7 +12,9 @@ public class Helper {
 		if (population.size() > 0) {
 			double errorValue = population.getBestError();
 			population.setMinErrorValueFound(errorValue <= Properties.MIN_ERROR_VALUE);
-			return population.isMinErrorValueFound() || Properties.ARGUMENTS.get().isMaxFESReached();
+			boolean minErrorReached = population.isMinErrorValueFound() && Properties.STOP_BY_MIN_ERROR;
+
+			return minErrorReached || Properties.ARGUMENTS.get().isMaxFESReached() || Properties.ARGUMENTS.get().isMaxGenerationsReached();
 		}
 		return false;
 	}

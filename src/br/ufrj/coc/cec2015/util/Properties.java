@@ -1,5 +1,6 @@
 package br.ufrj.coc.cec2015.util;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -23,19 +24,32 @@ public class Properties {
 		double max = Double.parseDouble(bundle.getString("SEARCH_RANGE_MAX"));
 		SEARCH_RANGE = new double[] { min, max };
 	}
+	public static Map<Integer, double[]> SEARCH_RANGE_BY_FUNCTION = new HashMap<>();
 	public static double[] getSearchRange() {
 		int functionNumber = ARGUMENTS.get().getFunctionNumber();
+		double[] searchRange = SEARCH_RANGE_BY_FUNCTION.get(functionNumber);
 		try {
-			double min = Double.parseDouble(bundle.getString("SEARCH_RANGE_MIN." + functionNumber));
-			double max = Double.parseDouble(bundle.getString("SEARCH_RANGE_MAX." + functionNumber));
-			SEARCH_RANGE = new double[] { min, max };
+			if (searchRange == null) {
+				double min = Double.parseDouble(bundle.getString("SEARCH_RANGE_MIN." + functionNumber));
+				double max = Double.parseDouble(bundle.getString("SEARCH_RANGE_MAX." + functionNumber));
+				searchRange = new double[] {min, max};
+				SEARCH_RANGE_BY_FUNCTION.put(functionNumber, searchRange);
+			}
 		}
 		catch (Exception e) {
+			searchRange = SEARCH_RANGE;
 		}
-		return SEARCH_RANGE;
+		return searchRange;
 	}
 	public static int MAX_RUNS = Integer.parseInt(bundle.getString("MAX_RUNS"));
 	public static double MIN_ERROR_VALUE = 1.0 * Double.parseDouble(bundle.getString("MIN_ERROR_VALUE"));
+	public static int MAX_GENERATIONS = Integer.parseInt(bundle.getString("MAX_GENERATIONS"));
+	
+	static String STOP_CRITERIAS[] = bundle.getString("STOP_CRITERIAS").split(",");
+	public static boolean STOP_BY_MIN_ERROR = Arrays.stream(STOP_CRITERIAS).anyMatch("MinError"::equals);
+	public static boolean STOP_BY_MAX_FES = Arrays.stream(STOP_CRITERIAS).anyMatch("MaxFES"::equals);
+	public static boolean STOP_BY_MAX_GEN = Arrays.stream(STOP_CRITERIAS).anyMatch("MaxGen"::equals);
+	
 	public static String RESULTS_ROOT = Properties.class.getResource("/") + bundle.getString("RESULTS_ROOT");
 	public static String INITIAL_POPULATION_FILE = bundle.getString("INITIAL_POPULATION_FILE");
 	
@@ -59,10 +73,6 @@ public class Properties {
 	public static boolean EXPORT_PROJECTIONS = Boolean.parseBoolean(bundle.getString("EXPORT_PROJECTIONS"));
 	public static int EXPORT_BY_EVALUATIONS_MOD = Integer.parseInt(bundle.getString("EXPORT_BY_EVALUATIONS_MOD"));
 	
-
-	// -------------------------------------------------------------------------------
-	// -------------------- CEC 2015 FUNCTIONS ---------------------------------------
-	// -------------------------------------------------------------------------------
 	public static int[] FUNCTION_NUMBERS;
 	static {
 		String[] functionNumbers = bundle.getString("FUNCTIONS").split(",");
@@ -71,9 +81,6 @@ public class Properties {
 			FUNCTION_NUMBERS[index] = Integer.parseInt(functionNumbers[index]);
 	}
 
-	// -------------------------------------------------------------------------------
-	// -------------------- ALGORITHMS -----------------------------------------------
-	// -------------------------------------------------------------------------------
 	public static String[] ALGORITHMS = bundle.getString("ALGORITHMS").split(",");
 	public static Map<String, Integer> POPULATION_SIZES = new HashMap<>(ALGORITHMS.length);
 	static {
@@ -81,8 +88,5 @@ public class Properties {
 			POPULATION_SIZES.put(algorithm, Integer.parseInt(bundle.getString("POPULATION_SIZE." + algorithm)));
 	}
 
-	// -------------------------------------------------------------------------------
-	// -------------------- DIMENSIONS -----------------------------------------------
-	// -------------------------------------------------------------------------------
 	public static int[] INDIVIDUAL_SIZES = Stream.of(bundle.getString("INDIVIDUAL_SIZE").split(",")).mapToInt(Integer::parseInt).toArray();
 }

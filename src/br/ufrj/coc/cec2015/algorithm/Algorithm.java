@@ -28,7 +28,7 @@ public abstract class Algorithm {
 	
 	private void initializeRound(int round) {
 		Properties.HELPER.set(newInstanceHelper());
-		Properties.ARGUMENTS.get().initializeCountEvaluations();
+		Properties.ARGUMENTS.get().initialize();
 	}
 	
 	protected abstract AlgorithmHelper newInstanceHelper();

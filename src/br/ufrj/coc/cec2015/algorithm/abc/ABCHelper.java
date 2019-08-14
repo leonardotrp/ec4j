@@ -3,18 +3,19 @@ package br.ufrj.coc.cec2015.algorithm.abc;
 import java.util.Collections;
 import java.util.List;
 
-import br.ufrj.coc.cec2015.algorithm.AlgorithmHelper;
+import br.ufrj.coc.cec2015.algorithm.BaseAlgorithmHelper;
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Population;
 import br.ufrj.coc.cec2015.util.Helper;
 import br.ufrj.coc.cec2015.util.Properties;
 import br.ufrj.coc.cec2015.util.Statistic;
 
-public class ABCHelper implements AlgorithmHelper {
+public class ABCHelper extends BaseAlgorithmHelper {
 	private Population foodSources;
 	
 	@Override
 	public void initializeGeneration(Population foodSources) {
+		super.initializeGeneration(foodSources);
 		this.foodSources = foodSources;
 	}
 

@@ -359,7 +359,7 @@ public class Statistic {
 		List<Double> errors = calculateErrors(population);
 		Long timeElapsed = this.getTimeElapsed(this.initialTimeRound);
 		this.timeRounds.add(timeElapsed);
-		this.writeLineStatistic(this.fileRoundErrors, "Round(" + (this.roundErros.size() + 1) + ")", errors, timeElapsed, null);
+		this.writeLineStatistic(this.fileRoundErrors, "F(" + Properties.ARGUMENTS.get().getFunctionNumber() + "):Round(" + (this.roundErros.size() + 1) + ")", errors, timeElapsed, null);
 		this.roundErros.add(population.getBestError());
 		if (population.isMinErrorValueFound())
 			this.successfulRuns++;
