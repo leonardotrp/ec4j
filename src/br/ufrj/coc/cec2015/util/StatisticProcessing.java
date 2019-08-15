@@ -36,23 +36,32 @@ public class StatisticProcessing {
 	        headerFont.setBold(true);
 	        headerFont.setFontHeightInPoints((short) 10);
 	        headerFont.setColor(IndexedColors.BLUE.getIndex());
-	        
-	        // Create a CellStyle with the font
 	        CellStyle headerCellStyle = workbook.createCellStyle();
 	        headerCellStyle.setFont(headerFont);
 
 	        // Create a Font for styling header cells
-	        Font bestFont = workbook.createFont();
-	        bestFont.setBold(true);
-	        CellStyle bestCellStyle = workbook.createCellStyle();
-	        bestCellStyle.setFont(bestFont);
+	        Font boldFont = workbook.createFont();
+	        boldFont.setBold(true);
+	        CellStyle boldCellStyle = workbook.createCellStyle();
+	        boldCellStyle.setFont(boldFont);
+
+	        // Create a Font for styling header cells
+	        Font warningFont = workbook.createFont();
+	        warningFont.setBold(true);
+	        headerFont.setColor(IndexedColors.RED.getIndex());
+	        CellStyle warningCellStyle = workbook.createCellStyle();
+	        warningCellStyle.setFont(warningFont);
 
 	        String[] statHeaderColumns = new String[] {"BEST", "MEAN", "STD", "SR"};
 	        int idxColumnHeaderAlgorithm = 0;
 
 			Row rowHeaderAlgorithm = sheet.createRow(0);
 			Row rowHeaderStats = sheet.createRow(1);
+
 			Map<Integer, Row> rowFunctions = new HashMap<>(Properties.FUNCTION_NUMBERS.length);
+			Map<Integer, Cell> cellLowerBests = new HashMap<>(Properties.FUNCTION_NUMBERS.length);
+			Map<Integer, Cell> cellLowerMeans = new HashMap<>(Properties.FUNCTION_NUMBERS.length);
+			Map<Integer, Cell> cellLowerStds = new HashMap<>(Properties.FUNCTION_NUMBERS.length);
 			
 			for (String algotithmName : Properties.ALGORITHMS) { // loop algorithms
 
@@ -86,34 +95,73 @@ public class StatisticProcessing {
 						String fileRoundErrorsName = PATH_RESULT + '\\' + algotithmName + '\\' + arguments.getPrefixFile() + "_statistics.csv";
 						BufferedReader br = new BufferedReader(new FileReader(fileRoundErrorsName));
 						String line;
-						double[] statValues = new double[4];
 						while ((line = br.readLine()) != null) {
 
 			                // use comma as separator
 			                String[] columns = line.split(",");
 			                if (columns[0].trim().equals("F(" + functionNumber + ")")) {
-			                	double best = Double.valueOf(columns[1].trim()); statValues[0] = best;
-			                	double mean = Double.valueOf(columns[3].trim()); statValues[1] = mean;
-			                	double std = Double.valueOf(columns[4].trim()); statValues[2] = std;
-			                	double sr = Double.valueOf(columns[8].trim()); statValues[3] = sr;
+
+								// pega a linha da função
+								Row rowFunction = rowFunctions.get(functionNumber);
+								if (rowFunction == null) {
+									rowFunction = sheet.createRow(idxRowFunction++);
+									rowFunctions.put(functionNumber, rowFunction);
+								}
+
+								int idxColumnStatValue = idxColumnStat;
+								
+								// BEST
+			                	double best = Double.valueOf(columns[1].trim());			                	
+					        	cell = rowFunction.createCell(idxColumnStatValue++);
+					        	cell.setCellValue(best);
+					        	if (best <= Properties.MIN_ERROR_VALUE)
+					        		cell.setCellStyle(boldCellStyle);
+			                	Cell cellLowerBest = cellLowerBests.get(functionNumber);
+			                	if (cellLowerBest == null || (best < cellLowerBest.getNumericCellValue()))
+			                		cellLowerBests.put(functionNumber, cell);
+
+								// MEAN
+			                	double mean = Double.valueOf(columns[3].trim());
+					        	cell = rowFunction.createCell(idxColumnStatValue++);
+					        	cell.setCellValue(mean);
+					        	if (mean <= Properties.MIN_ERROR_VALUE)
+					        		cell.setCellStyle(boldCellStyle);
+			                	Cell cellLowerMean = cellLowerMeans.get(functionNumber);
+			                	if (cellLowerMean == null || (mean < cellLowerMean.getNumericCellValue()))
+			                		cellLowerMeans.put(functionNumber, cell);
+
+								// STD
+			                	double std = Double.valueOf(columns[4].trim());
+					        	cell = rowFunction.createCell(idxColumnStatValue++);
+					        	cell.setCellValue(std);
+					        	if (std <= Properties.MIN_ERROR_VALUE)
+					        		cell.setCellStyle(boldCellStyle);
+			                	Cell cellLowerStd = cellLowerStds.get(functionNumber);
+			                	if (cellLowerStd == null || (std < cellLowerStd.getNumericCellValue()))
+			                		cellLowerStds.put(functionNumber, cell);
+
+								// SR
+			                	double sr = Double.valueOf(columns[8].trim());
+					        	cell = rowFunction.createCell(idxColumnStatValue++);
+					        	cell.setCellValue(sr);
+					        	if (sr == 1.0)
+					        		cell.setCellStyle(boldCellStyle);
+					        	else if (sr > 0)
+					        		cell.setCellStyle(warningCellStyle);
 			                }
 			            }
 						br.close();
-						
-						// pega a linha da função
-						Row rowFunction = rowFunctions.get(functionNumber);
-						if (rowFunction == null) {
-							rowFunction = sheet.createRow(idxRowFunction++);
-							rowFunctions.put(functionNumber, rowFunction);
-						}
-						int idxColumnStatValue = idxColumnStat;
-				        for (double statValue : statValues) {
-				        	cell = rowFunction.createCell(idxColumnStatValue++);
-				        	cell.setCellValue(statValue);
-				        }
 					}
 				}
 			}
+			
+			for (Cell lower : cellLowerBests.values())
+				lower.setCellStyle(boldCellStyle);
+			for (Cell lower : cellLowerMeans.values())
+				lower.setCellStyle(boldCellStyle);
+			for (Cell lower : cellLowerStds.values())
+				lower.setCellStyle(boldCellStyle);
+			
 	        // Write the output to a file
 			File directory = new File(PATH_RESULT + "\\D" + individualSize + '\\');
 			if (!directory.exists())

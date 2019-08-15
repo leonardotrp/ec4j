@@ -53,7 +53,7 @@ public class Helper {
 	}
 	
 	public static double getError(double functionValue) {
-		double optimumValue = 0.0;//Properties.ARGUMENTS.get().getFunctionNumber() * 100;
+		double optimumValue = Properties.ARGUMENTS.get().getFunctionNumber() * 100;
 		return Math.abs(optimumValue - functionValue);
 	}
 		
