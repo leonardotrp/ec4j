@@ -5,7 +5,7 @@ import br.ufrj.coc.cec2015.util.Properties;
 
 public class Main {
 
-	private static Algorithm newInstanceAlgorithm(String className) throws Exception {
+	public static Algorithm newInstanceAlgorithm(String className) throws Exception {
 		return (Algorithm) Class.forName(className).newInstance();
 	}
 

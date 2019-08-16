@@ -16,13 +16,14 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import br.ufrj.coc.cec2015.Main;
 import br.ufrj.coc.cec2015.algorithm.Algorithm;
 import br.ufrj.coc.cec2015.algorithm.AlgorithmArguments;
 
 public class StatisticProcessing {
 
 	public static void main(String[] args) throws Exception {
-		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - dpade with eig\\results\\P100\\JADE_DPADE_woA";
+		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - dpade with eig\\results\\P100\\JADE_DPADE_withA";
 
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
 
@@ -66,7 +67,7 @@ public class StatisticProcessing {
 			for (String algotithmName : Properties.ALGORITHMS) { // loop algorithms
 
 				String className = Algorithm.class.getPackage().getName() + '.' + algotithmName.toLowerCase() + '.' + algotithmName;
-				Algorithm algorithm = (Algorithm) Class.forName(className).newInstance();
+				Algorithm algorithm = Main.newInstanceAlgorithm(className);
 
 				for (String variant : algorithm.getVariants()) {  // loop variants
 
@@ -99,7 +100,7 @@ public class StatisticProcessing {
 
 			                // use comma as separator
 			                String[] columns = line.split(",");
-			                if (columns[0].trim().equals("F(" + functionNumber + ")")) {
+			                if (columns.length > 0 && columns[0].trim().equals("F(" + functionNumber + ")")) {
 
 								// pega a linha da função
 								Row rowFunction = rowFunctions.get(functionNumber);
@@ -121,7 +122,7 @@ public class StatisticProcessing {
 			                		cellLowerBests.put(functionNumber, cell);
 
 								// MEAN
-			                	double mean = Double.valueOf(columns[3].trim());
+			                	double mean = Double.valueOf(columns[4].trim());
 					        	cell = rowFunction.createCell(idxColumnStatValue++);
 					        	cell.setCellValue(mean);
 					        	if (mean <= Properties.MIN_ERROR_VALUE)
@@ -131,7 +132,7 @@ public class StatisticProcessing {
 			                		cellLowerMeans.put(functionNumber, cell);
 
 								// STD
-			                	double std = Double.valueOf(columns[4].trim());
+			                	double std = Double.valueOf(columns[5].trim());
 					        	cell = rowFunction.createCell(idxColumnStatValue++);
 					        	cell.setCellValue(std);
 					        	if (std <= Properties.MIN_ERROR_VALUE)
@@ -167,7 +168,7 @@ public class StatisticProcessing {
 			if (!directory.exists())
 				directory.mkdirs();
 
-	        FileOutputStream fileOut = new FileOutputStream(directory.getAbsolutePath() + "\\JADE_DPADE_woA_Statistics.xlsx");
+	        FileOutputStream fileOut = new FileOutputStream(directory.getAbsolutePath() + "\\P100_D10_ALL_withA.xlsx");
 	        workbook.write(fileOut);
 	        fileOut.close();
 
