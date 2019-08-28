@@ -20,6 +20,13 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.8.1</version>
 		</dependency>
+		<!-- https://issues.apache.org/jira/browse/MATH-1051 -->
+		<!-- https://mvnrepository.com/artifact/gov.nist.math/jama -->
+		<dependency>
+		    <groupId>gov.nist.math</groupId>
+		    <artifactId>jama</artifactId>
+		    <version>1.0.3</version>
+		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.github.oshi/oshi-core -->
 		<dependency>

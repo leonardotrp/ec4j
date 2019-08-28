@@ -1,9 +1,7 @@
 package br.ufrj.coc.cec2015.math;
 
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.apache.commons.math3.linear.EigenDecomposition;
-import org.apache.commons.math3.linear.RealMatrix;
-
+import Jama.EigenvalueDecomposition;
+import Jama.Matrix;
 import br.ufrj.coc.cec2015.algorithm.Population;
 import br.ufrj.coc.cec2015.util.Properties;
 
@@ -15,7 +13,7 @@ public class MatrixUtil {
 	//	return covariance.getCovarianceMatrix();
 	//}
 
-	public static EigenDecomposition getEigenDecomposition(Population population) {
+	public static EigenvalueDecomposition getEigenDecomposition(Population population) {
 		int D = Properties.ARGUMENTS.get().getIndividualSize();
 		int NP = population.size();
 		
@@ -57,8 +55,12 @@ public class MatrixUtil {
 			System.out.println(Arrays.toString(C[index]));
 		*/
 		// Eigendecomposition (14)
-		RealMatrix RM_C = new Array2DRowRealMatrix(C);
-		EigenDecomposition ED_Q = new EigenDecomposition(RM_C);
+		//RealMatrix RM_C = new Array2DRowRealMatrix(C);
+		//EigenDecomposition ED_Q = new EigenDecomposition(RM_C);
+		
+		Matrix M_C = new Matrix(C);
+		EigenvalueDecomposition ED_Q = new EigenvalueDecomposition(M_C);
+		
 		/*
 		System.out.println("\n---------- Q: EIGEN VECTOR --------------");
 		double[][] eigenVector = ED_Q.getV().getData();

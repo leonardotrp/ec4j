@@ -14,8 +14,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.math3.linear.RealMatrix;
-
+import Jama.Matrix;
 import br.ufrj.coc.cec2015.util.Helper;
 import br.ufrj.coc.cec2015.util.Properties;
 
@@ -24,7 +23,7 @@ public class Population implements Cloneable {
 	private Initializable initializable;
 	private Individual best; // global best
 	private boolean minErrorValueFound;
-	private RealMatrix eigenvectors;
+	private Matrix eigenvectors;
 	
 	public Population(Initializable initializable, int populationSize) {
 		super();
@@ -97,11 +96,11 @@ public class Population implements Cloneable {
 		this.minErrorValueFound = minErrorValueFound;
 	}
 
-	public RealMatrix getEigenvectors() {
+	public Matrix getEigenvectors() {
 		return eigenvectors;
 	}
 
-	public void setEigenvectors(RealMatrix eigenvectors) {
+	public void setEigenvectors(Matrix eigenvectors) {
 		this.eigenvectors = eigenvectors;
 	}
 

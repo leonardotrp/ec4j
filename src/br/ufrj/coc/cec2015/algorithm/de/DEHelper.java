@@ -8,9 +8,11 @@ import java.util.List;
 
 import org.apache.commons.math3.distribution.CauchyDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
-import org.apache.commons.math3.linear.EigenDecomposition;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 
+import Jama.EigenvalueDecomposition;
+import Jama.Matrix;
 import br.ufrj.coc.cec2015.algorithm.BaseAlgorithmHelper;
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Population;
@@ -24,7 +26,7 @@ public class DEHelper extends BaseAlgorithmHelper {
 	private double[] cumulativeVector;
 	private List<Integer> populationIndexes;
 	private DEProperties properties;
-	private EigenDecomposition eigenDecomposition;
+	private EigenvalueDecomposition eigenDecomposition;
 
 	public DEHelper() {
 		super();
@@ -242,7 +244,7 @@ public class DEHelper extends BaseAlgorithmHelper {
 			V[j] = mutate(j, differencialWeight, base, destiny, partners);
 		}
 
-		RealMatrix Q = eigenDecomposition.getV(); // Qg
+		Matrix Q = eigenDecomposition.getV(); // Qg
 
 		double[] QX = new double[individualSize];
 		double[] QV = new double[individualSize];
@@ -250,8 +252,8 @@ public class DEHelper extends BaseAlgorithmHelper {
 			QX[j] = 0;
 			QV[j] = 0;
 			for (int k = 0; k < individualSize; k++) {
-				QX[j] += Q.getEntry(k, j) * X[k]; /* Qg.Xi */
-				QV[j] += Q.getEntry(k, j) * V[k]; /* Qg.Vi */
+				QX[j] += Q.get(k, j) * X[k]; /* Qg.Xi */
+				QV[j] += Q.get(k, j) * V[k]; /* Qg.Vi */
 			}
 		}
 
@@ -265,7 +267,7 @@ public class DEHelper extends BaseAlgorithmHelper {
 			}
 		}
 
-		RealMatrix QT = eigenDecomposition.getVT(); // Qg*
+		RealMatrix QT = new Array2DRowRealMatrix(eigenDecomposition.getV().getArray()).transpose(); // Qg*
 
 		double[] trialVector = new double[individualSize];
 		for (int j = 0; j < individualSize; j++) {

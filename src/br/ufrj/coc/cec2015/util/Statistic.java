@@ -24,8 +24,7 @@ import java.util.stream.IntStream;
 
 import javax.swing.JFrame;
 
-import org.apache.commons.math3.linear.RealMatrix;
-
+import Jama.Matrix;
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Population;
 import br.ufrj.coc.cec2015.util.ProjectionChart2D.ProjectionData;
@@ -183,7 +182,7 @@ public class Statistic {
 		// 1ª coluna: 1º autovetor (x axis)
 		// 2ª coluna: 2º autovetor (y axis)
 		// demais colunas: projeção p = (x, y)
-		RealMatrix eigenvectors = population.getEigenvectors();
+		Matrix eigenvectors = population.getEigenvectors();
 
 		if (eigenvectors == null || !Properties.USE_PROJECTIONS)
 			return;
@@ -195,8 +194,8 @@ public class Statistic {
 			Individual individual = population.get(idxIndividual);
 			double x = 0, y = 0;
 			for (int idxId = 0; idxId < individualSize; idxId++) {
-				x += eigenvectors.getEntry(idxId, 0) * individual.get(idxId);
-				y += eigenvectors.getEntry(idxId, 1) * individual.get(idxId);
+				x += eigenvectors.get(idxId, 0) * individual.get(idxId);
+				y += eigenvectors.get(idxId, 1) * individual.get(idxId);
 			}
 			projectionsSeries[idxIndividual] = new double[] { x, y };
 			if (population.getBest() == individual)
