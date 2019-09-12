@@ -27,7 +27,8 @@ import javax.swing.JFrame;
 import Jama.Matrix;
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Population;
-import br.ufrj.coc.cec2015.util.ProjectionChart2D.ProjectionData;
+import br.ufrj.coc.cec2015.util.chart.ProjectionChart2D;
+import br.ufrj.coc.cec2015.util.chart.ProjectionChart2D.ProjectionData;
 
 public class Statistic {
 	static private String ID = UUID.randomUUID().toString();
@@ -36,13 +37,10 @@ public class Statistic {
 
 	private BufferedWriter fileRoundErrors;
 	private BufferedWriter fileEvolutionOfErrors;
-	private BufferedWriter fileEvolutionOfPopulationSize;
+	//private BufferedWriter fileEvolutionOfPopulationSize;
 	private List<Double> roundErros = new ArrayList<Double>(Properties.MAX_RUNS);
 	private List<Long> timeRounds = new ArrayList<Long>(Properties.MAX_RUNS);
 	private static double[] EVALUATION_LIMITS = new double[] {
-			/*
-			 * 0.000001, 0.00001, 0.0001,
-			 */
 			0.001, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09,
 			0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19,
 			0.20, 0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 0.27, 0.28, 0.29,
@@ -143,8 +141,8 @@ public class Statistic {
 			String fileEvolutionOfErrorsName = FileUtil.getFileName(ID, algorithmName, prefixFile + "_evolution.csv");
 			this.fileEvolutionOfErrors = new BufferedWriter(new FileWriter(fileEvolutionOfErrorsName));
 
-			String fileEvolutionOfPopulationSizeName = FileUtil.getFileName(ID, algorithmName, prefixFile + "_populationSize.csv");
-			this.fileEvolutionOfPopulationSize = new BufferedWriter(new FileWriter(fileEvolutionOfPopulationSizeName));
+			//String fileEvolutionOfPopulationSizeName = FileUtil.getFileName(ID, algorithmName, prefixFile + "_populationSize.csv");
+			//this.fileEvolutionOfPopulationSize = new BufferedWriter(new FileWriter(fileEvolutionOfPopulationSizeName));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -232,11 +230,11 @@ public class Statistic {
 		String headLine = String.format(sbFormat.toString(), head);
 
 		this.fileEvolutionOfErrors.write(headLine);
-		this.fileEvolutionOfPopulationSize.write(headLine);
+		//this.fileEvolutionOfPopulationSize.write(headLine);
 		System.err.println(headLine);
 	}
 
-	private void writeLineEvolutionOfErrors(Object[] errorValues, Object[] populationSizes) throws IOException {
+	private void writeLineEvolutionOfErrors(Object[] errorValues/*, Object[] populationSizes*/) throws IOException {
 		StringBuffer sbFormat = new StringBuffer("%-30s");
 		for (int round = 0; round < Properties.MAX_RUNS + 1; round++) {
 			sbFormat.append(", %-22s");
@@ -246,8 +244,8 @@ public class Statistic {
 		String errorLine = String.format(sbFormat.toString(), errorValues);
 		this.fileEvolutionOfErrors.write(errorLine);
 
-		String popSizeLine = String.format(sbFormat.toString(), populationSizes);
-		this.fileEvolutionOfPopulationSize.write(popSizeLine);
+		//String popSizeLine = String.format(sbFormat.toString(), populationSizes);
+		//this.fileEvolutionOfPopulationSize.write(popSizeLine);
 
 		System.out.println(errorLine);
 	}
@@ -283,44 +281,44 @@ public class Statistic {
 		writeHeadEvolutionOfErrors();
 		for (int indexEvaluation = 0; indexEvaluation < EVALUATION_LIMITS.length; indexEvaluation++) {
 			BigDecimal errorMean = new BigDecimal(0.0);
-			BigDecimal popSizeMean = new BigDecimal(0.0);
+			//BigDecimal popSizeMean = new BigDecimal(0.0);
 
 			Object[] errorValues = new Object[Properties.MAX_RUNS + 2];
-			Object[] populationSizes = new Object[Properties.MAX_RUNS + 2];
+			//Object[] populationSizes = new Object[Properties.MAX_RUNS + 2];
 
 			errorValues[0] = EVALUATION_LIMITS[indexEvaluation];
-			populationSizes[0] = EVALUATION_LIMITS[indexEvaluation];
+			//populationSizes[0] = EVALUATION_LIMITS[indexEvaluation];
 
 			for (int round = 1; round <= Properties.MAX_RUNS; round++) {
 				List<ErrorEvolution> roundErros = errorEvolution.get(round - 1);
 				errorValues[round] = "-";
-				populationSizes[round] = "-";
+				//populationSizes[round] = "-";
 
 				if (indexEvaluation < roundErros.size()) {
 					ErrorEvolution errorEvolution = roundErros.get(indexEvaluation);
 					if (errorEvolution != null) {
 						errorMean = errorMean.add(new BigDecimal(errorEvolution.getError()));
-						popSizeMean = popSizeMean.add(new BigDecimal(errorEvolution.getPopulationSize()));
+						//popSizeMean = popSizeMean.add(new BigDecimal(errorEvolution.getPopulationSize()));
 
 						errorValues[round] = formatNumber(errorEvolution.getError());
-						populationSizes[round] = errorEvolution.getPopulationSize();
+						//populationSizes[round] = errorEvolution.getPopulationSize();
 					}
 				}
 			}
 			errorMean = errorMean.divide(new BigDecimal(Properties.MAX_RUNS), 15, RoundingMode.HALF_UP);
 			errorValues[Properties.MAX_RUNS + 1] = errorMean.doubleValue() > 0 ? formatNumber(errorMean.doubleValue()) : "-";
 
-			popSizeMean = popSizeMean.divide(new BigDecimal(Properties.MAX_RUNS), 15, RoundingMode.HALF_UP);
-			populationSizes[Properties.MAX_RUNS + 1] = popSizeMean.doubleValue() > 0 ? popSizeMean.doubleValue() : "-";
+			//popSizeMean = popSizeMean.divide(new BigDecimal(Properties.MAX_RUNS), 15, RoundingMode.HALF_UP);
+			//populationSizes[Properties.MAX_RUNS + 1] = popSizeMean.doubleValue() > 0 ? popSizeMean.doubleValue() : "-";
 
-			writeLineEvolutionOfErrors(errorValues, populationSizes);
+			writeLineEvolutionOfErrors(errorValues/*, populationSizes*/);
 		}
 		ErrorEvolution bestRound = getBestRound();
 
 		StringBuffer resume = new StringBuffer();
-		resume.append("\nInformação: " + Properties.ARGUMENTS.get().getInfo());
-		resume.append("\nNúmero de Avaliações: " + Properties.ARGUMENTS.get().getCountEvaluations());
-		resume.append("\nNúmero de Gerações: " + Properties.ARGUMENTS.get().getCountGenerations());
+		resume.append("\nInformaï¿½ï¿½o: " + Properties.ARGUMENTS.get().getInfo());
+		resume.append("\nNï¿½mero de Avaliaï¿½ï¿½es: " + Properties.ARGUMENTS.get().getCountEvaluations());
+		resume.append("\nNï¿½mero de Geraï¿½ï¿½es: " + Properties.ARGUMENTS.get().getCountGenerations());
 		resume.append("\nMelhor Rodada: " + bestRound.getRound());
 		resume.append("\nMenor Erro: " + bestRound.getError());
 		//resume.append("\nBest Population Size: " + bestRound.getPopulationSize());
@@ -382,7 +380,7 @@ public class Statistic {
 
 		this.writeEvolutionOfErros();
 		this.fileEvolutionOfErrors.close();
-		this.fileEvolutionOfPopulationSize.close();
+		//this.fileEvolutionOfPopulationSize.close();
 
 		if (this.projectionChart2D != null)
 			this.projectionChart2D.close();
@@ -422,7 +420,7 @@ public class Statistic {
 		return median.doubleValue();
 	}
 
-	static double calculateStandardDeviation(List<Double> errors, double meanOfErrors) {
+	public static double calculateStandardDeviation(List<Double> errors, double meanOfErrors) {
 		BigDecimal mean = new BigDecimal(meanOfErrors);
 		BigDecimal standardDeviation = new BigDecimal(0.0);
 		for (Double error : errors) {
