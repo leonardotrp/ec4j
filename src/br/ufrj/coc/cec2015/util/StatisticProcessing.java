@@ -2,6 +2,7 @@ package br.ufrj.coc.cec2015.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.util.HashMap;
@@ -23,7 +24,7 @@ import br.ufrj.coc.cec2015.algorithm.AlgorithmArguments;
 public class StatisticProcessing {
 
 	public static void main(String[] args) throws Exception {
-		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - dpade with eig\\results\\P100\\JADE_DPADE_withA";
+		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - dpade with eig\\experimentos\\P100_D50";
 
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
 
@@ -49,7 +50,7 @@ public class StatisticProcessing {
 	        // Create a Font for styling header cells
 	        Font warningFont = workbook.createFont();
 	        warningFont.setBold(true);
-	        headerFont.setColor(IndexedColors.RED.getIndex());
+	        warningFont.setColor(IndexedColors.RED.getIndex());
 	        CellStyle warningCellStyle = workbook.createCellStyle();
 	        warningCellStyle.setFont(warningFont);
 
@@ -94,64 +95,71 @@ public class StatisticProcessing {
 						AlgorithmArguments arguments = new AlgorithmArguments(algotithmName, variant, algorithm.getInfo(), functionNumber, individualSize);
 
 						String fileRoundErrorsName = PATH_RESULT + '\\' + algotithmName + '\\' + arguments.getPrefixFile() + "_statistics.csv";
-						BufferedReader br = new BufferedReader(new FileReader(fileRoundErrorsName));
-						String line;
-						while ((line = br.readLine()) != null) {
+						BufferedReader br = null;
+						try {
+							br = new BufferedReader(new FileReader(fileRoundErrorsName));
+							String line;
+							while ((line = br.readLine()) != null) {
 
-			                // use comma as separator
-			                String[] columns = line.split(",");
-			                if (columns.length > 0 && columns[0].trim().equals("F(" + functionNumber + ")")) {
+				                // use comma as separator
+				                String[] columns = line.split(",");
+				                if (columns.length > 0 && columns[0].trim().equals("F(" + functionNumber + ")")) {
 
-								// pega a linha da função
-								Row rowFunction = rowFunctions.get(functionNumber);
-								if (rowFunction == null) {
-									rowFunction = sheet.createRow(idxRowFunction++);
-									rowFunctions.put(functionNumber, rowFunction);
-								}
+									// pega a linha da função
+									Row rowFunction = rowFunctions.get(functionNumber);
+									if (rowFunction == null) {
+										rowFunction = sheet.createRow(idxRowFunction++);
+										rowFunctions.put(functionNumber, rowFunction);
+									}
 
-								int idxColumnStatValue = idxColumnStat;
-								
-								// BEST
-			                	double best = Double.valueOf(columns[1].trim());			                	
-					        	cell = rowFunction.createCell(idxColumnStatValue++);
-					        	cell.setCellValue(best);
-					        	if (best <= Properties.MIN_ERROR_VALUE)
-					        		cell.setCellStyle(boldCellStyle);
-			                	Cell cellLowerBest = cellLowerBests.get(functionNumber);
-			                	if (cellLowerBest == null || (best < cellLowerBest.getNumericCellValue()))
-			                		cellLowerBests.put(functionNumber, cell);
+									int idxColumnStatValue = idxColumnStat;
+									
+									// BEST
+				                	double best = Double.valueOf(columns[1].trim());			                	
+						        	cell = rowFunction.createCell(idxColumnStatValue++);
+						        	cell.setCellValue(best);
+						        	if (best <= Properties.MIN_ERROR_VALUE)
+						        		cell.setCellStyle(boldCellStyle);
+				                	Cell cellLowerBest = cellLowerBests.get(functionNumber);
+				                	if (cellLowerBest == null || (best < cellLowerBest.getNumericCellValue()))
+				                		cellLowerBests.put(functionNumber, cell);
 
-								// MEAN
-			                	double mean = Double.valueOf(columns[4].trim());
-					        	cell = rowFunction.createCell(idxColumnStatValue++);
-					        	cell.setCellValue(mean);
-					        	if (mean <= Properties.MIN_ERROR_VALUE)
-					        		cell.setCellStyle(boldCellStyle);
-			                	Cell cellLowerMean = cellLowerMeans.get(functionNumber);
-			                	if (cellLowerMean == null || (mean < cellLowerMean.getNumericCellValue()))
-			                		cellLowerMeans.put(functionNumber, cell);
+									// MEAN
+				                	double mean = Double.valueOf(columns[4].trim());
+						        	cell = rowFunction.createCell(idxColumnStatValue++);
+						        	cell.setCellValue(mean);
+						        	if (mean <= Properties.MIN_ERROR_VALUE)
+						        		cell.setCellStyle(boldCellStyle);
+				                	Cell cellLowerMean = cellLowerMeans.get(functionNumber);
+				                	if (cellLowerMean == null || (mean < cellLowerMean.getNumericCellValue()))
+				                		cellLowerMeans.put(functionNumber, cell);
 
-								// STD
-			                	double std = Double.valueOf(columns[5].trim());
-					        	cell = rowFunction.createCell(idxColumnStatValue++);
-					        	cell.setCellValue(std);
-					        	if (std <= Properties.MIN_ERROR_VALUE)
-					        		cell.setCellStyle(boldCellStyle);
-			                	Cell cellLowerStd = cellLowerStds.get(functionNumber);
-			                	if (cellLowerStd == null || (std < cellLowerStd.getNumericCellValue()))
-			                		cellLowerStds.put(functionNumber, cell);
+									// STD
+				                	double std = Double.valueOf(columns[5].trim());
+						        	cell = rowFunction.createCell(idxColumnStatValue++);
+						        	cell.setCellValue(std);
+						        	if (std <= Properties.MIN_ERROR_VALUE)
+						        		cell.setCellStyle(boldCellStyle);
+				                	Cell cellLowerStd = cellLowerStds.get(functionNumber);
+				                	if (cellLowerStd == null || (std < cellLowerStd.getNumericCellValue()))
+				                		cellLowerStds.put(functionNumber, cell);
 
-								// SR
-			                	double sr = Double.valueOf(columns[8].trim());
-					        	cell = rowFunction.createCell(idxColumnStatValue++);
-					        	cell.setCellValue(sr);
-					        	if (sr == 1.0)
-					        		cell.setCellStyle(boldCellStyle);
-					        	else if (sr > 0)
-					        		cell.setCellStyle(warningCellStyle);
-			                }
-			            }
-						br.close();
+									// SR
+				                	double sr = Double.valueOf(columns[8].trim());
+						        	cell = rowFunction.createCell(idxColumnStatValue++);
+						        	cell.setCellValue(sr);
+						        	if (sr == 1.0)
+						        		cell.setCellStyle(boldCellStyle);
+						        	else if (sr > 0)
+						        		cell.setCellStyle(warningCellStyle);
+				                }
+				            }
+						} catch (FileNotFoundException e) {
+							System.err.println("File not found: " + fileRoundErrorsName);
+						} finally {
+							if (br != null)
+								br.close();
+						}
 					}
 				}
 			}
@@ -168,7 +176,7 @@ public class StatisticProcessing {
 			if (!directory.exists())
 				directory.mkdirs();
 
-	        FileOutputStream fileOut = new FileOutputStream(directory.getAbsolutePath() + "\\P100_D10_ALL_withA.xlsx");
+	        FileOutputStream fileOut = new FileOutputStream(directory.getAbsolutePath() + "\\P100_D" + individualSize + "_R50.xlsx");
 	        workbook.write(fileOut);
 	        fileOut.close();
 

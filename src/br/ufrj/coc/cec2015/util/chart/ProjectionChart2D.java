@@ -1,4 +1,4 @@
-package br.ufrj.coc.cec2015.util;
+package br.ufrj.coc.cec2015.util.chart;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -28,6 +28,8 @@ import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+
+import br.ufrj.coc.cec2015.util.Properties;
 
 public class ProjectionChart2D extends JFrame {
 	private static final long serialVersionUID = 9036503967468200772L;

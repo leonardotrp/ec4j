@@ -18,7 +18,7 @@ public class Properties {
 	public static ThreadLocal<AlgorithmHelper> HELPER = new ThreadLocal<>();
 	public static ThreadLocal<AlgorithmArguments> ARGUMENTS = new ThreadLocal<>();
 
-	private static double[] SEARCH_RANGE;
+	public static double[] SEARCH_RANGE;
 	static {
 		double min = Double.parseDouble(bundle.getString("SEARCH_RANGE_MIN"));
 		double max = Double.parseDouble(bundle.getString("SEARCH_RANGE_MAX"));
