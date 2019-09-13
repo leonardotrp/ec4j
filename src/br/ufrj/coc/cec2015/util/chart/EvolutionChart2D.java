@@ -16,18 +16,19 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.LogarithmicAxis;
+import org.jfree.chart.axis.LogAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.title.TextTitle;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 public class EvolutionChart2D extends JFrame {
 	private static final long serialVersionUID = 9036503967468200772L;
+	private static final Color[] COLORS = new Color[] { Color.BLUE, Color.RED, Color.DARK_GRAY, Color.ORANGE, Color.CYAN };
 
-	private static String DEFAULT_CHART_TITLE = "Gr√°fico de Evolu√ß√£o dos Erros";
+	private static String DEFAULT_CHART_TITLE = "Gr·fico de EvoluÁ„o dos Erros";
 
 	XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
 	private final ChartPanel chartPanel;
@@ -47,10 +48,10 @@ public class EvolutionChart2D extends JFrame {
 	}
 
 	public void setTitle(String title, String... subTitles) {
-		chartPanel.getChart().setTitle(title);
+		chartPanel.getChart().setTitle(title + "\n\r" + subTitles[0]);
 		chartPanel.getChart().clearSubtitles();
-		for (String subTitle : subTitles)
-			chartPanel.getChart().addSubtitle(new TextTitle(subTitle));
+		/*for (String subTitle : subTitles)
+			chartPanel.getChart().addSubtitle(new TextTitle(subTitle));*/
 	}
 
 	public void addSerie(List<Double> serieX, List<Double> serieY, String description) {
@@ -78,25 +79,18 @@ public class EvolutionChart2D extends JFrame {
 
 	@SuppressWarnings("serial")
 	private ChartPanel createEvolutionPanel() {
-		JFreeChart jfreechart = ChartFactory.createXYLineChart(DEFAULT_CHART_TITLE, "Percentual de Avalia√ß√£o (% MaxFES = Dim.10000)", "M√©dia dos Erros", this.xySeriesCollection, PlotOrientation.VERTICAL, true, true, false);
+		JFreeChart jfreechart = ChartFactory.createXYLineChart(DEFAULT_CHART_TITLE, "Percentual de AvaliaÁ„o (% MaxFES = Dim.10000)", "MÈdia dos Erros", this.xySeriesCollection, PlotOrientation.VERTICAL, true, true, false);
 		XYPlot xyPlot = (XYPlot) jfreechart.getPlot();
 		
-		LogarithmicAxis yAxis = new LogarithmicAxis("M√©dia dos Erros");
-		NumberFormat numberFormat = new DecimalFormat("0.####E0");
-		//numberFormat.setMinimumIntegerDigits(1);
-		//numberFormat.setMaximumFractionDigits(2);
+		LogAxis yAxis = new LogAxis("MÈdia dos Erros");
+		NumberFormat numberFormat = new DecimalFormat("0.##E00");
 		yAxis.setNumberFormatOverride(numberFormat);
 		xyPlot.setRangeAxis(yAxis);
 		
-		/*
-		 * XYItemRenderer renderer = xyPlot.getRenderer(); renderer.setSeriesPaint(0,
-		 * Color.BLUE); renderer.setSeriesShape(0, new Ellipse2D.Double(-3, -3, 6, 6));
-		 * 
-		 * renderer.setSeriesPaint(1, Color.RED); renderer.setSeriesShape(1, new
-		 * Ellipse2D.Double(-4, -4, 8, 8));
-		 */
-		//adjustAxis((NumberAxis) xyPlot.getDomainAxis(), true);
-		//adjustAxis((NumberAxis) xyPlot.getRangeAxis(), false);
+		XYItemRenderer renderer = xyPlot.getRenderer();
+		for (int idx = 0; idx < this.xySeriesCollection.getSeriesCount(); idx++) {
+			renderer.setSeriesPaint(idx, COLORS[idx]);
+		}
 
 		xyPlot.setBackgroundPaint(Color.WHITE);
 		xyPlot.setDomainGridlinePaint(Color.LIGHT_GRAY);

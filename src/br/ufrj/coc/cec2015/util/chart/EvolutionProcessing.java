@@ -17,7 +17,7 @@ import br.ufrj.coc.cec2015.util.Statistic;
 public class EvolutionProcessing {
 
 	public static void main(String[] args) throws Exception {
-		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de disserta√ß√£o\\2 - dpade with eig\\experimentos\\P100_D10";
+		String PATH_RESULT = "E:\\Google Drive (COC)\\trabalho de dissertaÁ„o\\2 - dpade with eig\\experimentos\\P100_D10";
 
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
 
@@ -81,10 +81,10 @@ public class EvolutionProcessing {
 								br.close();
 						}
 						
-						String subTitle = String.format("Fun√ß√£o %d - Dimens√£o %d", functionNumber, individualSize);
+						String subTitle = String.format("FunÁ„o %d - Dimens„o %d", functionNumber, individualSize);
 						if (meanEvolution == null) {
 							meanEvolution = new EvolutionChart2D(listOfMaxFES, listOfMeans, arguments.getPrefixFile());
-							String titleMean = String.format("Evolu√ß√£o da M√©dia dos Erros (%d rodadas)", Properties.MAX_RUNS);
+							String titleMean = String.format("EvoluÁ„o da MÈdia dos Erros (%d rodadas)", Properties.MAX_RUNS);
 							meanEvolution.setTitle(titleMean, subTitle);
 						}
 						else
