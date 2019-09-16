@@ -120,6 +120,11 @@ public class AlgorithmArguments {
 	}
 
 	public String getTitleChart() {
-		return this.name + '_' + this.variant.replace('/', '.') + "_P" + this.populationSize + "_F" + this.functionNumber + "_D" + this.individualSize;
+		String title = this.name;
+		int lastIdx = this.variant.lastIndexOf('/');
+		String crossover = this.variant.substring(lastIdx + 1);
+		if (crossover.equals("Eig"))
+			title += "/Eig";
+		return title;
 	}
 }

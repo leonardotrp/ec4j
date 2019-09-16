@@ -83,12 +83,11 @@ public class EvolutionProcessing {
 						
 						String subTitle = String.format("Função %d - Dimensão %d", functionNumber, individualSize);
 						if (meanEvolution == null) {
-							meanEvolution = new EvolutionChart2D(listOfMaxFES, listOfMeans, arguments.getPrefixFile());
+							meanEvolution = new EvolutionChart2D();
 							String titleMean = String.format("Evolução da Média dos Erros (%d rodadas)", Properties.MAX_RUNS);
 							meanEvolution.setTitle(titleMean, subTitle);
 						}
-						else
-							meanEvolution.addSerie(listOfMaxFES, listOfMeans, arguments.getPrefixFile());
+						meanEvolution.addSerie(listOfMaxFES, listOfMeans, arguments.getTitleChart());
 					}
 				}
 				

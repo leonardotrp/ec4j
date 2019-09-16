@@ -35,10 +35,10 @@ public class ProjectionChart2D extends JFrame {
 	private static final long serialVersionUID = 9036503967468200772L;
 
 	private static String DEFAULT_CHART_TITLE = "Chart Projection";
-	private static String DEFAULT_SERIES_DESCRIPTION = "PopulaÃ§Ã£o (" + Properties.ARGUMENTS.get().getPopulationSize() + ")";
+	private static String DEFAULT_SERIES_DESCRIPTION = "População (" + Properties.ARGUMENTS.get().getPopulationSize() + ")";
 
 	private XYSeries series = new XYSeries(DEFAULT_SERIES_DESCRIPTION);
-	private XYSeries best = new XYSeries("Melhor indivÃ­duo");
+	private XYSeries best = new XYSeries("Melhor indivíduo");
 	private final ChartPanel chartPanel;
 
 	public ProjectionChart2D(String s) {

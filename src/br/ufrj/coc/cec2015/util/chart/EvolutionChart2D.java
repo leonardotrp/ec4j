@@ -12,17 +12,24 @@ import java.util.List;
 
 import javax.swing.JFrame;
 
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.LogAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.block.LineBorder;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.title.LegendTitle;
+import org.jfree.chart.util.ParamChecks;
 import org.jfree.data.xy.XYDataItem;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.RectangleEdge;
+import org.jfree.ui.RectangleInsets;
 
 public class EvolutionChart2D extends JFrame {
 	private static final long serialVersionUID = 9036503967468200772L;
@@ -31,16 +38,13 @@ public class EvolutionChart2D extends JFrame {
 	private static String DEFAULT_CHART_TITLE = "Gráfico de Evolução dos Erros";
 
 	XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
+	private boolean empty = true;
 	private final ChartPanel chartPanel;
 
-	public EvolutionChart2D(List<Double> serieX, List<Double> serieY, String description) {
+	public EvolutionChart2D() {
 		super("Evolution Chart2D");
-		
-		this.addSerie(serieX, serieY, description);
-		
 		chartPanel = createEvolutionPanel();
 		super.add(chartPanel, BorderLayout.CENTER);
-
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.pack();
 		this.setLocationRelativeTo(null);
@@ -49,12 +53,14 @@ public class EvolutionChart2D extends JFrame {
 
 	public void setTitle(String title, String... subTitles) {
 		chartPanel.getChart().setTitle(title + "\n\r" + subTitles[0]);
-		chartPanel.getChart().clearSubtitles();
-		/*for (String subTitle : subTitles)
-			chartPanel.getChart().addSubtitle(new TextTitle(subTitle));*/
 	}
 
 	public void addSerie(List<Double> serieX, List<Double> serieY, String description) {
+		if (empty) {
+			xySeriesCollection.removeSeries(0);
+			empty = false;
+		}
+
 		XYSeries xySeries = createXYSeries(serieX, serieY, description);
 		xySeriesCollection.addSeries(xySeries);
 	}
@@ -77,30 +83,67 @@ public class EvolutionChart2D extends JFrame {
 		}
 	}
 
-	@SuppressWarnings("serial")
-	private ChartPanel createEvolutionPanel() {
-		JFreeChart jfreechart = ChartFactory.createXYLineChart(DEFAULT_CHART_TITLE, "Percentual de Avaliação (% MaxFES = Dim.10000)", "Média dos Erros", this.xySeriesCollection, PlotOrientation.VERTICAL, true, true, false);
-		XYPlot xyPlot = (XYPlot) jfreechart.getPlot();
-		
-		LogAxis yAxis = new LogAxis("Média dos Erros");
-		NumberFormat numberFormat = new DecimalFormat("0.##E00");
-		yAxis.setNumberFormatOverride(numberFormat);
-		xyPlot.setRangeAxis(yAxis);
-		
-		XYItemRenderer renderer = xyPlot.getRenderer();
-		for (int idx = 0; idx < this.xySeriesCollection.getSeriesCount(); idx++) {
+	JFreeChart createScatterPlot(String title, String xAxisLabel, String yAxisLabel, XYDataset dataset, PlotOrientation orientation) {
+
+		ParamChecks.nullNotPermitted(orientation, "orientation");
+		NumberAxis xAxis = new NumberAxis(xAxisLabel);
+		xAxis.setAutoRangeIncludesZero(false);
+		NumberAxis yAxis = new NumberAxis(yAxisLabel);
+		yAxis.setAutoRangeIncludesZero(false);
+
+		XYPlot plot = new XYPlot(dataset, xAxis, yAxis, null);
+
+		XYItemRenderer renderer = new XYLineAndShapeRenderer(true, true);
+		plot.setRenderer(renderer);
+		plot.setOrientation(orientation);
+
+		for (int idx = 0; idx < COLORS.length; idx++) {
 			renderer.setSeriesPaint(idx, COLORS[idx]);
 		}
+		
+		JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, false);
+		
+		return chart;
+
+	}
+
+	@SuppressWarnings("serial")
+	private ChartPanel createEvolutionPanel() {
+		JFreeChart jfreechart = createScatterPlot(DEFAULT_CHART_TITLE, "Percentual de Avaliação (% MaxFES = Dim.10000)", "Média dos Erros", this.createSampleData(), PlotOrientation.VERTICAL);
+		XYPlot xyPlot = (XYPlot) jfreechart.getPlot();
+
+		LogAxis yAxis = new LogAxis("Média dos Erros");
+		NumberFormat numberFormat = new DecimalFormat("0.##E0");
+		yAxis.setNumberFormatOverride(numberFormat);
+		xyPlot.setRangeAxis(yAxis);
 
 		xyPlot.setBackgroundPaint(Color.WHITE);
 		xyPlot.setDomainGridlinePaint(Color.LIGHT_GRAY);
 		xyPlot.setRangeGridlinePaint(Color.LIGHT_GRAY);
 
+        LegendTitle legend = new LegendTitle(xyPlot);
+        legend.setVisible(true);
+        legend.setMargin(new RectangleInsets(1.0, 1.0, 1.0, 1.0));
+        legend.setFrame(new LineBorder());
+        legend.setBackgroundPaint(Color.white);
+        legend.setPosition(RectangleEdge.BOTTOM);
+        jfreechart.addLegend(legend);
+		
 		return new ChartPanel(jfreechart) {
 			@Override
 			public Dimension getPreferredSize() {
 				return new Dimension(800, 650);
 			}
 		};
+	}
+
+	private XYDataset createSampleData() {
+		XYSeries series = new XYSeries("");
+		double[][] initialData = new double[1][2];
+		for (int i = 0; i < initialData.length; i++) {
+			series.add(initialData[i][0], initialData[i][1]);
+		}
+		this.xySeriesCollection.addSeries(series);
+		return this.xySeriesCollection;
 	}
 }
