@@ -35,11 +35,11 @@ public class EvolutionChart2D extends JFrame {
 	private static final long serialVersionUID = 9036503967468200772L;
 	private static final Color[] COLORS = new Color[] { Color.BLUE, Color.RED, Color.DARK_GRAY, Color.ORANGE, Color.CYAN };
 
-	private static String DEFAULT_CHART_TITLE = "Gr·fico de EvoluÁ„o dos Erros";
+	private static String DEFAULT_CHART_TITLE = "Gr√°fico de Evolu√ß√£o dos Erros";
 
 	XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
 	private boolean empty = true;
-	private final ChartPanel chartPanel;
+	private ChartPanel chartPanel;
 
 	public EvolutionChart2D() {
 		super("Evolution Chart2D");
@@ -48,7 +48,7 @@ public class EvolutionChart2D extends JFrame {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.pack();
 		this.setLocationRelativeTo(null);
-		this.setVisible(true);
+		this.setVisible(false);
 	}
 
 	public void setTitle(String title, String... subTitles) {
@@ -109,11 +109,11 @@ public class EvolutionChart2D extends JFrame {
 
 	@SuppressWarnings("serial")
 	private ChartPanel createEvolutionPanel() {
-		JFreeChart jfreechart = createScatterPlot(DEFAULT_CHART_TITLE, "Percentual de AvaliaÁ„o (% MaxFES = Dim.10000)", "MÈdia dos Erros", this.createSampleData(), PlotOrientation.VERTICAL);
+		JFreeChart jfreechart = createScatterPlot(DEFAULT_CHART_TITLE, "Percentual de Avalia√ß√£o (% MaxFES = Dim.10000)", "M√©dia dos Erros", this.createSampleData(), PlotOrientation.VERTICAL);
 		XYPlot xyPlot = (XYPlot) jfreechart.getPlot();
 
-		LogAxis yAxis = new LogAxis("MÈdia dos Erros");
-		NumberFormat numberFormat = new DecimalFormat("0.##E0");
+		LogAxis yAxis = new LogAxis("M√©dia dos Erros");
+		NumberFormat numberFormat = new DecimalFormat("0.0E0");
 		yAxis.setNumberFormatOverride(numberFormat);
 		xyPlot.setRangeAxis(yAxis);
 

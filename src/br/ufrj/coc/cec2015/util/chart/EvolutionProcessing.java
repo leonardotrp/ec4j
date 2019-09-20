@@ -17,9 +17,10 @@ import br.ufrj.coc.cec2015.util.Statistic;
 public class EvolutionProcessing {
 
 	public static void main(String[] args) throws Exception {
-		String PATH_RESULT = "E:\\Google Drive (COC)\\trabalho de dissertaÁ„o\\2 - dpade with eig\\experimentos\\P100_D10";
+		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de disserta√ß√£o\\2 - dpade with eig\\experimentos";
 
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
+			PATH_RESULT = PATH_RESULT + '\\' + "P100_D" + individualSize + '\\';
 
 	        // Write the output to a file
 			File directory = new File(PATH_RESULT + "\\D" + individualSize + '\\');
@@ -48,30 +49,41 @@ public class EvolutionProcessing {
 						try {
 							br = new BufferedReader(new FileReader(fileRoundErrorsName));
 							String line;
-							while ((line = br.readLine()) != null) {
+			                double maxFES = 0.001;
+							while ((line = br.readLine()) != null && maxFES < 0.1) {
 
 								List<Double> roundValues = new ArrayList<>(Properties.MAX_RUNS);
 								
 				                // use comma as separator
 				                Scanner columns = new Scanner(line);
 				                columns.useDelimiter("\\s*,\\s*");
+				                
 				                if (columns.hasNextDouble()) {
-				                	double maxFES = columns.nextDouble();
-				                	if (columns.hasNextDouble()) {
-				                		listOfMaxFES.add(maxFES);
-					                	int round = 1;
-					                	while (round++ <= Properties.MAX_RUNS) {
-					                		Double roundValue = columns.hasNextDouble() ? columns.nextDouble() : 0.0;
-					                		roundValues.add(roundValue);
-					                	}
+				                	maxFES = columns.nextDouble();
+	
+				                	int round = 1;
+				                	boolean hasValue = false;
+				                	while (round++ <= Properties.MAX_RUNS) {
+				                		Double roundValue = Properties.MIN_ERROR_VALUE;
+				                		if (columns.hasNextDouble()) {
+				                			hasValue = true;
+				                			roundValue = columns.nextDouble();
+				                		}
+				                		else
+				                			System.err.println(columns.next());
+				                		roundValues.add(roundValue);
 				                	}
-				                }
-				                columns.close();
-				                if (roundValues.size() > 0) {
-					                double mean = Statistic.calculateMean(roundValues);
-					                listOfMeans.add(mean);
-					                double median = Statistic.calculateMedian(roundValues);
-					                listOfMedians.add(median);
+					                columns.close();
+
+					                if (hasValue) {
+					                	System.err.println(maxFES);
+				                		listOfMaxFES.add(maxFES);
+						                
+						                double mean = Statistic.calculateMean(roundValues);
+						                listOfMeans.add(mean);
+						                double median = Statistic.calculateMedian(roundValues);
+						                listOfMedians.add(median);
+					                }
 				                }
 				            }
 						} catch (FileNotFoundException e) {
@@ -81,10 +93,10 @@ public class EvolutionProcessing {
 								br.close();
 						}
 						
-						String subTitle = String.format("FunÁ„o %d - Dimens„o %d", functionNumber, individualSize);
+						String subTitle = String.format("Fun√ß√£o %d - Dimens√£o %d", functionNumber, individualSize);
 						if (meanEvolution == null) {
 							meanEvolution = new EvolutionChart2D();
-							String titleMean = String.format("EvoluÁ„o da MÈdia dos Erros (%d rodadas)", Properties.MAX_RUNS);
+							String titleMean = String.format("Evolu√ß√£o da M√©dia dos Erros (%d rodadas)", Properties.MAX_RUNS);
 							meanEvolution.setTitle(titleMean, subTitle);
 						}
 						meanEvolution.addSerie(listOfMaxFES, listOfMeans, arguments.getTitleChart());
