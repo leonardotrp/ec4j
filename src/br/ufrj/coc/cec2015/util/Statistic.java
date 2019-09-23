@@ -199,7 +199,6 @@ public class Statistic {
 			if (population.getBest() == individual)
 				bestIndex = idxIndividual;
 		}
-		;
 
 		// atualiza as projeções no plano
 		ProjectionData projectionData = this.projectionChart2D.new ProjectionData();

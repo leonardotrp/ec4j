@@ -20,18 +20,22 @@ public class FileUtil {
 		return directory.getAbsolutePath() + '\\' + filename;
 	}
 	
-	public static File getInitialPopulationFile() {
+	public static File getInitialPopulationFile(String cvsFilename) {
 		File file = null;
-		if (Properties.INITIAL_POPULATION_FILE.length() > 0) {
+		if (cvsFilename.length() > 0) {
 			URI uri;
 			try {
 				String root = Properties.RESULTS_ROOT;
-				uri = new URI(root + Properties.INITIAL_POPULATION_FILE);
+				uri = new URI(root + cvsFilename);
 			} catch (URISyntaxException e) {
 				throw new RuntimeException(e);
 			}
 			file = new File(uri);
 		}
 		return file;
+	}
+
+	public static File getInitialPopulationFile() {
+		return getInitialPopulationFile(Properties.INITIAL_POPULATION_FILE);
 	}
 }
