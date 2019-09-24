@@ -1,10 +1,10 @@
 package br.ufrj.coc.cec2015.lab;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.BeforeEach;
+//import org.junit.jupiter.api.Test;
 
 class TestLab {
-	
+/*
 	@BeforeEach
 	void setUp() throws Exception {
 	}
@@ -62,6 +62,7 @@ class TestLab {
 		double[][] matrix_Q2 = jacobi.getData();
 		for (int index = 0; index < matrix_Q2.length; index++)
 			System.out.println(Arrays.toString(matrix_Q2[index]));
-		*/
+		
 	}
+*/
 }
