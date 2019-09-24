@@ -3,6 +3,7 @@ package br.ufrj.coc.cec2015.util.chart;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.WindowEvent;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -41,9 +42,9 @@ public class EvolutionChart2D extends JFrame {
 	private boolean empty = true;
 	private ChartPanel chartPanel;
 
-	public EvolutionChart2D() {
+	public EvolutionChart2D(String yAxisLabel) {
 		super("Evolution Chart2D");
-		chartPanel = createEvolutionPanel();
+		chartPanel = createEvolutionPanel(yAxisLabel);
 		super.add(chartPanel, BorderLayout.CENTER);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.pack();
@@ -108,8 +109,8 @@ public class EvolutionChart2D extends JFrame {
 	}
 
 	@SuppressWarnings("serial")
-	private ChartPanel createEvolutionPanel() {
-		JFreeChart jfreechart = createScatterPlot(DEFAULT_CHART_TITLE, "Percentual de Avaliação (% MaxFES = Dim.10000)", "Média dos Erros", this.createSampleData(), PlotOrientation.VERTICAL);
+	private ChartPanel createEvolutionPanel(String yAxisLabel) {
+		JFreeChart jfreechart = createScatterPlot(DEFAULT_CHART_TITLE, "Percentual de Avaliação (% MaxFES = Dim.10000)", yAxisLabel, this.createSampleData(), PlotOrientation.VERTICAL);
 		XYPlot xyPlot = (XYPlot) jfreechart.getPlot();
 
 		LogAxis yAxis = new LogAxis("Média dos Erros");
@@ -145,5 +146,9 @@ public class EvolutionChart2D extends JFrame {
 		}
 		this.xySeriesCollection.addSeries(series);
 		return this.xySeriesCollection;
+	}
+	
+	public void close() {
+		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 	}
 }

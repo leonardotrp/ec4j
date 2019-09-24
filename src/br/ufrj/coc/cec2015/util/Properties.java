@@ -89,4 +89,6 @@ public class Properties {
 	}
 
 	public static int[] INDIVIDUAL_SIZES = Stream.of(bundle.getString("INDIVIDUAL_SIZE").split(",")).mapToInt(Integer::parseInt).toArray();
+
+	public static boolean WRITE_SINGULARITY_COVARIANCE_MATRIX = Boolean.parseBoolean(bundle.getString("WRITE_SINGULARITY_COVARIANCE_MATRIX"));
 }

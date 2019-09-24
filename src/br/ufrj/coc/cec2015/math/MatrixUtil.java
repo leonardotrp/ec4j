@@ -1,8 +1,14 @@
 package br.ufrj.coc.cec2015.math;
 
+import java.io.IOException;
+
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
+import br.ufrj.coc.cec2015.algorithm.AlgorithmArguments;
+import br.ufrj.coc.cec2015.algorithm.Individual;
+import br.ufrj.coc.cec2015.algorithm.Initializable;
 import br.ufrj.coc.cec2015.algorithm.Population;
+import br.ufrj.coc.cec2015.util.Helper;
 import br.ufrj.coc.cec2015.util.Properties;
 
 public class MatrixUtil {
@@ -13,28 +19,23 @@ public class MatrixUtil {
 	//	return covariance.getCovarianceMatrix();
 	//}
 
-	public static EigenvalueDecomposition getEigenDecomposition(Population population) {
+	public static Matrix getCovarianceMatrix(Population population) {
 		int D = Properties.ARGUMENTS.get().getIndividualSize();
 		int NP = population.size();
-		
 		// Covariance matrix (12)
 		double[][] C = new double[D][D];
 		double[] m = new double[D];
-
 		for (int j = 0; j < D; ++j) {
 			m[j] = population.get(0).get(j);
 		}
-
 		for (int i = 1; i < NP; ++i) {
 			for (int j = 0; j < D; ++j) {
 				m[j] += population.get(i).get(j);
 			}
 		}
-
 		for (int i = 0; i < D; ++i) {
 			m[i] /= NP;
 		}
-		
 		for (int i = 0; i < D; ++i) {
 			for (int j = 0; j < D; ++j) {
 				C[i][j] = 0;
@@ -57,10 +58,12 @@ public class MatrixUtil {
 		// Eigendecomposition (14)
 		//RealMatrix RM_C = new Array2DRowRealMatrix(C);
 		//EigenDecomposition ED_Q = new EigenDecomposition(RM_C);
-		
-		Matrix M_C = new Matrix(C);
-		EigenvalueDecomposition ED_Q = new EigenvalueDecomposition(M_C);
-		
+		return new Matrix(C);
+	}
+	
+	public static EigenvalueDecomposition getEigenDecomposition(Population population) {
+		Matrix M_C = getCovarianceMatrix(population);
+		EigenvalueDecomposition ED_Q = M_C.eig();
 		/*
 		System.out.println("\n---------- Q: EIGEN VECTOR --------------");
 		double[][] eigenVector = ED_Q.getV().getData();
@@ -75,5 +78,28 @@ public class MatrixUtil {
 		System.out.println();
 		*/
 		return ED_Q;
+	}
+
+	public static void main(String[] args) throws IOException {
+		AlgorithmArguments arguments = new AlgorithmArguments("JADE", "", "", 1, 10);
+		Properties.ARGUMENTS.set(arguments);
+
+		Initializable initializable = new Initializable() {
+			@Override
+			public Individual newInitialized(double[] id) {
+				return Helper.newIndividualInitialized(id);
+			}
+			
+			@Override
+			public Individual newInitialized() {
+				return Helper.newIndividualInitialized();
+			}
+		};
+		
+		for (int i = 0; i < 100; i++) {
+			Population population = new Population(initializable);
+			Matrix cv = getCovarianceMatrix(population);
+			System.out.println("A(" + i + "): DetA = " + cv.det());
+		}
 	}
 }

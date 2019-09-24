@@ -7,12 +7,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -27,6 +26,7 @@ import javax.swing.JFrame;
 import Jama.Matrix;
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Population;
+import br.ufrj.coc.cec2015.math.MatrixUtil;
 import br.ufrj.coc.cec2015.util.chart.ProjectionChart2D;
 import br.ufrj.coc.cec2015.util.chart.ProjectionChart2D.ProjectionData;
 
@@ -37,7 +37,6 @@ public class Statistic {
 
 	private BufferedWriter fileRoundErrors;
 	private BufferedWriter fileEvolutionOfErrors;
-	//private BufferedWriter fileEvolutionOfPopulationSize;
 	private List<Double> roundErros = new ArrayList<Double>(Properties.MAX_RUNS);
 	private List<Long> timeRounds = new ArrayList<Long>(Properties.MAX_RUNS);
 	private static double[] EVALUATION_LIMITS = new double[] {
@@ -57,27 +56,28 @@ public class Statistic {
 		private Integer round;
 		private Double error;
 		private Integer populationSize;
-
-		public ErrorEvolution(Double error, Integer populationSize) {
+		private Double singularity;
+		public ErrorEvolution(Population population) {
 			super();
-			this.error = error;
-			this.populationSize = populationSize;
+			this.error = population.getBestError();
+			this.populationSize = population.size();
+			if (Properties.WRITE_SINGULARITY_COVARIANCE_MATRIX)
+				this.singularity = MatrixUtil.getCovarianceMatrix(population).det();
 		}
-
 		public Double getError() {
 			return error;
 		}
-
 		public Integer getPopulationSize() {
 			return populationSize;
 		}
-
 		public Integer getRound() {
 			return round;
 		}
-
 		public void setRound(Integer round) {
 			this.round = round;
+		}
+		public Double getSingularity() {
+			return singularity;
 		}
 	}
 
@@ -128,7 +128,6 @@ public class Statistic {
 
 	public void start() {
 		try {
-			System.out.println("::::::::::::::: " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()) + " :::::::::::::");
 			this.initializeFunction();
 
 			String algorithmName = Properties.ARGUMENTS.get().getName();
@@ -140,9 +139,6 @@ public class Statistic {
 
 			String fileEvolutionOfErrorsName = FileUtil.getFileName(ID, algorithmName, prefixFile + "_evolution.csv");
 			this.fileEvolutionOfErrors = new BufferedWriter(new FileWriter(fileEvolutionOfErrorsName));
-
-			//String fileEvolutionOfPopulationSizeName = FileUtil.getFileName(ID, algorithmName, prefixFile + "_populationSize.csv");
-			//this.fileEvolutionOfPopulationSize = new BufferedWriter(new FileWriter(fileEvolutionOfPopulationSizeName));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -167,7 +163,7 @@ public class Statistic {
 					for (int index = roundErrors.size(); index < indexEvaluation; index++)
 						roundErrors.add(index, lastErrorEvolution);
 				}
-				roundErrors.add(indexEvaluation, new ErrorEvolution(population.getBestError(), population.size()));
+				roundErrors.add(indexEvaluation, new ErrorEvolution(population));
 				if (Properties.isUpdateProjectionsInstant())
 					updateProjections2D(round, population);
 			}
@@ -218,35 +214,30 @@ public class Statistic {
 
 	private void writeHeadEvolutionOfErrors() throws IOException {
 		StringBuffer sbFormat = new StringBuffer("%-30s");
-		Object[] head = new String[Properties.MAX_RUNS + 2];
+		Object[] head = new String[Properties.MAX_RUNS + 4];
 		head[0] = "MaxFES";
 		for (int round = 0; round < Properties.MAX_RUNS; round++) {
 			sbFormat.append(", %-22s");
 			head[round + 1] = "R" + (round + 1);
 		}
-		sbFormat.append(", %-22s\n\n");
+		sbFormat.append(", %-22s, %-22s, %-22s\n");
 		head[Properties.MAX_RUNS + 1] = "Mean";
+		head[Properties.MAX_RUNS + 2] = "NP";
+		head[Properties.MAX_RUNS + 3] = "Singularity";
 		String headLine = String.format(sbFormat.toString(), head);
 
 		this.fileEvolutionOfErrors.write(headLine);
-		//this.fileEvolutionOfPopulationSize.write(headLine);
-		System.err.println(headLine);
 	}
 
-	private void writeLineEvolutionOfErrors(Object[] errorValues/*, Object[] populationSizes*/) throws IOException {
+	private void writeLineEvolutionOfErrors(Object[] errorValues) throws IOException {
 		StringBuffer sbFormat = new StringBuffer("%-30s");
-		for (int round = 0; round < Properties.MAX_RUNS + 1; round++) {
+		for (int round = 0; round < Properties.MAX_RUNS + 3; round++) {
 			sbFormat.append(", %-22s");
 		}
 		sbFormat.append('\n');
 
 		String errorLine = String.format(sbFormat.toString(), errorValues);
 		this.fileEvolutionOfErrors.write(errorLine);
-
-		//String popSizeLine = String.format(sbFormat.toString(), populationSizes);
-		//this.fileEvolutionOfPopulationSize.write(popSizeLine);
-
-		System.out.println(errorLine);
 	}
 
 	private static String formatNumber(Double value) {
@@ -280,57 +271,53 @@ public class Statistic {
 		writeHeadEvolutionOfErrors();
 		for (int indexEvaluation = 0; indexEvaluation < EVALUATION_LIMITS.length; indexEvaluation++) {
 			BigDecimal errorMean = new BigDecimal(0.0);
-			//BigDecimal popSizeMean = new BigDecimal(0.0);
+			Integer populationSize = 0;
+			Double singularity = 0.0;
 
-			Object[] errorValues = new Object[Properties.MAX_RUNS + 2];
-			//Object[] populationSizes = new Object[Properties.MAX_RUNS + 2];
+			Object[] attrValues = new Object[Properties.MAX_RUNS + 4];
 
-			errorValues[0] = EVALUATION_LIMITS[indexEvaluation];
-			//populationSizes[0] = EVALUATION_LIMITS[indexEvaluation];
+			attrValues[0] = EVALUATION_LIMITS[indexEvaluation];
 
 			for (int round = 1; round <= Properties.MAX_RUNS; round++) {
 				List<ErrorEvolution> roundErros = errorEvolution.get(round - 1);
-				errorValues[round] = "-";
-				//populationSizes[round] = "-";
+				attrValues[round] = "-";
 
 				if (indexEvaluation < roundErros.size()) {
 					ErrorEvolution errorEvolution = roundErros.get(indexEvaluation);
 					if (errorEvolution != null) {
 						errorMean = errorMean.add(new BigDecimal(errorEvolution.getError()));
-						//popSizeMean = popSizeMean.add(new BigDecimal(errorEvolution.getPopulationSize()));
-
-						errorValues[round] = formatNumber(errorEvolution.getError());
-						//populationSizes[round] = errorEvolution.getPopulationSize();
+						attrValues[round] = formatNumber(errorEvolution.getError());
+						populationSize = errorEvolution.getPopulationSize();
+						singularity = errorEvolution.getSingularity();
 					}
 				}
 			}
 			errorMean = errorMean.divide(new BigDecimal(Properties.MAX_RUNS), 15, RoundingMode.HALF_UP);
-			errorValues[Properties.MAX_RUNS + 1] = errorMean.doubleValue() > 0 ? formatNumber(errorMean.doubleValue()) : "-";
+			String strMean = errorMean.doubleValue() > 0 ? formatNumber(errorMean.doubleValue()) : "-";
 
-			//popSizeMean = popSizeMean.divide(new BigDecimal(Properties.MAX_RUNS), 15, RoundingMode.HALF_UP);
-			//populationSizes[Properties.MAX_RUNS + 1] = popSizeMean.doubleValue() > 0 ? popSizeMean.doubleValue() : "-";
+			attrValues[Properties.MAX_RUNS + 1] = strMean; 
+			attrValues[Properties.MAX_RUNS + 2] = populationSize;
+			attrValues[Properties.MAX_RUNS + 3] = singularity;
 
-			writeLineEvolutionOfErrors(errorValues/*, populationSizes*/);
+			writeLineEvolutionOfErrors(attrValues);
 		}
 		ErrorEvolution bestRound = getBestRound();
 
 		StringBuffer resume = new StringBuffer();
-		resume.append("\nInforma��o: " + Properties.ARGUMENTS.get().getInfo());
-		resume.append("\nN�mero de Avalia��es: " + Properties.ARGUMENTS.get().getCountEvaluations());
-		resume.append("\nN�mero de Gera��es: " + Properties.ARGUMENTS.get().getCountGenerations());
+		resume.append("\nInformação: " + Properties.ARGUMENTS.get().getInfo());
+		resume.append("\nNúmero de Avaliações: " + Properties.ARGUMENTS.get().getCountEvaluations());
+		resume.append("\nNúmero de Gerações: " + Properties.ARGUMENTS.get().getCountGenerations());
 		resume.append("\nMelhor Rodada: " + bestRound.getRound());
 		resume.append("\nMenor Erro: " + bestRound.getError());
-		//resume.append("\nBest Population Size: " + bestRound.getPopulationSize());
+		resume.append("\nBest Population Size: " + bestRound.getPopulationSize());
 
 		this.fileEvolutionOfErrors.write(resume.toString());
-		System.out.println(resume.toString());
 	}
 
 	private void writeHeadStatistics(BufferedWriter writer) throws IOException {
 		String strFormat = "%-10s, %-22s, %-22s, %-22s, %-22s, %-22s, %-10s, %-10s, %-10s\n";
 		String head = String.format(strFormat + '\n', "FUNCTION", "BEST", "WORST", "MEDIAN", "MEAN", "STD", "POPSIZE", "TIME(s)", "SR");
 		writer.write(head);
-		System.err.println(head);
 	}
 
 	private void writeLineStatistic(BufferedWriter writer, String label, List<Double> errors, Long timeSpent, Double successfulRate) throws IOException {
@@ -350,7 +337,6 @@ public class Statistic {
 		String strFormat = "%-10s, %-22s, %-22s, %-22s, %-22s, %-22s, %-10s, %-10s, %-10s\n";
 		String line = String.format(strFormat, label, best, worst, median, meanStr, standardDeviation, Properties.ARGUMENTS.get().getPopulationSize(), timeInSeconds(timeSpent), strSuccessfulRate);
 		writer.write(line);
-		System.out.println(line);
 	}
 
 	public void addRound(Population population) throws IOException {
@@ -379,12 +365,9 @@ public class Statistic {
 
 		this.writeEvolutionOfErros();
 		this.fileEvolutionOfErrors.close();
-		//this.fileEvolutionOfPopulationSize.close();
 
 		if (this.projectionChart2D != null)
 			this.projectionChart2D.close();
-
-		System.out.println("::::::::::::::: " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()) + " :::::::::::::");
 	}
 
 	static List<Double> calculateErrors(Population population) {
@@ -407,14 +390,16 @@ public class Statistic {
 	}
 
 	public static double calculateMedian(List<Double> numbers) {
-		int middleIndex = (int) ((numbers.size() - 1) / 2);
+		Object[] values = numbers.toArray();
+		Arrays.sort(values);
+		int middleIndex = (int) ((values.length - 1) / 2);
 		BigDecimal median;
 		if (numbers.size() % 2 == 0) { // par
-			median = new BigDecimal(numbers.get(middleIndex));
-			BigDecimal middleErrorPlus = new BigDecimal(numbers.get(middleIndex + 1));
-			median = median.add(middleErrorPlus).divide(new BigDecimal(2));
+			median = new BigDecimal((double) values[middleIndex]);
+			BigDecimal middleErrorPlus = new BigDecimal((double) values[middleIndex + 1]);
+			median = median.add(middleErrorPlus).divide(new BigDecimal(2), 15, RoundingMode.HALF_UP);
 		} else {
-			median = new BigDecimal(numbers.get(middleIndex + 1));
+			median = new BigDecimal((double) values[middleIndex + 1]);
 		}
 		return median.doubleValue();
 	}
