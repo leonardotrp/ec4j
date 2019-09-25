@@ -26,7 +26,6 @@ import javax.swing.JFrame;
 import Jama.Matrix;
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Population;
-import br.ufrj.coc.cec2015.math.MatrixUtil;
 import br.ufrj.coc.cec2015.util.chart.ProjectionChart2D;
 import br.ufrj.coc.cec2015.util.chart.ProjectionChart2D.ProjectionData;
 
@@ -56,14 +55,10 @@ public class Statistic {
 		private Integer round;
 		private Double error;
 		private Integer populationSize;
-		private Double singularity;
 		public ErrorEvolution(Population population) {
 			super();
 			this.error = population.getBestError();
 			this.populationSize = population.size();
-			if (Properties.WRITE_SINGULARITY_COVARIANCE_MATRIX) {
-				this.singularity = MatrixUtil.getCovarianceMatrix(population).det();
-			}
 		}
 		public Double getError() {
 			return error;
@@ -76,9 +71,6 @@ public class Statistic {
 		}
 		public void setRound(Integer round) {
 			this.round = round;
-		}
-		public Double getSingularity() {
-			return singularity;
 		}
 	}
 
@@ -221,10 +213,9 @@ public class Statistic {
 			sbFormat.append(", %-22s");
 			head[round + 1] = "R" + (round + 1);
 		}
-		sbFormat.append(", %-22s, %-22s, %-22s\n");
+		sbFormat.append(", %-22s, %-22s\n");
 		head[Properties.MAX_RUNS + 1] = "Mean";
 		head[Properties.MAX_RUNS + 2] = "NP";
-		head[Properties.MAX_RUNS + 3] = "Singularity";
 		String headLine = String.format(sbFormat.toString(), head);
 
 		this.fileEvolutionOfErrors.write(headLine);
@@ -232,7 +223,7 @@ public class Statistic {
 
 	private void writeLineEvolutionOfErrors(Object[] errorValues) throws IOException {
 		StringBuffer sbFormat = new StringBuffer("%-30s");
-		for (int round = 0; round < Properties.MAX_RUNS + 3; round++) {
+		for (int round = 0; round < Properties.MAX_RUNS + 2; round++) {
 			sbFormat.append(", %-22s");
 		}
 		sbFormat.append('\n');
@@ -273,9 +264,8 @@ public class Statistic {
 		for (int indexEvaluation = 0; indexEvaluation < EVALUATION_LIMITS.length; indexEvaluation++) {
 			BigDecimal errorMean = new BigDecimal(0.0);
 			BigDecimal npMean = new BigDecimal(0);
-			BigDecimal singularityMean = new BigDecimal(0.0);
 
-			Object[] attrValues = new Object[Properties.MAX_RUNS + 4];
+			Object[] attrValues = new Object[Properties.MAX_RUNS + 3];
 
 			attrValues[0] = EVALUATION_LIMITS[indexEvaluation];
 
@@ -288,9 +278,7 @@ public class Statistic {
 					if (errorEvolution != null) {
 						errorMean = errorMean.add(new BigDecimal(errorEvolution.getError()));
 						attrValues[round] = formatNumber(errorEvolution.getError());
-
 						npMean = npMean.add(new BigDecimal(errorEvolution.getPopulationSize()));
-						singularityMean = singularityMean.add(new BigDecimal(errorEvolution.getSingularity()));
 					}
 				}
 			}
@@ -302,10 +290,6 @@ public class Statistic {
 			String strNpMean = npMean.intValue() > 0 ? String.valueOf(npMean.intValue()) : "-";
 			attrValues[Properties.MAX_RUNS + 2] = strNpMean;
 			
-			singularityMean = singularityMean.divide(new BigDecimal(Properties.MAX_RUNS), 15, RoundingMode.HALF_UP);
-			String strSingularityMean = singularityMean.doubleValue() > 0 ? formatNumber(singularityMean.doubleValue()) : "-";
-			attrValues[Properties.MAX_RUNS + 3] = strSingularityMean;
-
 			writeLineEvolutionOfErrors(attrValues);
 		}
 		ErrorEvolution bestRound = getBestRound();

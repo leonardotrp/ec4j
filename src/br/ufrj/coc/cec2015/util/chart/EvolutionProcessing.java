@@ -53,7 +53,7 @@ public class EvolutionProcessing {
 							br = new BufferedReader(new FileReader(fileRoundErrorsName));
 							String line;
 			                double maxFES = 0.001;
-							while ((line = br.readLine()) != null && maxFES < 0.05) {
+							while ((line = br.readLine()) != null && maxFES < 1) {
 
 								List<Double> roundValues = new ArrayList<>(Properties.MAX_RUNS);
 								

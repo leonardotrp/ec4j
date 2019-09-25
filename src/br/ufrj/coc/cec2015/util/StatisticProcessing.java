@@ -1,7 +1,6 @@
 package br.ufrj.coc.cec2015.util;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -24,10 +23,11 @@ import br.ufrj.coc.cec2015.algorithm.AlgorithmArguments;
 public class StatisticProcessing {
 
 	public static void main(String[] args) throws Exception {
-		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - dpade with eig\\experimentos\\P100_D50";
 
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
 
+			String PATH_RESULT = "E:\\Google Drive (COC)\\trabalho de dissertação\\2 - dpade with eig\\experimentos\\P100_D" + individualSize;
+			
 	        // Create a Workbook
 	        Workbook workbook = new XSSFWorkbook(); // new HSSFWorkbook() for generating `.xls` file
 	        // Create a Sheet
@@ -171,12 +171,7 @@ public class StatisticProcessing {
 			for (Cell lower : cellLowerStds.values())
 				lower.setCellStyle(boldCellStyle);
 			
-	        // Write the output to a file
-			File directory = new File(PATH_RESULT + "\\D" + individualSize + '\\');
-			if (!directory.exists())
-				directory.mkdirs();
-
-	        FileOutputStream fileOut = new FileOutputStream(directory.getAbsolutePath() + "\\P100_D" + individualSize + "_R50.xlsx");
+	        FileOutputStream fileOut = new FileOutputStream(PATH_RESULT + "\\P100_D" + individualSize + "_R50.xlsx");
 	        workbook.write(fileOut);
 	        fileOut.close();
 

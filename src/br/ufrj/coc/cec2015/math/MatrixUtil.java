@@ -105,7 +105,7 @@ public class MatrixUtil {
 		EigenvalueDecomposition eigB = MatrixUtil.getEigenDecomposition(populationB);
 		Matrix eigenvectorB = eigB.getV();
 		
-		double sPCA = similarityPCA(eigenvectorA, eigenvectorB, 3);
+		double sPCA = similarityPCA(eigenvectorA, eigenvectorB);
 		System.err.println(sPCA);
 		/*
 		for (int i = 0; i < 2; i++) {
@@ -119,10 +119,14 @@ public class MatrixUtil {
 	 * Krzanowski, W. J. Between-Groups Comparison of Principal Components. J. Amer. Stat. Assoc., 74(367), 703–707 (1979)
 	 * @param eigenvectorA
 	 * @param eigenvectorB
-	 * @param k
 	 * @return sPCA
 	 */
-	private static double similarityPCA(Matrix eigenvectorA, Matrix eigenvectorB, int k) {
+	public static double similarityPCA(Matrix eigenvectorA, Matrix eigenvectorB) {
+		int dim = Properties.ARGUMENTS.get().getIndividualSize();
+		int k = Properties.K_PCA;
+		if (k > dim)
+			k = dim;
+
 		int size = eigenvectorA.getColumnDimension();
 		double sPCA = 0.0;
 		for (int i = 0; i < size; i++) {

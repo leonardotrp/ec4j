@@ -90,5 +90,6 @@ public class Properties {
 
 	public static int[] INDIVIDUAL_SIZES = Stream.of(bundle.getString("INDIVIDUAL_SIZE").split(",")).mapToInt(Integer::parseInt).toArray();
 
-	public static boolean WRITE_SINGULARITY_COVARIANCE_MATRIX = Boolean.parseBoolean(bundle.getString("WRITE_SINGULARITY_COVARIANCE_MATRIX"));
+	public static boolean USE_PCA_SIMILARITY_FACTOR = Boolean.parseBoolean(bundle.getString("USE_PCA_SIMILARITY_FACTOR"));
+	public static int K_PCA = Integer.parseInt(bundle.getString("K_PCA")); // <= INDIVIDUAL_SIZE
 }
