@@ -42,11 +42,10 @@ public class DEHelper extends BaseAlgorithmHelper {
 		this.initializePopulationIndexes();
 
 		if (this.properties.isEigenvectorCrossover()) {
-			// RealMatrix covarianceMatrix =
-			// MatrixUtil.getCovarianceMatrix(super.getPopulation().toMatrix());
-			this.eigenDecomposition = MatrixUtil.getEigenDecomposition(super.getPopulation());
-			if (super.getPopulation().getEigenvectors() == null) // save the first eigenvectors
-				super.getPopulation().setEigenvectors(this.eigenDecomposition.getV());
+			// RealMatrix covarianceMatrix = MatrixUtil.getCovarianceMatrix(super.getPopulation().toMatrix());
+			this.eigenDecomposition = MatrixUtil.getEigenDecomposition(population);
+			if (population.getFirstEigenvectors() == null) // save the first eigenvectors
+				population.setFirstEigenvectors(this.eigenDecomposition.getV());
 
 		}
 	}

@@ -23,7 +23,7 @@ public class Population implements Cloneable {
 	private Initializable initializable;
 	private Individual best; // global best
 	private boolean minErrorValueFound;
-	private Matrix eigenvectors;
+	private Matrix firstEigenvectors;
 	
 	public Population(Initializable initializable, int populationSize) {
 		super();
@@ -96,12 +96,12 @@ public class Population implements Cloneable {
 		this.minErrorValueFound = minErrorValueFound;
 	}
 
-	public Matrix getEigenvectors() {
-		return eigenvectors;
+	public Matrix getFirstEigenvectors() {
+		return firstEigenvectors;
 	}
 
-	public void setEigenvectors(Matrix eigenvectors) {
-		this.eigenvectors = eigenvectors;
+	public void setFirstEigenvectors(Matrix firstEigenvectors) {
+		this.firstEigenvectors = firstEigenvectors;
 	}
 
 	public int size() {

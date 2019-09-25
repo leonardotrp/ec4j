@@ -44,8 +44,8 @@ public class CMAES extends Algorithm {
 
 			CMAEvolutionStrategy cma = new CMAEvolutionStrategy();
 
-            if (population.getEigenvectors() == null) {
-            	population.setEigenvectors(MatrixUtil.getEigenDecomposition(population).getV());
+            if (population.getFirstEigenvectors() == null) {
+            	population.setFirstEigenvectors(MatrixUtil.getEigenDecomposition(population).getV());
             	cma.setPopulation(population.toMatrix());
             }
 			

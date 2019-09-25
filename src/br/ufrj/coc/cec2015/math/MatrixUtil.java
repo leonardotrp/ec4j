@@ -8,6 +8,7 @@ import br.ufrj.coc.cec2015.algorithm.AlgorithmArguments;
 import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Initializable;
 import br.ufrj.coc.cec2015.algorithm.Population;
+import br.ufrj.coc.cec2015.util.FileUtil;
 import br.ufrj.coc.cec2015.util.Helper;
 import br.ufrj.coc.cec2015.util.Properties;
 
@@ -95,11 +96,42 @@ public class MatrixUtil {
 				return Helper.newIndividualInitialized();
 			}
 		};
+
+		Population populationA = new Population(initializable, FileUtil.getInitialPopulationFile("populationA.csv"));
+		EigenvalueDecomposition eigA = MatrixUtil.getEigenDecomposition(populationA);
+		Matrix eigenvectorA = eigA.getV();
+		double[] eigenvalueA = eigA.getRealEigenvalues();
 		
-		for (int i = 0; i < 100; i++) {
-			Population population = new Population(initializable);
-			Matrix cv = getCovarianceMatrix(population);
-			System.out.println("A(" + i + "): DetA = " + cv.det());
+		Population populationB = new Population(initializable, FileUtil.getInitialPopulationFile("populationB.csv"));
+		EigenvalueDecomposition eigB = MatrixUtil.getEigenDecomposition(populationB);
+		Matrix eigenvectorB = eigB.getV();
+		double[] eigenvalueB = eigB.getRealEigenvalues();
+		
+		double sPCA = 0.0;
+		double sumEigenvalues = 0.0;
+		for (int i = 0; i < arguments.getIndividualSize(); i++) {
+			double xA = eigenvectorA.get(i, 0);
+			double yA = eigenvectorA.get(i, 1);
+			
+			double xB = eigenvectorB.get(i, 0);
+			double yB = eigenvectorB.get(i, 1);
+			
+			double numerator = xA * xB + yA * yB;
+			double denominator = Math.sqrt(Math.pow(xA, 2) + Math.pow(xB, 2)) * Math.sqrt(Math.pow(yA, 2) + Math.pow(yB, 2));
+			double cosAngle = numerator / denominator;
+			sPCA += Math.pow(cosAngle, 2);
+			
+			sumEigenvalues += eigenvalueA[i];
 		}
+		System.err.println(sPCA);
+		System.err.println(sumEigenvalues);
+		
+		System.out.println("");
+		/*
+		for (int i = 0; i < 2; i++) {
+			Population population = new Population(initializable);
+			population.write(new File("population" + i + ".csv"));
+		}
+		*/
 	}
 }
