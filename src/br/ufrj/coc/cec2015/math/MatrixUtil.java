@@ -100,38 +100,46 @@ public class MatrixUtil {
 		Population populationA = new Population(initializable, FileUtil.getInitialPopulationFile("populationA.csv"));
 		EigenvalueDecomposition eigA = MatrixUtil.getEigenDecomposition(populationA);
 		Matrix eigenvectorA = eigA.getV();
-		double[] eigenvalueA = eigA.getRealEigenvalues();
 		
 		Population populationB = new Population(initializable, FileUtil.getInitialPopulationFile("populationB.csv"));
 		EigenvalueDecomposition eigB = MatrixUtil.getEigenDecomposition(populationB);
 		Matrix eigenvectorB = eigB.getV();
-		double[] eigenvalueB = eigB.getRealEigenvalues();
 		
-		double sPCA = 0.0;
-		double sumEigenvalues = 0.0;
-		for (int i = 0; i < arguments.getIndividualSize(); i++) {
-			double xA = eigenvectorA.get(i, 0);
-			double yA = eigenvectorA.get(i, 1);
-			
-			double xB = eigenvectorB.get(i, 0);
-			double yB = eigenvectorB.get(i, 1);
-			
-			double numerator = xA * xB + yA * yB;
-			double denominator = Math.sqrt(Math.pow(xA, 2) + Math.pow(xB, 2)) * Math.sqrt(Math.pow(yA, 2) + Math.pow(yB, 2));
-			double cosAngle = numerator / denominator;
-			sPCA += Math.pow(cosAngle, 2);
-			
-			sumEigenvalues += eigenvalueA[i];
-		}
+		double sPCA = similarityPCA(eigenvectorA, eigenvectorB, 3);
 		System.err.println(sPCA);
-		System.err.println(sumEigenvalues);
-		
-		System.out.println("");
 		/*
 		for (int i = 0; i < 2; i++) {
 			Population population = new Population(initializable);
 			population.write(new File("population" + i + ".csv"));
 		}
 		*/
+	}
+
+	/**
+	 * Krzanowski, W. J. Between-Groups Comparison of Principal Components. J. Amer. Stat. Assoc., 74(367), 703–707 (1979)
+	 * @param eigenvectorA
+	 * @param eigenvectorB
+	 * @param k
+	 * @return sPCA
+	 */
+	private static double similarityPCA(Matrix eigenvectorA, Matrix eigenvectorB, int k) {
+		int size = eigenvectorA.getColumnDimension();
+		double sPCA = 0.0;
+		for (int i = 0; i < size; i++) {
+			double numerator = 0.0;
+			double sumPowA = 0.0, sumPowB = 0.0;
+			for (int j = 0; j < k; j++) {
+				double a = eigenvectorA.get(i, j);
+				double b = eigenvectorB.get(i, j);
+				numerator += a * b;
+				sumPowA += Math.pow(a, 2);
+				sumPowB += Math.pow(b, 2);
+			}
+			double denominator = Math.sqrt(sumPowA) * Math.sqrt(sumPowB);
+			double cosAngle = numerator / denominator;
+			sPCA += Math.pow(cosAngle, 2);
+		}
+		sPCA /= size;
+		return sPCA;
 	}
 }
