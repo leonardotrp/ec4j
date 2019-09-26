@@ -30,8 +30,8 @@ public class DEProperties {
 			else
 				EIG_RATE_ADAPTATION = EigRateAdaptation.valueOf(EIG_RATE_ADAPTATIVE.toUpperCase());
 		}
-			
 	}
+	public static double MIN_DET_COVARIANCE_MATRIX = Double.parseDouble(bundle.getString("MIN_DET_COVARIANCE_MATRIX"));
 	public enum Strategy {
 		BEST, RAND, RE_BASE, RE_ALL, // BEST_2_OPT, RAND_2_OPT, RE_2_OPT
 		CURRENT_TO_BEST,

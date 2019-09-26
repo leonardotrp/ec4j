@@ -62,8 +62,7 @@ public class MatrixUtil {
 		return new Matrix(C);
 	}
 	
-	public static EigenvalueDecomposition getEigenDecomposition(Population population) {
-		Matrix M_C = getCovarianceMatrix(population);
+	/*public static EigenvalueDecomposition getEigenDecomposition(Matrix M_C) {
 		EigenvalueDecomposition ED_Q = M_C.eig();
 		/*
 		System.out.println("\n---------- Q: EIGEN VECTOR --------------");
@@ -77,9 +76,9 @@ public class MatrixUtil {
 		for (int index = 0; index < eigenVectorT.length; index++)
 			System.out.println(Arrays.toString(eigenVectorT[index]));
 		System.out.println();
-		*/
+		*
 		return ED_Q;
-	}
+	}*/
 
 	public static void main(String[] args) throws IOException {
 		AlgorithmArguments arguments = new AlgorithmArguments("JADE", "", "", 1, 10);
@@ -98,11 +97,11 @@ public class MatrixUtil {
 		};
 
 		Population populationA = new Population(initializable, FileUtil.getInitialPopulationFile("populationA.csv"));
-		EigenvalueDecomposition eigA = MatrixUtil.getEigenDecomposition(populationA);
+		EigenvalueDecomposition eigA = getCovarianceMatrix(populationA).eig();
 		Matrix eigenvectorA = eigA.getV();
 		
 		Population populationB = new Population(initializable, FileUtil.getInitialPopulationFile("populationB.csv"));
-		EigenvalueDecomposition eigB = MatrixUtil.getEigenDecomposition(populationB);
+		EigenvalueDecomposition eigB = getCovarianceMatrix(populationB).eig();
 		Matrix eigenvectorB = eigB.getV();
 		
 		double sPCA = similarityPCA(eigenvectorA, eigenvectorB);

@@ -42,11 +42,15 @@ public class DEHelper extends BaseAlgorithmHelper {
 		this.initializePopulationIndexes();
 
 		if (this.properties.isEigenvectorCrossover()) {
-			// RealMatrix covarianceMatrix = MatrixUtil.getCovarianceMatrix(super.getPopulation().toMatrix());
-			this.eigenDecomposition = MatrixUtil.getEigenDecomposition(population);
-			if (population.getFirstEigenvectors() == null) // save the first eigenvectors
-				population.setFirstEigenvectors(this.eigenDecomposition.getV());
-
+			Matrix cm = MatrixUtil.getCovarianceMatrix(population);
+			double detPopulation = cm.det();
+			if (detPopulation > DEProperties.MIN_DET_COVARIANCE_MATRIX) { // singularity check
+				this.eigenDecomposition = cm.eig();
+				if (population.getFirstEigenvectors() == null) // save the first eigenvectors
+					population.setFirstEigenvectors(this.eigenDecomposition.getV());
+			}
+			//else
+			//	System.err.println("Singularity check failed! DetG = "+detPopulation+". Don't change the covariance matrix");
 		}
 	}
 
