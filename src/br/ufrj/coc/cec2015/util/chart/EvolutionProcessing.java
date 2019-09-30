@@ -17,11 +17,10 @@ import br.ufrj.coc.cec2015.util.Statistic;
 public class EvolutionProcessing {
 
 	public static void main(String[] args) throws Exception {
-		//String PATH_RESULT = "E:\\Google Drive (COC)\\trabalho de dissertação\\2 - dpade with eig\\experimentos";
-		String PATH_RESULT = "C:\\dev\\workspace\\CEC2015\\results";
+		String ROOT_PATH = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos";
 
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
-			PATH_RESULT = PATH_RESULT + '\\' + "P40_D" + individualSize + '\\';
+			String PATH_RESULT = ROOT_PATH + "\\P100\\" + "P100_D" + individualSize + '\\';
 
 	        // Write the output to a file
 			File directory = new File(PATH_RESULT + "\\chart\\");
@@ -54,7 +53,7 @@ public class EvolutionProcessing {
 							br = new BufferedReader(new FileReader(fileRoundErrorsName));
 							String line;
 			                double maxFES = 0.001;
-							while ((line = br.readLine()) != null && maxFES < 1) {
+							while ((line = br.readLine()) != null && maxFES < 0.2) {
 
 								List<Double> roundValues = new ArrayList<>(Properties.MAX_RUNS);
 								
@@ -118,10 +117,10 @@ public class EvolutionProcessing {
 					}
 				}
 
-				String meanFilePng = directory.getAbsolutePath() + String.format("\\P40_F%d_D%d_mean_evolution.png", functionNumber, individualSize);
+				String meanFilePng = directory.getAbsolutePath() + String.format("\\P100_F%d_D%d_mean_evolution.png", functionNumber, individualSize);
 				meanEvolution.toFile(meanFilePng);
 				
-				String medianFilePng = directory.getAbsolutePath() + String.format("\\P40_F%d_D%d_median_evolution.png", functionNumber, individualSize);
+				String medianFilePng = directory.getAbsolutePath() + String.format("\\P100_F%d_D%d_median_evolution.png", functionNumber, individualSize);
 				medianEvolution.toFile(medianFilePng);
 			}
 		}

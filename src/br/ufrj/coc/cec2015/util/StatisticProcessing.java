@@ -26,7 +26,7 @@ public class StatisticProcessing {
 
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
 
-			String PATH_RESULT = "E:\\Google Drive (COC)\\trabalho de dissertação\\2 - dpade with eig\\experimentos\\P100_D" + individualSize;
+			String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\P100\\P100_D" + individualSize;
 			
 	        // Create a Workbook
 	        Workbook workbook = new XSSFWorkbook(); // new HSSFWorkbook() for generating `.xls` file
@@ -54,7 +54,7 @@ public class StatisticProcessing {
 	        CellStyle warningCellStyle = workbook.createCellStyle();
 	        warningCellStyle.setFont(warningFont);
 
-	        String[] statHeaderColumns = new String[] {"BEST", "MEAN", "STD", "SR"};
+	        String[] statHeaderColumns = new String[] {"BEST", "MEDIAN", "MEAN", "STD", "SR"};
 	        int idxColumnHeaderAlgorithm = 0;
 
 			Row rowHeaderAlgorithm = sheet.createRow(0);
@@ -62,6 +62,7 @@ public class StatisticProcessing {
 
 			Map<Integer, Row> rowFunctions = new HashMap<>(Properties.FUNCTION_NUMBERS.length);
 			Map<Integer, Cell> cellLowerBests = new HashMap<>(Properties.FUNCTION_NUMBERS.length);
+			Map<Integer, Cell> cellLowerMedians = new HashMap<>(Properties.FUNCTION_NUMBERS.length);
 			Map<Integer, Cell> cellLowerMeans = new HashMap<>(Properties.FUNCTION_NUMBERS.length);
 			Map<Integer, Cell> cellLowerStds = new HashMap<>(Properties.FUNCTION_NUMBERS.length);
 			
@@ -124,7 +125,17 @@ public class StatisticProcessing {
 				                	if (cellLowerBest == null || (best < cellLowerBest.getNumericCellValue()))
 				                		cellLowerBests.put(functionNumber, cell);
 
-									// MEAN
+									// MEDIAN
+				                	double median = Double.valueOf(columns[3].trim());
+						        	cell = rowFunction.createCell(idxColumnStatValue++);
+						        	cell.setCellValue(median);
+						        	if (median <= Properties.MIN_ERROR_VALUE)
+						        		cell.setCellStyle(boldCellStyle);
+				                	Cell cellLowerMedian = cellLowerMedians.get(functionNumber);
+				                	if (cellLowerMedian == null || (median < cellLowerMedian.getNumericCellValue()))
+				                		cellLowerMedians.put(functionNumber, cell);
+
+				                	// MEAN
 				                	double mean = Double.valueOf(columns[4].trim());
 						        	cell = rowFunction.createCell(idxColumnStatValue++);
 						        	cell.setCellValue(mean);
@@ -165,6 +176,8 @@ public class StatisticProcessing {
 			}
 			
 			for (Cell lower : cellLowerBests.values())
+				lower.setCellStyle(boldCellStyle);
+			for (Cell lower : cellLowerMedians.values())
 				lower.setCellStyle(boldCellStyle);
 			for (Cell lower : cellLowerMeans.values())
 				lower.setCellStyle(boldCellStyle);
