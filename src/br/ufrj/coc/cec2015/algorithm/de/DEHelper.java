@@ -11,7 +11,6 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 
-import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import br.ufrj.coc.cec2015.algorithm.BaseAlgorithmHelper;
 import br.ufrj.coc.cec2015.algorithm.Individual;
@@ -26,12 +25,12 @@ public class DEHelper extends BaseAlgorithmHelper {
 	private double[] cumulativeVector;
 	private List<Integer> populationIndexes;
 	private DEProperties properties;
-	private EigenvalueDecomposition eigenDecomposition;
+	private Matrix eigenvectors;
 
 	public DEHelper() {
 		super();
 		this.properties = new DEProperties();
-		this.eigenDecomposition = null;
+		this.eigenvectors = null;
 	}
 
 	@Override
@@ -44,13 +43,13 @@ public class DEHelper extends BaseAlgorithmHelper {
 		if (this.properties.isEigenvectorCrossover()) {
 			Matrix cm = MatrixUtil.getCovarianceMatrix(population);
 			double detPopulation = cm.det();
+
 			if (detPopulation > DEProperties.MIN_DET_COVARIANCE_MATRIX) { // singularity check
-				this.eigenDecomposition = cm.eig();
-				if (population.getFirstEigenvectors() == null) // save the first eigenvectors
-					population.setFirstEigenvectors(this.eigenDecomposition.getV());
+				this.eigenvectors = cm.eig().getV();
+				if (population.getFirstEigenvectors() == null) {// save the first eigenvectors
+					population.setFirstEigenvectors(this.eigenvectors);
+				}
 			}
-			//else
-			//	System.err.println("Singularity check failed! DetG = "+detPopulation+". Don't change the covariance matrix");
 		}
 	}
 
@@ -247,7 +246,7 @@ public class DEHelper extends BaseAlgorithmHelper {
 			V[j] = mutate(j, differencialWeight, base, destiny, partners);
 		}
 
-		Matrix Q = eigenDecomposition.getV(); // Qg
+		Matrix Q = this.eigenvectors; // Qg
 
 		double[] QX = new double[individualSize];
 		double[] QV = new double[individualSize];
@@ -270,7 +269,7 @@ public class DEHelper extends BaseAlgorithmHelper {
 			}
 		}
 
-		RealMatrix QT = new Array2DRowRealMatrix(eigenDecomposition.getV().getArray()).transpose(); // Qg*
+		RealMatrix QT = new Array2DRowRealMatrix(this.eigenvectors.getArray()).transpose(); // Qg*
 
 		double[] trialVector = new double[individualSize];
 		for (int j = 0; j < individualSize; j++) {
