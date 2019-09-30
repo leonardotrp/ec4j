@@ -1,16 +1,17 @@
 package br.ufrj.coc.cec2015.lab;
 
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
+import org.apache.commons.math3.stat.inference.WilcoxonSignedRankTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class TestLab {
-/*
+
 	@BeforeEach
 	void setUp() throws Exception {
 	}
 
-	@Test
-	void test() {
+	//@Test
+	//void test() {
 		/*
 		// fail("Not yet implemented");
 		double[][] population = new double[5][2];
@@ -62,7 +63,15 @@ class TestLab {
 		double[][] matrix_Q2 = jacobi.getData();
 		for (int index = 0; index < matrix_Q2.length; index++)
 			System.out.println(Arrays.toString(matrix_Q2[index]));
-		
+		*/
+	//}
+
+	@Test
+	void testWilcoxom() {
+		double[] A = {5,5,8,10,13,13,13,15};
+		double[] B = {3,3,4,5,5,8,9,16};
+		WilcoxonSignedRankTest wsrt = new WilcoxonSignedRankTest();
+		double rank = wsrt.wilcoxonSignedRankTest(A, B, true);
+		System.out.println(rank);
 	}
-*/
 }
