@@ -31,7 +31,9 @@ public class DEProperties {
 				EIG_RATE_ADAPTATION = EigRateAdaptation.valueOf(EIG_RATE_ADAPTATIVE.toUpperCase());
 		}
 	}
-	public static double MIN_DET_COVARIANCE_MATRIX = Double.parseDouble(bundle.getString("MIN_DET_COVARIANCE_MATRIX"));
+	public static int MAX_INCREASE_POPULATION_WITH_EIG = Integer.parseInt(bundle.getString("MAX_INCREASE_POPULATION_WITH_EIG"));
+	public static double LIMIT_VARIANCE_DET_COVMATRIX = Double.parseDouble(bundle.getString("LIMIT_VARIANCE_DET_COVMATRIX"));
+	public static double LIMIT_FACTOR_MAXFES_WITH_EIG = Double.parseDouble(bundle.getString("LIMIT_FACTOR_MAXFES_WITH_EIG"));
 	public enum Strategy {
 		BEST, RAND, RE_BASE, RE_ALL, // BEST_2_OPT, RAND_2_OPT, RE_2_OPT
 		CURRENT_TO_BEST,

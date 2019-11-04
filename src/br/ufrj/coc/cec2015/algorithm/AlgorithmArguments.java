@@ -1,5 +1,8 @@
 package br.ufrj.coc.cec2015.algorithm;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import br.ufrj.coc.cec2014.functions.testfunc;
 //import br.ufrj.coc.base.functions.testfunc;
 import br.ufrj.coc.cec2015.util.Properties;
@@ -53,6 +56,10 @@ public class AlgorithmArguments {
 
 	public int getPopulationSize() {
 		return populationSize;
+	}
+	
+	public void resetPopulationSize() {
+		this.populationSize = Properties.POPULATION_SIZES.get(this.name);
 	}
 
 	public void setPopulationSize(int populationSize) {
@@ -111,8 +118,16 @@ public class AlgorithmArguments {
 		return Properties.STOP_BY_MAX_GEN && this.countGenerations >= Properties.MAX_GENERATIONS;
 	}
 	
+	public double getEvolutionPercentage() {
+		BigDecimal bdPerc = new BigDecimal(this.countEvaluations);
+		bdPerc = bdPerc.divide(new BigDecimal(this.maxFES), 5, RoundingMode.HALF_UP);
+		return bdPerc.doubleValue();
+	}
+
 	public double getEvolutionFactor() {
-		return 1 - (this.countEvaluations / this.maxFES);
+		BigDecimal bdFactor = new BigDecimal(this.getEvolutionPercentage());
+		bdFactor = new BigDecimal(1.0).subtract(bdFactor);
+		return bdFactor.doubleValue();
 	}
 	
 	public String getPrefixFile() {

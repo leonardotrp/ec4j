@@ -26,13 +26,16 @@ public class DEHelper extends BaseAlgorithmHelper {
 	private List<Integer> populationIndexes;
 	private DEProperties properties;
 	private Matrix eigenvectors;
+	private int countIncreases = 0;
 
 	public DEHelper() {
 		super();
 		this.properties = new DEProperties();
 		this.eigenvectors = null;
+		this.countIncreases = 0;
+		Properties.ARGUMENTS.get().resetPopulationSize();
 	}
-
+	
 	@Override
 	public void initializeGeneration(Population population) {
 		super.initializeGeneration(population);
@@ -42,9 +45,28 @@ public class DEHelper extends BaseAlgorithmHelper {
 
 		if (this.properties.isEigenvectorCrossover()) {
 			Matrix cm = MatrixUtil.getCovarianceMatrix(population);
-			double detPopulation = cm.det();
-
-			if (detPopulation > DEProperties.MIN_DET_COVARIANCE_MATRIX) { // singularity check
+			double determinant = cm.det();
+			boolean updateEigenvectors = true;
+			boolean useIncreasePopulation = DEProperties.MAX_INCREASE_POPULATION_WITH_EIG > 0;
+			if (useIncreasePopulation && this.countIncreases < DEProperties.MAX_INCREASE_POPULATION_WITH_EIG) {
+				boolean limit10PercMaxFES = Properties.ARGUMENTS.get().getEvolutionPercentage() <= DEProperties.LIMIT_FACTOR_MAXFES_WITH_EIG;
+				if (limit10PercMaxFES) {
+					boolean limitDetG = (Math.abs(determinant - population.getDeterminant()) < DEProperties.LIMIT_VARIANCE_DET_COVMATRIX);
+					if (limitDetG) {
+						// increase population
+						population.increase((int) (population.size() * 1.5));
+						this.countIncreases++;
+						cm = MatrixUtil.getCovarianceMatrix(population);
+						population.setDeterminant(cm.det());
+						System.out.println("Increase population to " + population.size());
+					}
+				}
+				// atualizar autovetores até o limite de 10% do MaxFES
+				else
+					updateEigenvectors = false;
+			}
+			
+			if (updateEigenvectors) {
 				this.eigenvectors = cm.eig().getV();
 				if (population.getFirstEigenvectors() == null) {// save the first eigenvectors
 					population.setFirstEigenvectors(this.eigenvectors);

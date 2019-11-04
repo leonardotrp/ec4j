@@ -24,6 +24,7 @@ public class Population implements Cloneable {
 	private Individual best; // global best
 	private boolean minErrorValueFound;
 	private Matrix firstEigenvectors;
+	private double determinant;
 	
 	public Population(Initializable initializable, int populationSize) {
 		super();
@@ -53,6 +54,7 @@ public class Population implements Cloneable {
 					this.best = individual;
 				}
 			}
+			Properties.ARGUMENTS.get().setPopulationSize(newSize);
 		}
 	}
 	
@@ -102,6 +104,14 @@ public class Population implements Cloneable {
 
 	public void setFirstEigenvectors(Matrix firstEigenvectors) {
 		this.firstEigenvectors = firstEigenvectors;
+	}
+
+	public double getDeterminant() {
+		return determinant;
+	}
+
+	public void setDeterminant(double determinant) {
+		this.determinant = determinant;
 	}
 
 	public int size() {
