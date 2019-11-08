@@ -21,10 +21,10 @@ public class EvolutionProcessing {
 		String ROOT_PATH = "C:\\dev\\workspace\\CEC2015\\results";
 
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
-			String PATH_RESULT = ROOT_PATH + "\\P40-1280\\";// + "P40_D" + individualSize + '\\';
+			String PATH_RESULT = ROOT_PATH + "\\P40_D" + individualSize;
 
 	        // Write the output to a file
-			File directory = new File(PATH_RESULT + "\\chart\\");
+			File directory = new File(PATH_RESULT + "\\chart");
 			if (!directory.exists())
 				directory.mkdirs();
 	

@@ -26,14 +26,12 @@ public class DEHelper extends BaseAlgorithmHelper {
 	private List<Integer> populationIndexes;
 	private DEProperties properties;
 	private Matrix eigenvectors;
-	private boolean useEig;
 
 	public DEHelper() {
 		super();
 		this.properties = new DEProperties();
 		this.eigenvectors = null;
 		Properties.ARGUMENTS.get().resetPopulationSize();
-		this.useEig = this.properties.isEigenvectorCrossover();
 	}
 	
 	@Override
@@ -41,26 +39,22 @@ public class DEHelper extends BaseAlgorithmHelper {
 		super.initializeGeneration(population);
 		this.initializeCumulativeVector();
 		this.initializePopulationIndexes();
-		this.initializeEigenvectorOperator(population);
+		this.initializeEigOperator(population);
 	}
 	
-	private void initializeEigenvectorOperator(Population population) {
-		if (this.useEig) {
+	private void initializeEigOperator(Population population) {
+		if (this.isUseEig()) {
 			Matrix cm = MatrixUtil.getCovarianceMatrix(population);
 			this.increasePopulation(population, cm.det());
-			if (this.testLimitFactorMaxFES()) {
-				this.eigenvectors = cm.eig().getV();
-				if (population.getFirstEigenvectors() == null) {// save the first eigenvectors
-					population.setFirstEigenvectors(this.eigenvectors);
-				}
+			this.eigenvectors = cm.eig().getV();
+			if (population.getFirstEigenvectors() == null) {// save the first eigenvectors
+				population.setFirstEigenvectors(this.eigenvectors);
 			}
-			else
-				this.useEig = false; // stop use EIG
 		}
 	}
 
-	protected boolean testLimitFactorMaxFES() {
-		return true;
+	protected boolean isUseEig() {
+		return this.properties.isEigenvectorCrossover();
 	}
 	
 	protected void increasePopulation(Population population, double determinant) {
@@ -317,7 +311,7 @@ public class DEHelper extends BaseAlgorithmHelper {
 		List<Individual> partners = this.selectPartners(); // X1, X2, X3, X4
 		Individual destiny = this.selectDestiny(); // strategy 'DE/current-to-{rand/best/pbest}/N'
 
-		if (this.useEig && Math.random() <= getEigRate())
+		if (this.isUseEig() && Math.random() <= getEigRate())
 			return generateTrialVectorEig(current, base, destiny, partners);
 		else
 			return generateTrialVectorBin(current, base, destiny, partners);
