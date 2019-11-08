@@ -45,10 +45,16 @@ public class DEHelper extends BaseAlgorithmHelper {
 	private void initializeEigOperator(Population population) {
 		if (this.isUseEig()) {
 			Matrix cm = MatrixUtil.getCovarianceMatrix(population);
-			this.increasePopulation(population, cm.det());
-			this.eigenvectors = cm.eig().getV();
-			if (population.getFirstEigenvectors() == null) {// save the first eigenvectors
-				population.setFirstEigenvectors(this.eigenvectors);
+			double determinant = cm.det();
+			if (determinant > 0) {
+				this.increasePopulation(population, cm.det());
+				this.eigenvectors = cm.eig().getV();
+				if (population.getFirstEigenvectors() == null) {// save the first eigenvectors
+					population.setFirstEigenvectors(this.eigenvectors);
+				}
+			}
+			else {
+				System.err.println("Error! Covariance Matrix's Determinant is 0. This matrix is singular.");
 			}
 		}
 	}
