@@ -26,14 +26,12 @@ public class DEHelper extends BaseAlgorithmHelper {
 	private List<Integer> populationIndexes;
 	private DEProperties properties;
 	private Matrix eigenvectors;
-	private int countIncreases = 0;
 	private boolean useEig;
 
 	public DEHelper() {
 		super();
 		this.properties = new DEProperties();
 		this.eigenvectors = null;
-		this.countIncreases = 0;
 		Properties.ARGUMENTS.get().resetPopulationSize();
 		this.useEig = this.properties.isEigenvectorCrossover();
 	}
@@ -41,42 +39,33 @@ public class DEHelper extends BaseAlgorithmHelper {
 	@Override
 	public void initializeGeneration(Population population) {
 		super.initializeGeneration(population);
-		
 		this.initializeCumulativeVector();
 		this.initializePopulationIndexes();
-
+		this.initializeEigenvectorOperator(population);
+	}
+	
+	private void initializeEigenvectorOperator(Population population) {
 		if (this.useEig) {
 			Matrix cm = MatrixUtil.getCovarianceMatrix(population);
-			double determinant = cm.det();
-			boolean useIncreasePopulation = DEProperties.MAX_INCREASE_POPULATION_WITH_EIG > 0;
-			if (useIncreasePopulation && this.countIncreases < DEProperties.MAX_INCREASE_POPULATION_WITH_EIG) {
-				boolean limit10PercMaxFES = Properties.ARGUMENTS.get().getEvolutionPercentage() <= DEProperties.LIMIT_FACTOR_MAXFES_WITH_EIG;
-				if (limit10PercMaxFES) {
-					//System.out.println(String.format("Percentual de MaxFES = %.2f / Determinant = %e / Difference = %e", Properties.ARGUMENTS.get().getEvolutionPercentage(), determinant, Math.abs(determinant - population.getDeterminant())));
-					boolean limitDetG = (Math.abs(determinant - population.getDeterminant()) < DEProperties.LIMIT_VARIANCE_DET_COVMATRIX);
-					population.setDeterminant(determinant);
-					if (limitDetG) {
-						// increase population
-						population.increase((int) (population.size() * 1.5));
-						this.countIncreases++;
-						//cm = MatrixUtil.getCovarianceMatrix(population);
-						System.err.println("Increase population to " + population.size());
-						this.initializeGeneration(population);
-					}
-				}
-				// atualizar autovetores até o limite de 10% do MaxFES
-				else
-					this.useEig = false;
-			}
-			if (this.useEig) {
+			this.increasePopulation(population, cm.det());
+			if (this.testLimitFactorMaxFES()) {
 				this.eigenvectors = cm.eig().getV();
 				if (population.getFirstEigenvectors() == null) {// save the first eigenvectors
 					population.setFirstEigenvectors(this.eigenvectors);
 				}
 			}
+			else
+				this.useEig = false; // stop use EIG
 		}
 	}
 
+	protected boolean testLimitFactorMaxFES() {
+		return true;
+	}
+	
+	protected void increasePopulation(Population population, double determinant) {
+	}
+	
 	public DEProperties getProperties() {
 		return this.properties;
 	}
@@ -140,7 +129,7 @@ public class DEHelper extends BaseAlgorithmHelper {
 		return Math.random() <= crossoverRate;
 	}
 
-	private void initializeSortedPopulation() {
+	protected void initializeSortedPopulation() {
 		try {
 			this.sortedPopulation = (Population) super.getPopulation().clone();
 			Collections.sort(this.sortedPopulation.getIndividuals());

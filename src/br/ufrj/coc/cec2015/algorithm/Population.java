@@ -42,42 +42,28 @@ public class Population implements Cloneable {
 		this.load(csvPopulationFile);
 	}
 	
-	public void increase(int newSize) {
-		if (newSize > this.size()) {
-			int increaseSize = newSize - this.size();
-			for (int index = 0; index < increaseSize; index++) {
-				Individual individual = this.initializable.newInitialized();
-				this.individuals.add(individual);
-				
-				double error = Helper.getError(individual);
-				if (error < this.getBestError()) {
-					this.best = individual;
-				}
-			}
-			Properties.ARGUMENTS.get().setPopulationSize(newSize);
-		}
+	public Initializable getInitializable() {
+		return initializable;
 	}
-	
+
 	private void initialize(int populationSize) {
 		this.individuals = new ArrayList<Individual>(populationSize);
-		double bestError = Double.MAX_VALUE;
-		for (int index = 0; index < populationSize; index++) {
-			Individual individual = this.initializable.newInitialized();
-			this.individuals.add(individual);
-			
-			double error = Helper.getError(individual);
-			if (index == 0 || error < bestError) {
-				bestError = error;
-				this.best = individual;
-			}
-		}
+		for (int index = 0; index < populationSize; index++)
+			this.addIndividual();
 	}
 	
 	public void initializeIndividual(int index) {
 		Individual individual = this.initializable.newInitialized();
 		this.individuals.set(index, individual);
+		updateBestError(individual);
 	}
-	
+
+	public void addIndividual() {
+		Individual individual = this.initializable.newInitialized();
+		this.individuals.add(individual);
+		updateBestError(individual);
+	}
+
 	public List<Individual> getIndividuals() {
 		return individuals;
 	}
@@ -132,9 +118,9 @@ public class Population implements Cloneable {
 
 	public void updateBestError(Individual individual) {
 		double error = Helper.getError(individual);
-		double bestError = Helper.getError(this.best);
+		double bestError = this.best == null ? Double.MAX_VALUE : this.getBestError();
 		if (error < bestError) {
-			this.best = (Individual) individual.clone();
+			this.best = individual.clone();
 		}
 	}
 
