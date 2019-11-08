@@ -25,6 +25,7 @@ public class Population implements Cloneable {
 	private boolean minErrorValueFound;
 	private Matrix firstEigenvectors;
 	private double determinant;
+	private double minDeterminant = Double.MAX_VALUE;
 	
 	public Population(Initializable initializable, int populationSize) {
 		super();
@@ -98,6 +99,14 @@ public class Population implements Cloneable {
 
 	public void setDeterminant(double determinant) {
 		this.determinant = determinant;
+	}
+
+	public double getMinDeterminant() {
+		return minDeterminant;
+	}
+
+	public void setMinDeterminant(double minDeterminant) {
+		this.minDeterminant = minDeterminant;
 	}
 
 	public int size() {

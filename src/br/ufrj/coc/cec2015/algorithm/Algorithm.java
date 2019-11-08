@@ -36,7 +36,7 @@ public abstract class Algorithm {
 	protected boolean terminated(Population population) {
 		return Helper.terminateRun(population);
 	}
-	
+
 	protected void executeRoud(Initializable initializable, Statistic statistic, int round) throws Exception {
 		statistic.startRound();
 		initializeRound(round);
@@ -45,6 +45,7 @@ public abstract class Algorithm {
 		while (!terminated(population)) {
 			this.run(population, statistic, round);
 		}
+		System.out.println(String.format("Round(%d): Mínima diferença de determinantes = %e", round, population.getMinDeterminant()));
 		statistic.addRound(population);
 	}
 

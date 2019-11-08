@@ -22,8 +22,11 @@ public class IPOP_JADEHelper extends JADEHelper {
 		boolean useIncreasePopulation = DEProperties.MAX_INCREASE_POPULATION_WITH_EIG > 0;
 		boolean canIncrease = this.countIncreases < DEProperties.MAX_INCREASE_POPULATION_WITH_EIG;
 		// para funções unimodais esse limite deve ser aproximadamente E-400. Já para funções multimodais E-250... mas como saber?
-		boolean limitDetG = (Math.abs(determinant - population.getDeterminant()) < DEProperties.LIMIT_VARIANCE_DET_COVMATRIX);
+		double delta = Math.abs(determinant - population.getDeterminant());
+		boolean limitDetG = delta < DEProperties.LIMIT_VARIANCE_DET_COVMATRIX;
 		population.setDeterminant(determinant);
+		if (delta < population.getMinDeterminant())
+			population.setMinDeterminant(delta);
 		if (useIncreasePopulation && canIncrease && limitDetG) {
 			// increase population by keeping better pBest individuals
 			int newSize = (int) (population.size() * 2);

@@ -18,7 +18,7 @@ public class EvolutionProcessing {
 
 	public static void main(String[] args) throws Exception {
 		//String ROOT_PATH = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos";
-		String ROOT_PATH = "C:\\dev\\workspace\\CEC2015\\results";
+		String ROOT_PATH = "E:\\dev\\workspace\\CEC2015\\results";
 
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
 			String PATH_RESULT = ROOT_PATH + "\\P40_D" + individualSize;
