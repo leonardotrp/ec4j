@@ -24,9 +24,9 @@ public class IPOP_JADEHelper extends JADEHelper {
 		double delta = Math.abs(determinant - population.getDeterminant());
 		// variação muito pequena (1.0E-160) do determinante da matriz de covariância implica em dizer que toda a população convergiu para um mesmo ótimo
 		// variação nula do determinante da matriz de covariância significa que não houve melhora entre duas gerações
-		boolean limitDetG = delta < DEProperties.LIMIT_VARIANCE_DET_COVMATRIX;
+		boolean limitDetG = delta > 0 && delta < DEProperties.LIMIT_VARIANCE_DET_COVMATRIX;
 		population.setDeterminant(determinant);
-		if (delta < population.getMinDeterminant())
+		if (delta > 0 && delta < population.getMinDeterminant())
 			population.setMinDeterminant(delta);
 		if (useIncreasePopulation && canIncrease && limitDetG) {
 			// increase population by keeping better pBest individuals
@@ -39,7 +39,7 @@ public class IPOP_JADEHelper extends JADEHelper {
 
 	protected boolean isUseEig() {
 		double limitFactorMaxFES = DEProperties.LIMIT_FACTOR_MAXFES_WITH_EIG * (this.countIncreases == 0 ? 1 : this.countIncreases);
-		return super.isUseEig() && Properties.ARGUMENTS.get().getEvolutionPercentage() <= limitFactorMaxFES;
+		return Properties.ARGUMENTS.get().getEvolutionPercentage() <= limitFactorMaxFES;
 	}
 	
 	private void increase(Population population, int newSize, int pBestIndex) {
