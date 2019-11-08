@@ -21,8 +21,9 @@ public class IPOP_JADEHelper extends JADEHelper {
 	protected void increasePopulation(Population population, double determinant) {
 		boolean useIncreasePopulation = DEProperties.MAX_INCREASE_POPULATION_WITH_EIG > 0;
 		boolean canIncrease = this.countIncreases < DEProperties.MAX_INCREASE_POPULATION_WITH_EIG;
-		// para funções unimodais esse limite deve ser aproximadamente E-400. Já para funções multimodais E-250... mas como saber?
 		double delta = Math.abs(determinant - population.getDeterminant());
+		// variação muito pequena (1.0E-160) do determinante da matriz de covariância implica em dizer que toda a população convergiu para um mesmo ótimo
+		// variação nula do determinante da matriz de covariância significa que não houve melhora entre duas gerações
 		boolean limitDetG = delta < DEProperties.LIMIT_VARIANCE_DET_COVMATRIX;
 		population.setDeterminant(determinant);
 		if (delta < population.getMinDeterminant())
