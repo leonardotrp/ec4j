@@ -12,4 +12,8 @@ public class IPOP_JADE extends DE {
 	public IPOP_JADEHelper getDEHelper() {
 		return (IPOP_JADEHelper) Properties.HELPER.get();
 	}
+	@Override
+	public String[] getVariants() {
+		return new String[] {"DE/current-to-pbest/1/Eig"};
+	}
 }
