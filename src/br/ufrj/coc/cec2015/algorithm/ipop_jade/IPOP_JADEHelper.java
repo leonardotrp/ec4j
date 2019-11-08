@@ -38,8 +38,8 @@ public class IPOP_JADEHelper extends JADEHelper {
 	}
 
 	protected boolean isUseEig() {
-		int factorExtended = this.countIncreases == 0 ? 1 : this.countIncreases;
-		return Properties.ARGUMENTS.get().getEvolutionPercentage() <= DEProperties.LIMIT_FACTOR_MAXFES_WITH_EIG * factorExtended;
+		double limitFactorMaxFES = DEProperties.LIMIT_FACTOR_MAXFES_WITH_EIG * (this.countIncreases == 0 ? 1 : this.countIncreases);
+		return super.isUseEig() && Properties.ARGUMENTS.get().getEvolutionPercentage() <= limitFactorMaxFES;
 	}
 	
 	private void increase(Population population, int newSize, int pBestIndex) {
