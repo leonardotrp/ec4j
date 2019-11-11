@@ -78,6 +78,10 @@ public class IPOP_JADEHelper extends JADEHelper {
 	@Override
 	public void finalizeGeneration() {
 		super.finalizeGeneration();
+		computeEuclidianDistances();
+	}
+
+	private void computeEuclidianDistances() {
 		Individual best = super.getPopulation().getBest();
 		double minDistanceEuclidian = Double.MAX_VALUE;
 		double maxDistanceEuclidian = Double.MIN_VALUE;
