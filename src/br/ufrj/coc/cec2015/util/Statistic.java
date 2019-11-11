@@ -377,18 +377,23 @@ public class Statistic {
 		return median.doubleValue();
 	}
 
-	public static double calculateStandardDeviation(List<Double> errors, double meanOfErrors) {
-		BigDecimal mean = new BigDecimal(meanOfErrors);
+	public static double calculateStandardDeviation(List<Double> numbers) {
+		double mean = calculateMean(numbers);
+		return calculateStandardDeviation(numbers, mean);
+	}
+	
+	public static double calculateStandardDeviation(List<Double> numbers, double mean) {
+		BigDecimal bdMean = new BigDecimal(mean);
 		BigDecimal standardDeviation = new BigDecimal(0.0);
-		for (Double error : errors) {
+		for (Double error : numbers) {
 
 			BigDecimal bdError = new BigDecimal(error);
-			bdError = bdError.subtract(mean);
+			bdError = bdError.subtract(bdMean);
 			bdError = bdError.pow(2);
 
-			standardDeviation = mean.add(bdError);
+			standardDeviation = bdMean.add(bdError);
 		}
-		double result = standardDeviation.divide(BigDecimal.valueOf(errors.size() - 1), 15, RoundingMode.HALF_UP).doubleValue();
+		double result = standardDeviation.divide(BigDecimal.valueOf(numbers.size() - 1), 15, RoundingMode.HALF_UP).doubleValue();
 		return Math.sqrt(result);
 	}
 

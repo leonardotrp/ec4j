@@ -57,6 +57,9 @@ public class DEHelper extends BaseAlgorithmHelper {
 				System.err.println("Error! Covariance Matrix's Determinant is 0. This matrix is singular.");
 			}
 		}
+		//else if (this.properties.isEigenvectorCrossover()) {
+		//	System.err.println("Stop use EIG crossover.");
+		//}
 	}
 
 	protected boolean isUseEig() {

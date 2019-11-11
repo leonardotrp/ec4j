@@ -26,7 +26,8 @@ public class StatisticProcessing {
 
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
 
-			String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\P100\\P100_D" + individualSize;
+			String ROOT_PATH = "C:\\dev\\workspace\\CEC2015\\results";
+			String PATH_RESULT = ROOT_PATH + "\\P40_D" + individualSize;
 			
 	        // Create a Workbook
 	        Workbook workbook = new XSSFWorkbook(); // new HSSFWorkbook() for generating `.xls` file
