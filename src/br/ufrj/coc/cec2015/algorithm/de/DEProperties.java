@@ -31,9 +31,13 @@ public class DEProperties {
 				EIG_RATE_ADAPTATION = EigRateAdaptation.valueOf(EIG_RATE_ADAPTATIVE.toUpperCase());
 		}
 	}
-	public static int MAX_INCREASE_POPULATION_WITH_EIG = Integer.parseInt(bundle.getString("MAX_INCREASE_POPULATION_WITH_EIG"));
-	public static double LIMIT_VARIANCE_DET_COVMATRIX = Double.parseDouble(bundle.getString("LIMIT_VARIANCE_DET_COVMATRIX"));
-	public static double LIMIT_FACTOR_MAXFES_WITH_EIG = Double.parseDouble(bundle.getString("LIMIT_FACTOR_MAXFES_WITH_EIG"));
+
+	public static int IPOP_MAX_INCREASE_POPULATION = Integer.parseInt(bundle.getString("IPOP_MAX_INCREASE_POPULATION"));
+	public static double IPOP_LIMIT_FACTOR_MAXFES = Double.parseDouble(bundle.getString("IPOP_LIMIT_FACTOR_MAXFES"));
+	public static double IPOP_LIMIT_VARIANCE_DET_COVMATRIX = Double.parseDouble(bundle.getString("IPOP_LIMIT_VARIANCE_DET_COVMATRIX"));
+	public static int IPOP_MAX_ATTEMPTS_WITHOUT_POPULATION_CHANGE = Integer.parseInt(bundle.getString("IPOP_MAX_ATTEMPTS_WITHOUT_POPULATION_CHANGE"));
+	public static double IPOP_LIMIT_RANGE_EUCLIDIAN_DISTANCE = Double.parseDouble(bundle.getString("IPOP_LIMIT_RANGE_EUCLIDIAN_DISTANCE"));
+
 	public enum Strategy {
 		BEST, RAND, RE_BASE, RE_ALL, // BEST_2_OPT, RAND_2_OPT, RE_2_OPT
 		CURRENT_TO_BEST,

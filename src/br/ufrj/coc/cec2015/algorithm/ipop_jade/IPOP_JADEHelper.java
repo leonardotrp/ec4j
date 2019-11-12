@@ -24,13 +24,13 @@ public class IPOP_JADEHelper extends JADEHelper {
 	}
 	
 	protected void increasePopulation(Population population, double determinant) {
-		boolean canIncrease = this.countIncreases < DEProperties.MAX_INCREASE_POPULATION_WITH_EIG;
+		boolean canIncrease = this.countIncreases < DEProperties.IPOP_MAX_INCREASE_POPULATION;
 
 		// variação nula do determinante da matriz de covariância significa que não houve melhora entre duas gerações
 		double delta = Math.abs(determinant - population.getDeterminant());
 		
 		// variação muito pequena (1.0E-160) do determinante da matriz de covariância implica em dizer que toda a população convergiu para um mesmo ótimo
-		boolean limitDetG = delta > 0 && delta < DEProperties.LIMIT_VARIANCE_DET_COVMATRIX;
+		boolean limitDetG = delta > 0 && delta < DEProperties.IPOP_LIMIT_VARIANCE_DET_COVMATRIX;
 		population.setDeterminant(determinant);
 
 		if (delta > 0 && delta < population.getMinDeterminant())
@@ -39,7 +39,7 @@ public class IPOP_JADEHelper extends JADEHelper {
 		if (delta == 0)
 			this.countUnchanged++;
 		
-		boolean limitUnchanged = this.countUnchanged == 10 && population.getMinEuclidianDistance() > 0.01;
+		boolean limitUnchanged = this.countUnchanged == DEProperties.IPOP_MAX_ATTEMPTS_WITHOUT_POPULATION_CHANGE && population.getMinEuclidianDistance() > DEProperties.IPOP_LIMIT_RANGE_EUCLIDIAN_DISTANCE;
 		
 		if (canIncrease && (limitDetG || limitUnchanged)) {
 			// increase population by keeping better pBest individuals
@@ -53,7 +53,7 @@ public class IPOP_JADEHelper extends JADEHelper {
 	}
 
 	protected boolean isUseEig() {
-		double limitFactorMaxFES = DEProperties.LIMIT_FACTOR_MAXFES_WITH_EIG * (this.countIncreases == 0 ? 1 : this.countIncreases);
+		double limitFactorMaxFES = DEProperties.IPOP_LIMIT_FACTOR_MAXFES * (this.countIncreases == 0 ? 1 : this.countIncreases);
 		return super.isUseEig() && Properties.ARGUMENTS.get().getEvolutionPercentage() <= limitFactorMaxFES;
 	}
 	
@@ -78,6 +78,10 @@ public class IPOP_JADEHelper extends JADEHelper {
 	@Override
 	public void finalizeGeneration() {
 		super.finalizeGeneration();
+		computeEuclidianDistances();
+	}
+
+	private void computeEuclidianDistances() {
 		Individual best = super.getPopulation().getBest();
 		double minDistanceEuclidian = Double.MAX_VALUE;
 		double maxDistanceEuclidian = Double.MIN_VALUE;
