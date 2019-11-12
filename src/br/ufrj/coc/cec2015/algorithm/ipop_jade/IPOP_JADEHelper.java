@@ -30,7 +30,7 @@ public class IPOP_JADEHelper extends JADEHelper {
 		double delta = Math.abs(determinant - population.getDeterminant());
 		
 		// variação muito pequena (1.0E-160) do determinante da matriz de covariância implica em dizer que toda a população convergiu para um mesmo ótimo
-		boolean limitDetG = delta > 0 && delta < DEProperties.IPOP_LIMIT_VARIANCE_DET_COVMATRIX;
+		boolean limitDetG = delta > 0 && delta < Math.pow(10, -DEProperties.IPOP_LIMIT_VARIANCE_DET_COVMATRIX * (this.countIncreases + 1));
 		population.setDeterminant(determinant);
 
 		if (delta > 0 && delta < population.getMinDeterminant())
@@ -42,6 +42,7 @@ public class IPOP_JADEHelper extends JADEHelper {
 		boolean limitUnchanged = this.countUnchanged == DEProperties.IPOP_MAX_ATTEMPTS_WITHOUT_POPULATION_CHANGE && population.getMinEuclidianDistance() > DEProperties.IPOP_LIMIT_RANGE_EUCLIDIAN_DISTANCE;
 		
 		if (canIncrease && (limitDetG || limitUnchanged)) {
+			System.err.println("delta = " + determinant);
 			// increase population by keeping better pBest individuals
 			int newSize = (int) (population.size() * 2);
 			this.increase(population, newSize, super.selectPBestIndex());
