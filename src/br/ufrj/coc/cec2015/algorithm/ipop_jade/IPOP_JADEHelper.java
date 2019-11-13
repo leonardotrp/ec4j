@@ -83,7 +83,8 @@ public class IPOP_JADEHelper extends JADEHelper {
 	@Override
 	public void finalizeGeneration() {
 		super.finalizeGeneration();
-		computeEuclidianDistances();
+		if (DEProperties.IPOP_MAX_ATTEMPTS_WITHOUT_POPULATION_CHANGE > 0)
+			computeEuclidianDistances();
 	}
 
 	private void computeEuclidianDistances() {
