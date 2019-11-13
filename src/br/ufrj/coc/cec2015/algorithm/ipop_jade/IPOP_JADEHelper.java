@@ -25,24 +25,28 @@ public class IPOP_JADEHelper extends JADEHelper {
 	
 	protected void increasePopulation(Population population, double determinant) {
 		boolean canIncrease = this.countIncreases < DEProperties.IPOP_MAX_INCREASE_POPULATION;
+		boolean limitDetG = false;
+		boolean limitUnchanged = false;
 
-		// variação nula do determinante da matriz de covariância significa que não houve melhora entre duas gerações
 		double delta = Math.abs(determinant - population.getDeterminant());
-		
-		// variação muito pequena (1.0E-160) do determinante da matriz de covariância implica em dizer que toda a população convergiu para um mesmo ótimo
-		boolean limitDetG = delta > 0 && delta < Math.pow(10, -DEProperties.IPOP_LIMIT_VARIANCE_DET_COVMATRIX * (this.countIncreases + 1));
 		population.setDeterminant(determinant);
-
-		if (delta > 0 && delta < population.getMinDeterminant())
-			population.setMinDeterminant(delta);
 		
-		if (delta == 0)
-			this.countUnchanged++;
-		
-		boolean limitUnchanged = this.countUnchanged == DEProperties.IPOP_MAX_ATTEMPTS_WITHOUT_POPULATION_CHANGE && population.getMinEuclidianDistance() > DEProperties.IPOP_LIMIT_RANGE_EUCLIDIAN_DISTANCE;
+		// variação nula do determinante da matriz de covariância significa que não houve melhora entre duas gerações
+		if (delta == 0) {
+			limitUnchanged = ++this.countUnchanged == DEProperties.IPOP_MAX_ATTEMPTS_WITHOUT_POPULATION_CHANGE && population.getMinEuclidianDistance() > DEProperties.IPOP_LIMIT_RANGE_EUCLIDIAN_DISTANCE;
+		}
+		else {
+			// variação muito pequena (1.0E-160) do determinante da matriz de covariância implica em dizer que toda a população convergiu para um mesmo ótimo
+			limitDetG = delta < Math.pow(10, -DEProperties.IPOP_LIMIT_VARIANCE_DET_COVMATRIX * (this.countIncreases + 1));
+			if (delta < population.getMinDeterminant())
+				population.setMinDeterminant(delta);
+		}
 		
 		if (canIncrease && (limitDetG || limitUnchanged)) {
-			System.err.println("delta = " + determinant);
+			if (limitDetG)
+				System.err.println("rangeDetG = " + delta);
+			if (limitUnchanged)
+				System.err.println("minRangeEuclidianDistance = " + population.getMinEuclidianDistance());
 			// increase population by keeping better pBest individuals
 			int newSize = (int) (population.size() * 2);
 			this.increase(population, newSize, super.selectPBestIndex());
