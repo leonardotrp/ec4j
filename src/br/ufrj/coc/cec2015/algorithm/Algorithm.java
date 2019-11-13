@@ -45,8 +45,6 @@ public abstract class Algorithm {
 		while (!terminated(population)) {
 			this.run(population, statistic, round);
 		}
-		System.out.println(String.format("Round(%d): Mínima diferença de determinantes = %e", round, population.getMinDeterminant()));
-		System.out.println(String.format("Round(%d): Mínima diferença de distância euclidiana = %e", round, population.getMinEuclidianDistance()));
 		statistic.addRound(population);
 	}
 

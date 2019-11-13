@@ -24,12 +24,8 @@ public class Population implements Cloneable {
 	private Individual best; // global best
 	private boolean minErrorValueFound;
 	private Matrix firstEigenvectors;
-	private double determinant;
-	
-	// temporary properties
-	private double minDeterminant = Double.MAX_VALUE;
-	private double minStd = Double.MAX_VALUE;
-	private double minEuclidianDistance = Double.MAX_VALUE;
+	private double detMatConv;
+	private double euclidianDist;
 	
 	public Population(Initializable initializable, int populationSize) {
 		super();
@@ -97,36 +93,20 @@ public class Population implements Cloneable {
 		this.firstEigenvectors = firstEigenvectors;
 	}
 
-	public double getDeterminant() {
-		return determinant;
+	public double getDetMatConv() {
+		return detMatConv;
 	}
 
-	public void setDeterminant(double determinant) {
-		this.determinant = determinant;
+	public void setDetMatConv(double detMatConv) {
+		this.detMatConv = detMatConv;
 	}
 
-	public double getMinDeterminant() {
-		return minDeterminant;
+	public double getEuclidianDist() {
+		return euclidianDist;
 	}
 
-	public void setMinDeterminant(double minDeterminant) {
-		this.minDeterminant = minDeterminant;
-	}
-
-	public double getMinStd() {
-		return minStd;
-	}
-
-	public void setMinStd(double minStd) {
-		this.minStd = minStd;
-	}
-
-	public double getMinEuclidianDistance() {
-		return minEuclidianDistance;
-	}
-
-	public void setMinEuclidianDistance(double minEuclidianDistance) {
-		this.minEuclidianDistance = minEuclidianDistance;
+	public void setEuclidianDist(double euclidianDist) {
+		this.euclidianDist = euclidianDist;
 	}
 
 	public int size() {
