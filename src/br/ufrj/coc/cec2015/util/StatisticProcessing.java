@@ -24,11 +24,10 @@ public class StatisticProcessing {
 
 	public static void main(String[] args) throws Exception {
 
+		String PATH_RESULT = "E:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\IPOP_JADE_DPADE_EIG_R51";
+		
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
 
-			String ROOT_PATH = "C:\\dev\\workspace\\CEC2015\\results";
-			String PATH_RESULT = ROOT_PATH + "\\P40_D" + individualSize;
-			
 	        // Create a Workbook
 	        Workbook workbook = new XSSFWorkbook(); // new HSSFWorkbook() for generating `.xls` file
 	        // Create a Sheet
@@ -185,7 +184,7 @@ public class StatisticProcessing {
 			for (Cell lower : cellLowerStds.values())
 				lower.setCellStyle(boldCellStyle);
 			
-	        FileOutputStream fileOut = new FileOutputStream(PATH_RESULT + "\\P100_D" + individualSize + "_R50.xlsx");
+	        FileOutputStream fileOut = new FileOutputStream(PATH_RESULT + "\\P40_D" + individualSize + "_R51.xlsx");
 	        workbook.write(fileOut);
 	        fileOut.close();
 
