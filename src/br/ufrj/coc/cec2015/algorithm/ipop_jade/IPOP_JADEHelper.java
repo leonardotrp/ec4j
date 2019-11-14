@@ -33,17 +33,21 @@ public class IPOP_JADEHelper extends JADEHelper {
 		// variação nula do determinante da matriz de covariância significa que não houve melhora entre duas gerações
 		if (rangeDetMatConv == 0) {
 			if (DEProperties.IPOP_MAX_ATTEMPTS_WITHOUT_POPULATION_CHANGE > 0) {
-				if (this.bestError == population.getBestError()) {
+				if (this.bestError == population.getBestError() && this.bestError > 0.001)
 					limitUnchanged = (this.countUnchanged++ == DEProperties.IPOP_MAX_ATTEMPTS_WITHOUT_POPULATION_CHANGE);
-				}
 				this.bestError = population.getBestError();
 			}
 		}
 		else
 			// variação muito pequena (1.0E-200) do determinante da matriz de covariância implica em dizer que toda a população convergiu para um mesmo ótimo
-			limitDetG = rangeDetMatConv < Math.pow(10, -DEProperties.IPOP_LIMIT_RANGE_DET_COVMATRIX * (0.5 * this.countIncreases + 1));
+			limitDetG = rangeDetMatConv < Math.pow(10, -DEProperties.IPOP_LIMIT_RANGE_DET_COVMATRIX * (this.countIncreases + 1)); //0.5
 
 		if (canIncrease && (limitDetG || limitUnchanged)) {
+			if (limitUnchanged)
+				System.err.println(String.format("%d vezes sem alterar o menor erro %e", this.countUnchanged, this.bestError));
+			if (limitDetG)
+				System.err.println("rangeDetMatConv = " + rangeDetMatConv);
+			
 			// increase population by keeping better pBest individuals
 			int newSize = (int) (population.size() * 2);
 			this.increase(population, newSize, super.selectPBestIndex());

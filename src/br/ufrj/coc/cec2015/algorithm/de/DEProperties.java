@@ -36,7 +36,6 @@ public class DEProperties {
 	public static double IPOP_LIMIT_FACTOR_MAXFES = Double.parseDouble(bundle.getString("IPOP_LIMIT_FACTOR_MAXFES"));
 	public static double IPOP_LIMIT_RANGE_DET_COVMATRIX = Double.parseDouble(bundle.getString("IPOP_LIMIT_RANGE_DET_COVMATRIX"));
 	public static int IPOP_MAX_ATTEMPTS_WITHOUT_POPULATION_CHANGE = Integer.parseInt(bundle.getString("IPOP_MAX_ATTEMPTS_WITHOUT_POPULATION_CHANGE"));
-	public static double IPOP_LIMIT_RANGE_EUCLIDIAN_DISTANCE = Double.parseDouble(bundle.getString("IPOP_LIMIT_RANGE_EUCLIDIAN_DISTANCE"));
 
 	public enum Strategy {
 		BEST, RAND, RE_BASE, RE_ALL, // BEST_2_OPT, RAND_2_OPT, RE_2_OPT
