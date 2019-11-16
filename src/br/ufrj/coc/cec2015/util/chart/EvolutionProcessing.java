@@ -17,7 +17,7 @@ import br.ufrj.coc.cec2015.util.Statistic;
 public class EvolutionProcessing {
 
 	public static void main(String[] args) throws Exception {
-		String PATH_RESULT = "E:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\IPOP_JADE_DPADE_EIG_R51";
+		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\IPOP_JADE_DPADE_EIG_R51";
 
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
 

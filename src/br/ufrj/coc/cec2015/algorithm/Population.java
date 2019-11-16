@@ -25,7 +25,6 @@ public class Population implements Cloneable {
 	private boolean minErrorValueFound;
 	private Matrix firstEigenvectors;
 	private double detMatConv;
-	private double euclidianDist;
 	
 	public Population(Initializable initializable, int populationSize) {
 		super();
@@ -54,8 +53,8 @@ public class Population implements Cloneable {
 	}
 	
 	public void initializeIndividual(int index) {
-		Individual individual = this.initializable.newInitialized();
-		this.individuals.set(index, individual);
+		Individual individual = this.individuals.get(index);
+		individual.copy(this.initializable.newInitialized());
 		updateBestError(individual);
 	}
 
@@ -99,14 +98,6 @@ public class Population implements Cloneable {
 
 	public void setDetMatConv(double detMatConv) {
 		this.detMatConv = detMatConv;
-	}
-
-	public double getEuclidianDist() {
-		return euclidianDist;
-	}
-
-	public void setEuclidianDist(double euclidianDist) {
-		this.euclidianDist = euclidianDist;
 	}
 
 	public int size() {

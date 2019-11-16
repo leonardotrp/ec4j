@@ -59,6 +59,7 @@ public class Individual implements Comparable<Individual>, Cloneable {
 	
 	public void setId(double[] id) {
 		this.id = id;
+		this.bestKnown = this.id.clone();
 	}
 	
 	public double get(int index) {
@@ -238,5 +239,11 @@ public class Individual implements Comparable<Individual>, Cloneable {
 	public boolean equals(Object obj) {
 		Individual o = (Individual) obj;
 		return this.uuid == o.uuid;
+	}
+	
+	public void copy(Individual individual) {
+		this.id = individual.id;
+		this.functionValue = individual.functionValue;
+		this.bestKnown = individual.bestKnown;
 	}
 }

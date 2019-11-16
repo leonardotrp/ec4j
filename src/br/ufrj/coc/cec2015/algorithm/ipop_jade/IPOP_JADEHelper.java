@@ -6,7 +6,7 @@ import br.ufrj.coc.cec2015.algorithm.jade.JADEHelper;
 import br.ufrj.coc.cec2015.util.Properties;
 
 public class IPOP_JADEHelper extends JADEHelper {
-	private int countIncreases;
+	private int countIPOP;
 	private int countUnchanged;
 	private double bestError;
 	
@@ -17,13 +17,13 @@ public class IPOP_JADEHelper extends JADEHelper {
 
 	protected void initialize() {
 		super.initialize();
-		this.countIncreases = 0;
+		this.countIPOP = 0;
 		this.countUnchanged = 0;
 		this.bestError = Double.MAX_VALUE;
 	}
 	
 	protected void increasePopulation(Population population, double determinant) {
-		boolean canIncrease = this.countIncreases < DEProperties.IPOP_MAX_INCREASE_POPULATION;
+		boolean canIncrease = this.countIPOP < DEProperties.IPOP_MAX_INITIALIZE_AND_INCREASE;
 		boolean limitDetG = false;
 		boolean limitUnchanged = false;
 
@@ -40,18 +40,17 @@ public class IPOP_JADEHelper extends JADEHelper {
 		}
 		else
 			// variação muito pequena (1.0E-200) do determinante da matriz de covariância implica em dizer que toda a população convergiu para um mesmo ótimo
-			limitDetG = rangeDetMatConv < Math.pow(10, -DEProperties.IPOP_LIMIT_RANGE_DET_COVMATRIX * (this.countIncreases + 1)); //0.5
+			limitDetG = rangeDetMatConv < Math.pow(10, -DEProperties.IPOP_LIMIT_RANGE_DET_COVMATRIX * (this.countIPOP + 1));
 
 		if (canIncrease && (limitDetG || limitUnchanged)) {
 			if (limitUnchanged)
 				System.err.println(String.format("%d vezes sem alterar o menor erro %e", this.countUnchanged, this.bestError));
 			if (limitDetG)
-				System.err.println("rangeDetMatConv = " + rangeDetMatConv);
+				System.err.println(String.format("rangeDetMatConv = %e", rangeDetMatConv));
 			
 			// increase population by keeping better pBest individuals
-			int newSize = (int) (population.size() * 2);
-			this.increase(population, newSize, super.selectPBestIndex());
-			System.err.println(String.format("Increase population to %d: reason(limitDetG=%s, limitUnchanged=%s)", population.size(), limitDetG, limitUnchanged));
+			this.initialize_and_increase(population);
+			System.err.println(String.format("Initialize and increase population: reason(limitDetG=%s, limitUnchanged=%s)", limitDetG, limitUnchanged));
 			this.countUnchanged = 0;
 			this.bestError = Double.MAX_VALUE;
 			this.initializeGeneration(population);
@@ -59,26 +58,28 @@ public class IPOP_JADEHelper extends JADEHelper {
 	}
 
 	protected boolean isUseEig() {
-		double limitFactorMaxFES = DEProperties.IPOP_LIMIT_FACTOR_MAXFES * (this.countIncreases == 0 ? 1 : this.countIncreases);
+		double limitFactorMaxFES = (1.0 / DEProperties.IPOP_MAX_INITIALIZE_AND_INCREASE) * (this.countIPOP + 1);
 		return super.isUseEig() && Properties.ARGUMENTS.get().getEvolutionPercentage() <= limitFactorMaxFES;
 	}
 	
-	private void increase(Population population, int newSize, int pBestIndex) {
+	private void initialize_and_increase(Population population) {
 		super.initializeSortedPopulation();
-		if (newSize > population.size()) {
-			// initialize
-			Population sortedPopulation = super.getSortedPopulation();
-			for (int index = pBestIndex + 1; index < sortedPopulation.size(); index++)
-				sortedPopulation.initializeIndividual(index);
+		
+		// initialize
+		Population sortedPopulation = super.getSortedPopulation();
+		int pBestIndex = super.selectPBestIndex(DEProperties.IPOP_GREEDINESS);
+		for (int index = pBestIndex + 1; index < sortedPopulation.size(); index++)
+			sortedPopulation.initializeIndividual(index);
 			
+		int increaseSize = (int) (population.size() * (DEProperties.IPOP_FACTOR_NEW_POPSIZE / 100));
+		if (increaseSize > 0) {
 			// increase
-			int increaseSize = newSize - population.size();
 			for (int index = 0; index < increaseSize; index++)
 				population.addIndividual();
 
-			Properties.ARGUMENTS.get().setPopulationSize(newSize);
-			this.countIncreases++;
+			Properties.ARGUMENTS.get().setPopulationSize(population.size());
 		}
+		this.countIPOP++;
 	}
 	/*
 	private double computeEuclidianDistances() {

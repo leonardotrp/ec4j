@@ -82,10 +82,10 @@ public class Properties {
 	}
 
 	public static String[] ALGORITHMS = bundle.getString("ALGORITHMS").split(",");
-	public static Map<String, Integer> POPULATION_SIZES = new HashMap<>(ALGORITHMS.length);
+	public static Map<String, String> POPULATION_SIZES = new HashMap<>(ALGORITHMS.length);
 	static {
 		for (String algorithm : ALGORITHMS)
-			POPULATION_SIZES.put(algorithm, Integer.parseInt(bundle.getString("POPULATION_SIZE." + algorithm)));
+			POPULATION_SIZES.put(algorithm, bundle.getString("POPULATION_SIZE." + algorithm));
 	}
 
 	public static int[] INDIVIDUAL_SIZES = Stream.of(bundle.getString("INDIVIDUAL_SIZE").split(",")).mapToInt(Integer::parseInt).toArray();

@@ -79,12 +79,12 @@ public class JADEHelper extends DEHelper {
 	}
 	
 	public Individual selectDestiny() {
-		int indexTop = selectPBestIndex();
+		int indexTop = selectPBestIndex(DEProperties.GREEDINESS);
 		return super.getSortedPopulation().get(indexTop);
 	}
 
-	protected int selectPBestIndex() {
-		BigDecimal p = new BigDecimal(DEProperties.GREEDINESS);
+	protected int selectPBestIndex(double greediness) {
+		BigDecimal p = new BigDecimal(greediness);
 		// BigDecimal percentTop = p.multiply(BigDecimal.valueOf(100)); // 100 . p%
 		int indexLastTop = p.multiply(BigDecimal.valueOf(Properties.ARGUMENTS.get().getPopulationSize())).intValue();
 		int indexTop = indexLastTop == 0 ? 0 : Helper.randomInRange(0, indexLastTop);

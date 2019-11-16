@@ -27,8 +27,8 @@ public class AlgorithmArguments {
 		this.variant = variant;
 		this.info = info;
 		this.functionNumber = functionNumber;
-		this.populationSize = Properties.POPULATION_SIZES.get(name);
 		this.individualSize = individualSize;
+		this.resetPopulationSize();
 		this.maxFES = 10000 * individualSize;
 
 		try {
@@ -36,6 +36,16 @@ public class AlgorithmArguments {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	public void resetPopulationSize() {
+		String popSizeStr = Properties.POPULATION_SIZES.get(this.name);
+		if (popSizeStr.contains(".D")) {
+			int popSize = Integer.valueOf(popSizeStr.split(".D")[0]);
+			this.populationSize = popSize * this.individualSize;
+		}
+		else
+			this.populationSize = Integer.valueOf(popSizeStr);
 	}
 
 	public String getName() {
@@ -58,10 +68,6 @@ public class AlgorithmArguments {
 		return populationSize;
 	}
 	
-	public void resetPopulationSize() {
-		this.populationSize = Properties.POPULATION_SIZES.get(this.name);
-	}
-
 	public void setPopulationSize(int populationSize) {
 		this.populationSize = populationSize;
 	}

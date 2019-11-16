@@ -32,9 +32,10 @@ public class DEProperties {
 		}
 	}
 
-	public static int IPOP_MAX_INCREASE_POPULATION = Integer.parseInt(bundle.getString("IPOP_MAX_INCREASE_POPULATION"));
-	public static double IPOP_LIMIT_FACTOR_MAXFES = Double.parseDouble(bundle.getString("IPOP_LIMIT_FACTOR_MAXFES"));
+	public static int IPOP_MAX_INITIALIZE_AND_INCREASE = Integer.parseInt(bundle.getString("IPOP_MAX_INITIALIZE_AND_INCREASE"));
 	public static double IPOP_LIMIT_RANGE_DET_COVMATRIX = Double.parseDouble(bundle.getString("IPOP_LIMIT_RANGE_DET_COVMATRIX"));
+	public static double IPOP_GREEDINESS = Double.parseDouble(bundle.getString("IPOP_GREEDINESS"));
+	public static double IPOP_FACTOR_NEW_POPSIZE = Double.parseDouble(bundle.getString("IPOP_FACTOR_NEW_POPSIZE"));
 	public static int IPOP_MAX_ATTEMPTS_WITHOUT_POPULATION_CHANGE = Integer.parseInt(bundle.getString("IPOP_MAX_ATTEMPTS_WITHOUT_POPULATION_CHANGE"));
 
 	public enum Strategy {
