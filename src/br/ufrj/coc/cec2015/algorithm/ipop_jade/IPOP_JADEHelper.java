@@ -6,9 +6,9 @@ import br.ufrj.coc.cec2015.algorithm.jade.JADEHelper;
 import br.ufrj.coc.cec2015.util.Properties;
 
 public class IPOP_JADEHelper extends JADEHelper {
-	private int countIPOP;
 	private int countUnchanged;
 	private double bestError;
+	private boolean useEig;
 	
 	public IPOP_JADEHelper() {
 		super();
@@ -17,49 +17,33 @@ public class IPOP_JADEHelper extends JADEHelper {
 
 	protected void initialize() {
 		super.initialize();
-		this.countIPOP = 0;
 		this.countUnchanged = 0;
 		this.bestError = Double.MAX_VALUE;
+		this.useEig = super.isUseEig();
 	}
 	
 	protected void increasePopulation(Population population, double determinant) {
-		boolean canIncrease = this.countIPOP < DEProperties.IPOP_MAX_INITIALIZE_AND_INCREASE;
-		boolean limitDetG = false;
-		boolean limitUnchanged = false;
-
 		double rangeDetMatConv = Math.abs(determinant - population.getDetMatConv());
 		population.setDetMatConv(determinant);
 
 		// variação nula do determinante da matriz de covariância significa que não houve melhora entre duas gerações
-		if (rangeDetMatConv == 0) {
-			if (DEProperties.IPOP_MAX_ATTEMPTS_WITHOUT_POPULATION_CHANGE > 0) {
-				if (this.bestError == population.getBestError() && this.bestError > 0.001)
-					limitUnchanged = (this.countUnchanged++ == DEProperties.IPOP_MAX_ATTEMPTS_WITHOUT_POPULATION_CHANGE);
-				this.bestError = population.getBestError();
+		if (rangeDetMatConv == 0 && this.bestError == population.getBestError() && (this.bestError / Properties.MIN_ERROR_VALUE) > 100) {
+			// variação nula do determinante da matriz de covariância significa que não houve variação dos autovetores entre as gerações
+			if (this.countUnchanged++ == DEProperties.IPOP_MAX_ATTEMPTS_WITHOUT_POPULATION_CHANGE) {
+				// increase population by keeping better pBest individuals
+				this.initialize_and_increase(population);
+				this.initializeGeneration(population);
 			}
+			System.err.println(String.format("Não melhorou o menor erro (%e) %d vezes...", this.bestError, this.countUnchanged));
 		}
-		else
-			// variação muito pequena (1.0E-200) do determinante da matriz de covariância implica em dizer que toda a população convergiu para um mesmo ótimo
-			limitDetG = rangeDetMatConv < Math.pow(10, -DEProperties.IPOP_LIMIT_RANGE_DET_COVMATRIX * (this.countIPOP + 1));
-
-		if (canIncrease && (limitDetG || limitUnchanged)) {
-			if (limitUnchanged)
-				System.err.println(String.format("%d vezes sem alterar o menor erro %e", this.countUnchanged, this.bestError));
-			if (limitDetG)
-				System.err.println(String.format("rangeDetMatConv = %e", rangeDetMatConv));
-			
-			// increase population by keeping better pBest individuals
-			this.initialize_and_increase(population);
-			System.err.println(String.format("Initialize and increase population: reason(limitDetG=%s, limitUnchanged=%s)", limitDetG, limitUnchanged));
+		else if (this.bestError != population.getBestError())
 			this.countUnchanged = 0;
-			this.bestError = Double.MAX_VALUE;
-			this.initializeGeneration(population);
-		}
+
+		this.bestError = super.getPopulation().getBestError();
 	}
 
 	protected boolean isUseEig() {
-		double limitFactorMaxFES = (1.0 / DEProperties.IPOP_MAX_INITIALIZE_AND_INCREASE) * (this.countIPOP + 1);
-		return super.isUseEig() && Properties.ARGUMENTS.get().getEvolutionPercentage() <= limitFactorMaxFES;
+		return this.useEig;
 	}
 	
 	private void initialize_and_increase(Population population) {
@@ -79,7 +63,8 @@ public class IPOP_JADEHelper extends JADEHelper {
 
 			Properties.ARGUMENTS.get().setPopulationSize(population.size());
 		}
-		this.countIPOP++;
+		this.countUnchanged = 0;
+		this.bestError = Double.MAX_VALUE;
 	}
 	/*
 	private double computeEuclidianDistances() {
