@@ -41,6 +41,7 @@ public class EvolutionChart2D extends JFrame {
 	XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
 	private boolean empty = true;
 	private ChartPanel chartPanel;
+	private String yAxisLabel;
 
 	public EvolutionChart2D(String yAxisLabel) {
 		super("Evolution Chart2D");
@@ -110,10 +111,11 @@ public class EvolutionChart2D extends JFrame {
 
 	@SuppressWarnings("serial")
 	private ChartPanel createEvolutionPanel(String yAxisLabel) {
+		this.yAxisLabel = yAxisLabel;
 		JFreeChart jfreechart = createScatterPlot(DEFAULT_CHART_TITLE, "Percentual de Avaliação (% MaxFES = Dim.10000)", yAxisLabel, this.createSampleData(), PlotOrientation.VERTICAL);
 		XYPlot xyPlot = (XYPlot) jfreechart.getPlot();
 
-		LogAxis yAxis = new LogAxis("Média dos Erros");
+		LogAxis yAxis = new LogAxis(this.yAxisLabel);
 		NumberFormat numberFormat = new DecimalFormat("0.0E0");
 		yAxis.setNumberFormatOverride(numberFormat);
 		xyPlot.setRangeAxis(yAxis);

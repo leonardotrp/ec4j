@@ -11,25 +11,27 @@ import java.util.Scanner;
 import br.ufrj.coc.cec2015.Main;
 import br.ufrj.coc.cec2015.algorithm.Algorithm;
 import br.ufrj.coc.cec2015.algorithm.AlgorithmArguments;
+import br.ufrj.coc.cec2015.util.Helper;
 import br.ufrj.coc.cec2015.util.Properties;
-import br.ufrj.coc.cec2015.util.Statistic;
 
 public class EvolutionProcessing {
 
 	public static void main(String[] args) throws Exception {
-		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\IPOP_JADE_DPADE_EIG_R51";
+		String PATH_RESULT = "C:\\dev\\workspace\\CEC2015\\results\\5bd23073-e8d3-4d4a-b40e-ed170100e5a7";
+		String sufix = "_diff";
+		String label = "(Fmax - Fmin)";
 
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
 
 	        // Write the output to a file
-			File directory = new File(PATH_RESULT + "\\chart");
+			File directory = new File(PATH_RESULT + "\\gráficos\\D" + individualSize);
 			if (!directory.exists())
 				directory.mkdirs();
 	
 			for (int functionNumber : Properties.FUNCTION_NUMBERS) { // loop functions
 
-				EvolutionChart2D meanEvolution = null, medianEvolution = null;
-				
+				EvolutionChart2D meanEvolution = null, medianEvolution = null, stdEvolution = null;
+				int populationSize = 0;
 				for (String algotithmName : Properties.ALGORITHMS) { // loop algorithms
 	
 					String className = Algorithm.class.getPackage().getName() + '.' + algotithmName.toLowerCase() + '.' + algotithmName;
@@ -40,12 +42,14 @@ public class EvolutionProcessing {
 						System.err.println(algorithm + " - " + variant);
 					
 						AlgorithmArguments arguments = new AlgorithmArguments(algotithmName, variant, algorithm.getInfo(), functionNumber, individualSize);
+						populationSize = arguments.getPopulationSize();
 
 						List<Double> listOfMaxFES = new ArrayList<Double>();
 						List<Double> listOfMeans = new ArrayList<Double>();
 						List<Double> listOfMedians = new ArrayList<Double>();
+						List<Double> listOfStds = new ArrayList<Double>();
 
-						String fileRoundErrorsName = PATH_RESULT + '\\' + algotithmName + '\\' + arguments.getPrefixFile() + "_evolution.csv";
+						String fileRoundErrorsName = PATH_RESULT + '\\' + algotithmName + '\\' + arguments.getPrefixFile() + "_evolution" + sufix + ".csv";
 						System.err.println(fileRoundErrorsName);
 						BufferedReader br = null;
 						try {
@@ -81,11 +85,14 @@ public class EvolutionProcessing {
 					                	//System.err.println(maxFES);
 				                		listOfMaxFES.add(maxFES);
 						                
-						                double mean = Statistic.calculateMean(roundValues);
+						                double mean = Helper.calculateMean(roundValues);
 						                listOfMeans.add(mean);
 						                
-						                double median = Statistic.calculateMedian(roundValues);
+						                double median = Helper.calculateMedian(roundValues);
 						                listOfMedians.add(median);
+						                
+						                double std = Helper.calculateStandardDeviation(roundValues, mean);
+						                listOfStds.add(std);
 					                }
 				                }
 				            }
@@ -96,31 +103,50 @@ public class EvolutionProcessing {
 								br.close();
 						}
 
+						String subTitle = String.format("Função %d - Dimensão %d - NP %d", functionNumber, individualSize, populationSize);
 						// MEAN
-						String subTitleMean = String.format("Função %d - Dimensão %d", functionNumber, individualSize);
 						if (meanEvolution == null) {
-							meanEvolution = new EvolutionChart2D("Média dos Erros");
-							String titleMean = String.format("Evolução da Média dos Erros (%d rodadas)", Properties.MAX_RUNS);
-							meanEvolution.setTitle(titleMean, subTitleMean);
+							meanEvolution = new EvolutionChart2D("Média dos " + label);
+							String titleMean = String.format("Evolução da Média dos " + label + " (%d rodadas)", Properties.MAX_RUNS);
+							meanEvolution.setTitle(titleMean, subTitle);
 						}
 						meanEvolution.addSerie(listOfMaxFES, listOfMeans, arguments.getTitleChart());
 
 						// MEDIAN
-						String subTitleMedian = String.format("Função %d - Dimensão %d", functionNumber, individualSize);
 						if (medianEvolution == null) {
-							medianEvolution = new EvolutionChart2D("Mediana dos Erros");
-							String titleMedian = String.format("Evolução da Mediana dos Erros (%d rodadas)", Properties.MAX_RUNS);
-							medianEvolution.setTitle(titleMedian, subTitleMedian);
+							medianEvolution = new EvolutionChart2D("Mediana dos " + label);
+							String titleMedian = String.format("Evolução da Mediana dos " + label + " (%d rodadas)", Properties.MAX_RUNS);
+							medianEvolution.setTitle(titleMedian, subTitle);
 						}
 						medianEvolution.addSerie(listOfMaxFES, listOfMedians, arguments.getTitleChart());
+
+						// STD
+						if (stdEvolution == null) {
+							stdEvolution = new EvolutionChart2D("Desvio Padrão dos " + label);
+							String titleStd = String.format("Evolução do Desvio Padrão dos " + label + " (%d rodadas)", Properties.MAX_RUNS);
+							stdEvolution.setTitle(titleStd, subTitle);
+						}
+						stdEvolution.addSerie(listOfMaxFES, listOfStds, arguments.getTitleChart());
 					}
 				}
 
-				String meanFilePng = directory.getAbsolutePath() + String.format("\\P40_F%d_D%d_mean_evolution.png", functionNumber, individualSize);
+				File directoryMean = new File(directory.getAbsolutePath() + "\\mean");
+				if (!directoryMean.exists())
+					directoryMean.mkdirs();
+				String meanFilePng = directoryMean.getAbsolutePath() + String.format("\\P%d_F%d_D%d_mean_evolution" + sufix + ".png", populationSize, functionNumber, individualSize);
 				meanEvolution.toFile(meanFilePng);
-				
-				String medianFilePng = directory.getAbsolutePath() + String.format("\\P40_F%d_D%d_median_evolution.png", functionNumber, individualSize);
+
+				File directoryMedian = new File(directory.getAbsolutePath() + "\\median");
+				if (!directoryMedian.exists())
+					directoryMedian.mkdirs();
+				String medianFilePng = directoryMedian.getAbsolutePath() + String.format("\\P%d_F%d_D%d_median_evolution" + sufix + ".png", populationSize, functionNumber, individualSize);
 				medianEvolution.toFile(medianFilePng);
+
+				File directoryStd = new File(directory.getAbsolutePath() + "\\std");
+				if (!directoryStd.exists())
+					directoryStd.mkdirs();
+				String stdFilePng = directoryStd.getAbsolutePath() + String.format("\\P%d_F%d_D%d_median_evolution" + sufix + ".png", populationSize, functionNumber, individualSize);
+				stdEvolution.toFile(stdFilePng);
 			}
 		}
 	}

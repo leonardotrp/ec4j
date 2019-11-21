@@ -7,7 +7,6 @@ import br.ufrj.coc.cec2015.algorithm.Individual;
 import br.ufrj.coc.cec2015.algorithm.Population;
 import br.ufrj.coc.cec2015.util.Helper;
 import br.ufrj.coc.cec2015.util.Properties;
-import br.ufrj.coc.cec2015.util.Statistic;
 
 public class RIOHelper {
 	private Population cockroaches;
@@ -44,7 +43,7 @@ public class RIOHelper {
 				distances.add(distanceValue);
 			}
 		}
-		distanceMedian = Statistic.calculateMedian(distances);
+		distanceMedian = Helper.calculateMedian(distances);
 	}
 	
 	private double getDistance(int indexI, int indexK) {

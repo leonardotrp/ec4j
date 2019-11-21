@@ -10,7 +10,6 @@ import br.ufrj.coc.cec2015.algorithm.Population;
 import br.ufrj.coc.cec2015.algorithm.de.DEProperties;
 import br.ufrj.coc.cec2015.algorithm.jade.JADEHelper;
 import br.ufrj.coc.cec2015.util.Helper;
-import br.ufrj.coc.cec2015.util.Statistic;
 
 public class DPADEHelper extends JADEHelper {
 	private static double MIN_PROBABILITY = 0.1; // Pmin
@@ -131,7 +130,7 @@ public class DPADEHelper extends JADEHelper {
 	private double calculateNewMeanProperty(double meanProperty, List<Double> successControlParameters, List<Double> improvedFunctionValues) {
 		BigDecimal newMeanCR = new BigDecimal(1);
 		newMeanCR = newMeanCR.subtract(new BigDecimal(DEProperties.ADAPTATION_RATE)).multiply(new BigDecimal(meanProperty));
-		BigDecimal meanA = new BigDecimal(successControlParameters.isEmpty() ? 0.0 : Statistic.calculateWeightedMean(successControlParameters, improvedFunctionValues));
+		BigDecimal meanA = new BigDecimal(successControlParameters.isEmpty() ? 0.0 : Helper.calculateWeightedMean(successControlParameters, improvedFunctionValues));
 		meanA = meanA.multiply(new BigDecimal(DEProperties.ADAPTATION_RATE));
 		newMeanCR = newMeanCR.add(meanA);
 		return newMeanCR.doubleValue();

@@ -24,7 +24,7 @@ public class StatisticProcessing {
 
 	public static void main(String[] args) throws Exception {
 
-		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\IPOP_JADE_DPADE_EIG_R51";
+		String PATH_RESULT = "C:\\dev\\workspace\\CEC2015\\results\\8ee5c7d3-ba65-4013-8e4b-3963a17a0f9d";
 		
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
 
@@ -116,7 +116,8 @@ public class StatisticProcessing {
 									int idxColumnStatValue = idxColumnStat;
 									
 									// BEST
-				                	double best = Double.valueOf(columns[1].trim());			                	
+				                	double best = Double.valueOf(columns[1].trim());
+				                	double sr = Double.valueOf(columns[8].trim());
 						        	cell = rowFunction.createCell(idxColumnStatValue++);
 						        	cell.setCellValue(best);
 						        	if (best <= Properties.MIN_ERROR_VALUE)
@@ -129,7 +130,7 @@ public class StatisticProcessing {
 				                	double median = Double.valueOf(columns[3].trim());
 						        	cell = rowFunction.createCell(idxColumnStatValue++);
 						        	cell.setCellValue(median);
-						        	if (median <= Properties.MIN_ERROR_VALUE)
+						        	if (median <= Properties.MIN_ERROR_VALUE || (sr == 1.0))
 						        		cell.setCellStyle(boldCellStyle);
 				                	Cell cellLowerMedian = cellLowerMedians.get(functionNumber);
 				                	if (cellLowerMedian == null || (median < cellLowerMedian.getNumericCellValue()))
@@ -139,7 +140,7 @@ public class StatisticProcessing {
 				                	double mean = Double.valueOf(columns[4].trim());
 						        	cell = rowFunction.createCell(idxColumnStatValue++);
 						        	cell.setCellValue(mean);
-						        	if (mean <= Properties.MIN_ERROR_VALUE)
+						        	if (mean <= Properties.MIN_ERROR_VALUE || (sr == 1.0))
 						        		cell.setCellStyle(boldCellStyle);
 				                	Cell cellLowerMean = cellLowerMeans.get(functionNumber);
 				                	if (cellLowerMean == null || (mean < cellLowerMean.getNumericCellValue()))
@@ -149,14 +150,13 @@ public class StatisticProcessing {
 				                	double std = Double.valueOf(columns[5].trim());
 						        	cell = rowFunction.createCell(idxColumnStatValue++);
 						        	cell.setCellValue(std);
-						        	if (std <= Properties.MIN_ERROR_VALUE)
+						        	if (std <= Properties.MIN_ERROR_VALUE || (sr == 1.0))
 						        		cell.setCellStyle(boldCellStyle);
 				                	Cell cellLowerStd = cellLowerStds.get(functionNumber);
 				                	if (cellLowerStd == null || (std < cellLowerStd.getNumericCellValue()))
 				                		cellLowerStds.put(functionNumber, cell);
 
 									// SR
-				                	double sr = Double.valueOf(columns[8].trim());
 						        	cell = rowFunction.createCell(idxColumnStatValue++);
 						        	cell.setCellValue(sr);
 						        	if (sr == 1.0)

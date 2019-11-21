@@ -43,9 +43,9 @@ public class DEHelper extends BaseAlgorithmHelper {
 	}
 	
 	private void initializeEigOperator(Population population) {
-		if (this.isUseEig()) {
+		if (this.isUseEig() || population.getFirstEigenvectors() == null) {
 			Matrix cm = MatrixUtil.getCovarianceMatrix(population);
-			this.increasePopulation(population, cm.det());
+			//this.increasePopulation(population, cm.det());
 			this.eigenvectors = cm.eig().getV();
 			if (population.getFirstEigenvectors() == null) {// save the first eigenvectors
 				population.setFirstEigenvectors(this.eigenvectors);
@@ -65,6 +65,8 @@ public class DEHelper extends BaseAlgorithmHelper {
 	}
 
 	public Population getSortedPopulation() {
+		if (this.sortedPopulation == null)
+			initializeSortedPopulation();
 		return this.sortedPopulation;
 	}
 
@@ -289,7 +291,7 @@ public class DEHelper extends BaseAlgorithmHelper {
 		return trialVector; // Ui,G+1
 	}
 
-	private double getEigRate() {
+	protected double getEigRate() {
 		double eigRate = DEProperties.EIG_RATE;
 		if (DEProperties.EIG_RATE_ADAPTATION != null) { // default 0 ... 1
 			BigDecimal factor = new BigDecimal(Properties.ARGUMENTS.get().getCountEvaluations());

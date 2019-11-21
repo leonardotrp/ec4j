@@ -10,7 +10,6 @@ import br.ufrj.coc.cec2015.algorithm.de.DEHelper;
 import br.ufrj.coc.cec2015.algorithm.de.DEProperties;
 import br.ufrj.coc.cec2015.util.Helper;
 import br.ufrj.coc.cec2015.util.Properties;
-import br.ufrj.coc.cec2015.util.Statistic;
 
 public class JADEHelper extends DEHelper {
 	private double mean_CR, location_F;
@@ -38,7 +37,7 @@ public class JADEHelper extends DEHelper {
 		BigDecimal newMeanCR = new BigDecimal(1);
 		newMeanCR = newMeanCR.subtract(new BigDecimal(DEProperties.ADAPTATION_RATE)).multiply(new BigDecimal(mean_CR));
 		BigDecimal meanA = new BigDecimal(
-				successCrossoverRates.isEmpty() ? 0.0 : Statistic.calculateMean(successCrossoverRates));
+				successCrossoverRates.isEmpty() ? 0.0 : Helper.calculateMean(successCrossoverRates));
 		meanA = meanA.multiply(new BigDecimal(DEProperties.ADAPTATION_RATE));
 		newMeanCR = newMeanCR.add(meanA);
 		mean_CR = newMeanCR.doubleValue();
@@ -49,7 +48,7 @@ public class JADEHelper extends DEHelper {
 		newLocationF = newLocationF.subtract(new BigDecimal(DEProperties.ADAPTATION_RATE))
 				.multiply(new BigDecimal(location_F));
 		BigDecimal meanL = new BigDecimal(
-				successDiffWeights.isEmpty() ? 0.0 : Statistic.calculateLehmerMean(successDiffWeights));
+				successDiffWeights.isEmpty() ? 0.0 : Helper.calculateLehmerMean(successDiffWeights));
 		meanL = meanL.multiply(new BigDecimal(DEProperties.ADAPTATION_RATE));
 		newLocationF = newLocationF.add(meanL);
 		location_F = newLocationF.doubleValue();

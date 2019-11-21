@@ -24,7 +24,6 @@ public class Population implements Cloneable {
 	private Individual best; // global best
 	private boolean minErrorValueFound;
 	private Matrix firstEigenvectors;
-	private double detMatConv;
 	
 	public Population(Initializable initializable, int populationSize) {
 		super();
@@ -92,14 +91,6 @@ public class Population implements Cloneable {
 		this.firstEigenvectors = firstEigenvectors;
 	}
 
-	public double getDetMatConv() {
-		return detMatConv;
-	}
-
-	public void setDetMatConv(double detMatConv) {
-		this.detMatConv = detMatConv;
-	}
-
 	public int size() {
 		return this.individuals == null ? 0 : this.individuals.size();
 	}
@@ -123,7 +114,7 @@ public class Population implements Cloneable {
 			this.best = individual.clone();
 		}
 	}
-
+	
 	@Override
 	public Population clone() throws CloneNotSupportedException {
 		Population clone = (Population) super.clone();
