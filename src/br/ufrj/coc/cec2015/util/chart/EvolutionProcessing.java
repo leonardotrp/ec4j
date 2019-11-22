@@ -17,9 +17,9 @@ import br.ufrj.coc.cec2015.util.Properties;
 public class EvolutionProcessing {
 
 	public static void main(String[] args) throws Exception {
-		String PATH_RESULT = "C:\\dev\\workspace\\CEC2015\\results\\5bd23073-e8d3-4d4a-b40e-ed170100e5a7";
-		String sufix = "_diff";
-		String label = "(Fmax - Fmin)";
+		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\JADE_EIG_ERRORDIFF_MAXDIST_STUDY";
+		String sufix = "_maxdist";
+		String label = "Máxima Distância";
 
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
 

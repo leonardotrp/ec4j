@@ -24,7 +24,7 @@ public class StatisticProcessing {
 
 	public static void main(String[] args) throws Exception {
 
-		String PATH_RESULT = "C:\\dev\\workspace\\CEC2015\\results\\8ee5c7d3-ba65-4013-8e4b-3963a17a0f9d";
+		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\JADE_EIG_ERRORDIFF_MAXDIST_STUDY";
 		
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
 
@@ -54,7 +54,7 @@ public class StatisticProcessing {
 	        CellStyle warningCellStyle = workbook.createCellStyle();
 	        warningCellStyle.setFont(warningFont);
 
-	        String[] statHeaderColumns = new String[] {"BEST", "MEDIAN", "MEAN", "STD", "SR"};
+	        String[] statHeaderColumns = new String[] {"BEST", "MEDIAN", "MEAN", "STD", "ERRDIFF", "MAXDIST", "SR"};
 	        int idxColumnHeaderAlgorithm = 0;
 
 			Row rowHeaderAlgorithm = sheet.createRow(0);
@@ -65,7 +65,10 @@ public class StatisticProcessing {
 			Map<Integer, Cell> cellLowerMedians = new HashMap<>(Properties.FUNCTION_NUMBERS.length);
 			Map<Integer, Cell> cellLowerMeans = new HashMap<>(Properties.FUNCTION_NUMBERS.length);
 			Map<Integer, Cell> cellLowerStds = new HashMap<>(Properties.FUNCTION_NUMBERS.length);
+			Map<Integer, Cell> cellLowerErrorDiffs = new HashMap<>(Properties.FUNCTION_NUMBERS.length);
+			Map<Integer, Cell> cellLowerMaxDists = new HashMap<>(Properties.FUNCTION_NUMBERS.length);
 			
+			int np = 0;
 			for (String algotithmName : Properties.ALGORITHMS) { // loop algorithms
 
 				String className = Algorithm.class.getPackage().getName() + '.' + algotithmName.toLowerCase() + '.' + algotithmName;
@@ -94,7 +97,7 @@ public class StatisticProcessing {
 					for (int functionNumber : Properties.FUNCTION_NUMBERS) { // loop functions
 
 						AlgorithmArguments arguments = new AlgorithmArguments(algotithmName, variant, algorithm.getInfo(), functionNumber, individualSize);
-
+						np = arguments.getPopulationSize();
 						String fileRoundErrorsName = PATH_RESULT + '\\' + algotithmName + '\\' + arguments.getPrefixFile() + "_statistics.csv";
 						BufferedReader br = null;
 						try {
@@ -117,7 +120,7 @@ public class StatisticProcessing {
 									
 									// BEST
 				                	double best = Double.valueOf(columns[1].trim());
-				                	double sr = Double.valueOf(columns[8].trim());
+				                	double sr = Double.valueOf(columns[10].trim());
 						        	cell = rowFunction.createCell(idxColumnStatValue++);
 						        	cell.setCellValue(best);
 						        	if (best <= Properties.MIN_ERROR_VALUE)
@@ -156,6 +159,22 @@ public class StatisticProcessing {
 				                	if (cellLowerStd == null || (std < cellLowerStd.getNumericCellValue()))
 				                		cellLowerStds.put(functionNumber, cell);
 
+									// ERROR DIFF
+				                	double errorDiff = Double.valueOf(columns[8].trim());
+						        	cell = rowFunction.createCell(idxColumnStatValue++);
+						        	cell.setCellValue(errorDiff);
+				                	Cell cellLowerErrorDiff = cellLowerErrorDiffs.get(functionNumber);
+				                	if (cellLowerErrorDiff == null || (errorDiff < cellLowerErrorDiff.getNumericCellValue()))
+				                		cellLowerErrorDiffs.put(functionNumber, cell);
+
+									// MAX DIST
+				                	double maxDist = Double.valueOf(columns[9].trim());
+						        	cell = rowFunction.createCell(idxColumnStatValue++);
+						        	cell.setCellValue(maxDist);
+				                	Cell cellLowerMaxDist = cellLowerMaxDists.get(functionNumber);
+				                	if (cellLowerMaxDist == null || (maxDist < cellLowerMaxDist.getNumericCellValue()))
+				                		cellLowerMaxDists.put(functionNumber, cell);
+				                	
 									// SR
 						        	cell = rowFunction.createCell(idxColumnStatValue++);
 						        	cell.setCellValue(sr);
@@ -183,8 +202,12 @@ public class StatisticProcessing {
 				lower.setCellStyle(boldCellStyle);
 			for (Cell lower : cellLowerStds.values())
 				lower.setCellStyle(boldCellStyle);
+			for (Cell lower : cellLowerErrorDiffs.values())
+				lower.setCellStyle(boldCellStyle);
+			for (Cell lower : cellLowerMaxDists.values())
+				lower.setCellStyle(boldCellStyle);
 			
-	        FileOutputStream fileOut = new FileOutputStream(PATH_RESULT + "\\P40_D" + individualSize + "_R51.xlsx");
+	        FileOutputStream fileOut = new FileOutputStream(PATH_RESULT + String.format("\\P%d_D%d_R51.xlsx", np, individualSize));
 	        workbook.write(fileOut);
 	        fileOut.close();
 
