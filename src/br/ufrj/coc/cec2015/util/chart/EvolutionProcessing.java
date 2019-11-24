@@ -18,8 +18,8 @@ public class EvolutionProcessing {
 
 	public static void main(String[] args) throws Exception {
 		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\JADE_EIG_ERRORDIFF_MAXDIST_STUDY";
-		String sufix = "_maxdist";
-		String label = "Máxima Distância";
+		String sufix = "";//"_maxdist";//"_diff";
+		String label = "Erros";//"Máxima Distância";//"(Fmax - Fmin)";
 
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
 

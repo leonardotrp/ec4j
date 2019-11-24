@@ -11,6 +11,7 @@ public abstract class BaseAlgorithmHelper implements AlgorithmHelper {
 		Properties.ARGUMENTS.get().incrementCountGenerations();
 	}
 
+	@Override
 	public Population getPopulation() {
 		return this.population;
 	}

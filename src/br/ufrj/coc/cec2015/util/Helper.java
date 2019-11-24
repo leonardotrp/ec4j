@@ -3,7 +3,10 @@ package br.ufrj.coc.cec2015.util;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
+import java.util.DoubleSummaryStatistics;
+import java.util.IntSummaryStatistics;
 import java.util.List;
+import java.util.LongSummaryStatistics;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -79,7 +82,7 @@ public class Helper {
 		return individual;
 	}
 
-	public static double getErrorDifference(Population population) {
+	public static double getFunctionValueDifference(Population population) {
 		double min = Double.MAX_VALUE;
 		double max = -Double.MAX_VALUE;
 		for (Individual individual : population.getIndividuals()) {
@@ -111,6 +114,21 @@ public class Helper {
 		return new EuclideanDistance().compute(vMin, vMax);
 	}
 
+	public static double getAverageLongs(List<Long> doubles) {
+		LongSummaryStatistics stats = doubles.stream().mapToLong((x) -> x).summaryStatistics();
+		return stats.getAverage();
+	}
+
+	public static double getAverageDoubles(List<Double> doubles) {
+		DoubleSummaryStatistics stats = doubles.stream().mapToDouble((x) -> x).summaryStatistics();
+		return stats.getAverage();
+	}	
+
+	public static double getAverageIntegers(List<Integer> integers) {
+		IntSummaryStatistics stats = integers.stream().mapToInt((x) -> x).summaryStatistics();
+		return stats.getAverage();
+	}	
+	
 	public static List<Double> calculateErrors(Population population) {
 		List<Double> errors = population.getIndividuals().stream().map(individual -> Helper.getError(individual)).collect(Collectors.toList());
 		return errors;

@@ -24,6 +24,7 @@ public class Population implements Cloneable {
 	private Individual best; // global best
 	private boolean minErrorValueFound;
 	private Matrix firstEigenvectors;
+	private int countRestart;
 	
 	public Population(Initializable initializable, int populationSize) {
 		super();
@@ -89,6 +90,18 @@ public class Population implements Cloneable {
 
 	public void setFirstEigenvectors(Matrix firstEigenvectors) {
 		this.firstEigenvectors = firstEigenvectors;
+	}
+
+	public int getCountRestart() {
+		return countRestart;
+	}
+
+	public int incCountRestart() {
+		return countRestart++;
+	}
+	
+	public void setCountRestart(int countRestart) {
+		this.countRestart = countRestart;
 	}
 
 	public int size() {

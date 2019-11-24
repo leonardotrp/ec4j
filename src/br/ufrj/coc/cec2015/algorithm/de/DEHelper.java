@@ -43,21 +43,21 @@ public class DEHelper extends BaseAlgorithmHelper {
 	}
 	
 	private void initializeEigOperator(Population population) {
-		if (this.isUseEig() || population.getFirstEigenvectors() == null) {
+		boolean useProjections = Properties.USE_PROJECTIONS && population.getFirstEigenvectors() == null;
+		
+		if (this.isUseEig() || useProjections) {
 			Matrix cm = MatrixUtil.getCovarianceMatrix(population);
+			
 			//this.increasePopulation(population, cm.det());
 			this.eigenvectors = cm.eig().getV();
-			if (population.getFirstEigenvectors() == null) {// save the first eigenvectors
+
+			if (useProjections) // save the first eigenvectors
 				population.setFirstEigenvectors(this.eigenvectors);
-			}
 		}
 	}
 
 	protected boolean isUseEig() {
 		return this.properties.isEigenvectorCrossover();
-	}
-	
-	protected void increasePopulation(Population population, double determinant) {
 	}
 	
 	public DEProperties getProperties() {
