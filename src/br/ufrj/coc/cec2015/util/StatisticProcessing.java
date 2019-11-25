@@ -24,7 +24,7 @@ public class StatisticProcessing {
 
 	public static void main(String[] args) throws Exception {
 
-		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\JADE_EIG_ERRORDIFF_MAXDIST_STUDY";
+		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\CR_JADE_EIG";
 		
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
 
@@ -120,7 +120,12 @@ public class StatisticProcessing {
 									
 									// BEST
 				                	double best = Double.valueOf(columns[1].trim());
-				                	double sr = Double.valueOf(columns[7].trim());
+				                	double sr = 0.0;
+				                	if (columns.length == 11)
+				                		sr = Double.valueOf(columns[10].trim());
+				                	else if (columns.length == 9)
+				                		sr = Double.valueOf(columns[7].trim());
+
 				                	//double sr = Double.valueOf(columns[10].trim());
 						        	cell = rowFunction.createCell(idxColumnStatValue++);
 						        	cell.setCellValue(best);
@@ -185,9 +190,11 @@ public class StatisticProcessing {
 						        		cell.setCellStyle(warningCellStyle);
 
 									// COUNT RESTARTS
-						        	double countRestarts = Double.valueOf(columns[8].trim());
-						        	cell = rowFunction.createCell(idxColumnStatValue++);
-						        	cell.setCellValue(countRestarts);
+						        	if (columns.length == 9) {
+							        	double countRestarts = Double.valueOf(columns[8].trim());
+							        	cell = rowFunction.createCell(idxColumnStatValue++);
+							        	cell.setCellValue(countRestarts);
+						        	}
 				                }
 				            }
 						} catch (FileNotFoundException e) {

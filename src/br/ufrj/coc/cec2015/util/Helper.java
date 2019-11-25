@@ -3,6 +3,7 @@ package br.ufrj.coc.cec2015.util;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.DoubleSummaryStatistics;
 import java.util.IntSummaryStatistics;
 import java.util.List;
@@ -134,7 +135,7 @@ public class Helper {
 		return errors;
 	}
 	
-	public static double calculateMean(List<Double> numbers) {
+	public static double calculateMean(Collection<Double> numbers) {
 		BigDecimal mean = new BigDecimal(0.0);
 		for (Double number : numbers) {
 			BigDecimal bdNumber = new BigDecimal(number);
@@ -144,7 +145,7 @@ public class Helper {
 		return mean.doubleValue();
 	}
 
-	public static double calculateMedian(List<Double> numbers) {
+	public static double calculateMedian(Collection<Double> numbers) {
 		Object[] values = numbers.toArray();
 		Arrays.sort(values);
 		int middleIndex = (int) ((values.length - 1) / 2);
@@ -159,12 +160,12 @@ public class Helper {
 		return median.doubleValue();
 	}
 
-	public static double calculateStandardDeviation(List<Double> numbers) {
+	public static double calculateStandardDeviation(Collection<Double> numbers) {
 		double mean = calculateMean(numbers);
 		return calculateStandardDeviation(numbers, mean);
 	}
 	
-	public static double calculateStandardDeviation(List<Double> numbers, double mean) {
+	public static double calculateStandardDeviation(Collection<Double> numbers, double mean) {
 		BigDecimal bdMean = new BigDecimal(mean);
 		BigDecimal standardDeviation = new BigDecimal(0.0);
 		for (Double error : numbers) {
@@ -179,7 +180,7 @@ public class Helper {
 		return Math.sqrt(result);
 	}
 
-	public static double calculateLehmerMean(List<Double> numbers) {
+	public static double calculateLehmerMean(Collection<Double> numbers) {
 		BigDecimal dividend = new BigDecimal(0.0);
 		BigDecimal divisor = new BigDecimal(0.0);
 		for (Double number : numbers) {

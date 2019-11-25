@@ -24,7 +24,10 @@ public class Population implements Cloneable {
 	private Individual best; // global best
 	private boolean minErrorValueFound;
 	private Matrix firstEigenvectors;
+
 	private int countRestart;
+	private double funcValDiff;
+	private double maxDistance;
 	
 	public Population(Initializable initializable, int populationSize) {
 		super();
@@ -102,6 +105,22 @@ public class Population implements Cloneable {
 	
 	public void setCountRestart(int countRestart) {
 		this.countRestart = countRestart;
+	}
+
+	public double getFuncValDiff() {
+		return funcValDiff;
+	}
+
+	public void setFuncValDiff(double funcValDiff) {
+		this.funcValDiff = funcValDiff;
+	}
+
+	public double getMaxDistance() {
+		return maxDistance;
+	}
+
+	public void setMaxDistance(double maxDistance) {
+		this.maxDistance = maxDistance;
 	}
 
 	public int size() {
