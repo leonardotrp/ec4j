@@ -87,7 +87,6 @@ public class Statistic {
 	public Statistic() {
 		super();
 		this.initialize();
-		initializeProjection();
 	}
 
 	private long initialTimeFunction, initialTimeRound;

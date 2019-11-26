@@ -13,6 +13,7 @@ import br.ufrj.coc.cec2015.util.Properties;
 public class IPOP_JADEHelper extends JADEHelper {
 	private Queue<Double> funcValueDiffs;
 	private Queue<Double> maxDistances;
+	private int evalPerc;
 	
 	public IPOP_JADEHelper() {
 		super();
@@ -24,15 +25,17 @@ public class IPOP_JADEHelper extends JADEHelper {
 		int populationSize = Properties.ARGUMENTS.get().getPopulationSize();
 		this.funcValueDiffs = new CircularFifoQueue<Double>(populationSize);
 		this.maxDistances = new CircularFifoQueue<Double>(populationSize);
+		this.evalPerc = 0;
 	}
 
 	public void initializeGeneration(Population population) {
 		super.initializeGeneration(population);
 		this.funcValueDiffs.add(Helper.getFunctionValueDifference(population));
 		this.maxDistances.add(Helper.getMaxDistance(population));
-		double evolPerc = Properties.ARGUMENTS.get().getEvolutionPercentage() * 100;
-		double interv = DEProperties.IPOP_MAXFES_INTERVAL * 100;
-		if ((evolPerc % interv) == 0) {
+		int currentEvalPerc = (int) (Properties.ARGUMENTS.get().getEvolutionPercentage() * 100);
+		int interv = (int) (DEProperties.IPOP_MAXFES_INTERVAL * 100);
+		if (currentEvalPerc > this.evalPerc && (currentEvalPerc % interv) == 0) {
+			this.evalPerc = currentEvalPerc;
 			System.err.println(String.format("TEST STAGNATION %.2f", Properties.ARGUMENTS.get().getEvolutionPercentage()));
 
 			// Diff_Interv: Módulo de { MedDiff(T1) - MedDiff(T2) }
