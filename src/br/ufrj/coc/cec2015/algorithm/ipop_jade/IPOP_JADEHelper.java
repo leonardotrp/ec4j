@@ -36,22 +36,22 @@ public class IPOP_JADEHelper extends JADEHelper {
 		int interv = (int) (DEProperties.IPOP_MAXFES_INTERVAL * 100);
 		if (currentEvalPerc > this.evalPerc && (currentEvalPerc % interv) == 0) {
 			this.evalPerc = currentEvalPerc;
-			System.err.println(String.format("TEST STAGNATION %.2f", Properties.ARGUMENTS.get().getEvolutionPercentage()));
 
 			// Diff_Interv: Módulo de { MedDiff(T1) - MedDiff(T2) }
 			double funcValueDiffLast = population.getFuncValDiff();
-			double funcValueDiffCurr = Helper.calculateMedian(this.funcValueDiffs);
+			double funcValueDiffCurr = Helper.calculateMean(this.funcValueDiffs);
+			boolean funcValDiffBetter = funcValueDiffCurr <= funcValueDiffLast;
 			double funcValueDiffInterval = Math.abs(funcValueDiffLast - funcValueDiffCurr);
 
 			// Diff_MaxDist: Módulo de { MedMaxDist(T1) - MedMaxDist(T2) }
 			double maxDistLast = population.getMaxDistance();
-			double maxDistCurr = Helper.calculateMedian(this.maxDistances);
+			double maxDistCurr = Helper.calculateMean(this.maxDistances);
 			double maxDistInterval = Math.abs(maxDistLast - maxDistCurr);
-			System.err.println(String.format("funcValueDiffInterval = %e / maxDistInterval = %e", funcValueDiffInterval, maxDistInterval));
+			System.err.println(String.format("TEST STAGNATION %.2f: funcValueDiffInterval = %e / maxDistInterval = %e", Properties.ARGUMENTS.get().getEvolutionPercentage(), funcValueDiffInterval, maxDistInterval));
 
-			boolean criteria1 = (funcValueDiffInterval == 0.0 && funcValueDiffCurr != Properties.MIN_ERROR_VALUE);
-			boolean criteria2 = (funcValueDiffInterval < DEProperties.IPOP_MAXDIFF_FUNCVAL);
-			boolean criteria3 = (maxDistInterval < DEProperties.IPOP_MAXDIST);
+			boolean criteria1 = (funcValueDiffInterval == 0.0 || maxDistInterval == 0.0) && funcValueDiffCurr != Properties.MIN_ERROR_VALUE;
+			boolean criteria2 = !funcValDiffBetter && funcValueDiffInterval < DEProperties.IPOP_MAXDIFF_FUNCVAL;
+			boolean criteria3 = maxDistInterval < DEProperties.IPOP_MAXDIST;
 			boolean stagnation = (criteria1 || criteria2) && criteria3;
 
 			if (stagnation) {
@@ -61,7 +61,7 @@ public class IPOP_JADEHelper extends JADEHelper {
 				population.setFuncValDiff(0);
 				population.setMaxDistance(0);
 				population.incCountRestart();
-				System.err.println(String.format("RESTART POPULATION (%d)!", population.getCountRestart()));
+				System.err.println(String.format("RESTART POPULATION (%d)! ( CRIT_1(%s) || CRIT_2(%s) ) && CRIT_3(%s)", population.getCountRestart(), criteria1, criteria2, criteria3));
 				this.initializeGeneration(population);
 			}
 			population.setFuncValDiff(funcValueDiffCurr);
