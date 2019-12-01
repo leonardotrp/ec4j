@@ -34,18 +34,19 @@ import org.jfree.ui.RectangleInsets;
 
 public class EvolutionChart2D extends JFrame {
 	private static final long serialVersionUID = 9036503967468200772L;
-	private static final Color[] COLORS = new Color[] { Color.BLUE, Color.RED, Color.DARK_GRAY, Color.ORANGE, Color.CYAN };
+	private static final Color[] COLORS1 = new Color[] { Color.BLUE, Color.RED, Color.BLACK, Color.MAGENTA, Color.YELLOW};
+	private static final Color[] COLORS2 = new Color[] { Color.DARK_GRAY, Color.LIGHT_GRAY, Color.ORANGE, Color.PINK, Color.GREEN};
 
 	private static String DEFAULT_CHART_TITLE = "Gráfico de Evolução dos Erros";
 
 	XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
-	private boolean empty = true;
+	XYSeriesCollection xySeriesCollection2 = new XYSeriesCollection();
+	private boolean empty1 = true, empty2 = true;
 	private ChartPanel chartPanel;
-	private String yAxisLabel;
 
-	public EvolutionChart2D(String yAxisLabel) {
+	public EvolutionChart2D(String yAxisLabel, String yAxisLabel2) {
 		super("Evolution Chart2D");
-		chartPanel = createEvolutionPanel(yAxisLabel);
+		chartPanel = createEvolutionPanel(yAxisLabel, yAxisLabel2);
 		super.add(chartPanel, BorderLayout.CENTER);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.pack();
@@ -57,19 +58,25 @@ public class EvolutionChart2D extends JFrame {
 		chartPanel.getChart().setTitle(title + "\n\r" + subTitles[0]);
 	}
 
-	public void addSerie(List<Double> serieX, List<Double> serieY, String description) {
-		if (empty) {
-			xySeriesCollection.removeSeries(0);
-			empty = false;
-		}
-
+	public void addSerie(List<Double> serieX, List<Double> serieY, String description, int yAxis) {
 		XYSeries xySeries = createXYSeries(serieX, serieY, description);
-		xySeriesCollection.addSeries(xySeries);
+		if (yAxis == 0 && empty1) {
+			xySeriesCollection.removeSeries(0);
+			empty1 = false;
+		}
+		if (yAxis == 1 && empty2) {
+			xySeriesCollection2.removeSeries(0);
+			empty2 = false;
+		}
+		if (yAxis == 0)
+			xySeriesCollection.addSeries(xySeries);
+		else if (yAxis == 1)
+			xySeriesCollection2.addSeries(xySeries);
 	}
 
 	private XYSeries createXYSeries(List<Double> serieX, List<Double> serieY, String description) {
 		XYSeries xySeries = new XYSeries(description);
-		for (int idx = 0; idx < serieX.size(); idx++) {
+		for (int idx = 0; idx < serieY.size(); idx++) {
 			XYDataItem dataItem = new XYDataItem(serieX.get(idx), serieY.get(idx));
 			xySeries.add(dataItem);
 		}
@@ -85,41 +92,60 @@ public class EvolutionChart2D extends JFrame {
 		}
 	}
 
-	JFreeChart createScatterPlot(String title, String xAxisLabel, String yAxisLabel, XYDataset dataset, PlotOrientation orientation) {
-
+	JFreeChart createScatterPlot(String title, String xAxisLabel, String yAxisLabel, String yAxisLabel2, XYDataset dataset1, XYDataset dataset2, PlotOrientation orientation) {
 		ParamChecks.nullNotPermitted(orientation, "orientation");
 		NumberAxis xAxis = new NumberAxis(xAxisLabel);
 		xAxis.setAutoRangeIncludesZero(false);
-		NumberAxis yAxis = new NumberAxis(yAxisLabel);
-		yAxis.setAutoRangeIncludesZero(false);
+		NumberAxis yAxis1 = new NumberAxis(yAxisLabel);
+		yAxis1.setAutoRangeIncludesZero(false);
+		NumberAxis yAxis2 = new NumberAxis(yAxisLabel2);
+		yAxis2.setAutoRangeIncludesZero(false);
 
-		XYPlot plot = new XYPlot(dataset, xAxis, yAxis, null);
-
-		XYItemRenderer renderer = new XYLineAndShapeRenderer(true, true);
-		plot.setRenderer(renderer);
+		XYItemRenderer renderer1 = new XYLineAndShapeRenderer(true, true);
+		XYPlot plot = new XYPlot(dataset1, xAxis, yAxis1, renderer1);
 		plot.setOrientation(orientation);
+		for (int idx = 0; idx < COLORS1.length; idx++)
+			renderer1.setSeriesPaint(idx, COLORS1[idx]);
 
-		for (int idx = 0; idx < COLORS.length; idx++) {
-			renderer.setSeriesPaint(idx, COLORS[idx]);
-		}
-		
-		JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, false);
-		
-		return chart;
+		XYItemRenderer renderer2 = new XYLineAndShapeRenderer(true, true);
+		plot.setDataset(1, dataset2);
+		plot.setDomainAxis(xAxis);
+		plot.setRangeAxis(1, yAxis2);
+		plot.mapDatasetToRangeAxis(1, 1);
+		plot.setRenderer(1, renderer2);
+		for (int idx = 0; idx < COLORS2.length; idx++)
+			renderer2.setSeriesPaint(idx, COLORS2[idx]);
 
+		return new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, false);
 	}
 
+	private static XYDataset createSampleData(XYSeriesCollection xySeriesCollection) {
+		XYSeries series = new XYSeries("");
+		double[][] initialData = new double[1][2];
+		for (int i = 0; i < initialData.length; i++) {
+			series.add(initialData[i][0], initialData[i][1]);
+		}
+		xySeriesCollection.addSeries(series);
+		return xySeriesCollection;
+	}
+	
 	@SuppressWarnings("serial")
-	private ChartPanel createEvolutionPanel(String yAxisLabel) {
-		this.yAxisLabel = yAxisLabel;
-		JFreeChart jfreechart = createScatterPlot(DEFAULT_CHART_TITLE, "Percentual de Avaliação (% MaxFES = Dim.10000)", yAxisLabel, this.createSampleData(), PlotOrientation.VERTICAL);
+	private ChartPanel createEvolutionPanel(String yAxisLabel, String yAxisLabel2) {
+		XYDataset sampleDataY1 = createSampleData(this.xySeriesCollection);
+		XYDataset sampleDataY2 = createSampleData(this.xySeriesCollection2);
+		
+		JFreeChart jfreechart = createScatterPlot(DEFAULT_CHART_TITLE, "Percentual de Avaliação (% MaxFES = Dim.10000)", yAxisLabel, yAxisLabel2, sampleDataY1, sampleDataY2, PlotOrientation.VERTICAL);
 		XYPlot xyPlot = (XYPlot) jfreechart.getPlot();
 
-		LogAxis yAxis = new LogAxis(this.yAxisLabel);
+		LogAxis yAxis = new LogAxis(yAxisLabel);
 		NumberFormat numberFormat = new DecimalFormat("0.0E0");
 		yAxis.setNumberFormatOverride(numberFormat);
 		xyPlot.setRangeAxis(yAxis);
 
+		LogAxis yAxis2 = new LogAxis(yAxisLabel2);
+		yAxis2.setNumberFormatOverride(numberFormat);
+		xyPlot.setRangeAxis(1, yAxis2);
+		
 		xyPlot.setBackgroundPaint(Color.WHITE);
 		xyPlot.setDomainGridlinePaint(Color.LIGHT_GRAY);
 		xyPlot.setRangeGridlinePaint(Color.LIGHT_GRAY);
@@ -140,16 +166,6 @@ public class EvolutionChart2D extends JFrame {
 		};
 	}
 
-	private XYDataset createSampleData() {
-		XYSeries series = new XYSeries("");
-		double[][] initialData = new double[1][2];
-		for (int i = 0; i < initialData.length; i++) {
-			series.add(initialData[i][0], initialData[i][1]);
-		}
-		this.xySeriesCollection.addSeries(series);
-		return this.xySeriesCollection;
-	}
-	
 	public void close() {
 		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 	}
