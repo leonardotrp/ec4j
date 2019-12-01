@@ -13,7 +13,7 @@ import br.ufrj.coc.ec4j.algorithm.AlgorithmHelper;
  * @author Leonardo
  */
 public class Properties {
-	static ResourceBundle bundle = ResourceBundle.getBundle("cec2015");
+	static ResourceBundle bundle = ResourceBundle.getBundle("ec4j");
 
 	public static ThreadLocal<AlgorithmHelper> HELPER = new ThreadLocal<>();
 	public static ThreadLocal<AlgorithmArguments> ARGUMENTS = new ThreadLocal<>();
