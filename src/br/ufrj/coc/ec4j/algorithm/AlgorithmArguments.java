@@ -138,12 +138,16 @@ public class AlgorithmArguments {
 	public String getPrefixFile() {
 		return this.name + '_' + this.variant.replace('/', '.') + "_P" + this.populationSize + "_F" + this.functionNumber + "_D" + this.individualSize;
 	}
+	
+	public boolean isEigOperator() {
+		int lastIdx = this.variant.lastIndexOf('/');
+		String crossover = this.variant.substring(lastIdx + 1);
+		return crossover.toUpperCase().equals("EIG");
+	}
 
 	public String getTitleChart() {
 		String title = this.name;
-		int lastIdx = this.variant.lastIndexOf('/');
-		String crossover = this.variant.substring(lastIdx + 1);
-		if (crossover.equals("Eig"))
+		if (this.isEigOperator())
 			title += "/Eig";
 		return title;
 	}

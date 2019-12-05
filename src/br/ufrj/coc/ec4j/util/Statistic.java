@@ -33,14 +33,19 @@ public class Statistic {
 
 	private BufferedWriter fileRoundErrors;
 	private List<String> statisticLines = new ArrayList<>();
+
 	private BufferedWriter fileEvolutionOfErrors;
 	private BufferedWriter fileEvolutionOfErrorDifferences;
 	private BufferedWriter fileEvolutionOfMaxDistances;
+	private BufferedWriter fileEvolutionOfDetMatCovs;
+
 	private List<Double> roundErros = new ArrayList<Double>(Properties.MAX_RUNS);
 	private List<Long> timeRounds = new ArrayList<Long>(Properties.MAX_RUNS);
 	private List<Integer> countRestartsRounds = new ArrayList<Integer>(Properties.MAX_RUNS);
 	private List<Double> errorDiffRounds = new ArrayList<Double>(Properties.MAX_RUNS);
 	private List<Double> maxDistRounds = new ArrayList<Double>(Properties.MAX_RUNS);
+	private List<Double> detMatCovRounds = new ArrayList<Double>(Properties.MAX_RUNS);
+
 	private static double[] EVALUATION_LIMITS = new double[] {
 			0.001, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09,
 			0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19,
@@ -59,11 +64,14 @@ public class Statistic {
 		private Double error;
 		private Double errorDifference;
 		private Double maxDistance;
+		private Double detMatCov;
 		public ErrorEvolution(Population population) {
 			super();
 			this.error = population.getBestError();
 			this.errorDifference = Helper.getFunctionValueDifference(population);
 			this.maxDistance = Helper.getMaxDistance(population);
+			if (Properties.ARGUMENTS.get().isEigOperator())
+				this.detMatCov = population.getDetMatCov();
 		}
 		public Double getError() {
 			return error;
@@ -73,6 +81,12 @@ public class Statistic {
 		}
 		public Double getMaxDistance() {
 			return maxDistance;
+		}
+		public Double getDetMatCov() {
+			return detMatCov;
+		}
+		public void setDetMatCov(Double detMatCov) {
+			this.detMatCov = detMatCov;
 		}
 		public Integer getRound() {
 			return round;
@@ -113,6 +127,7 @@ public class Statistic {
 		this.countRestartsRounds.clear();
 		this.errorDiffRounds.clear();
 		this.maxDistRounds.clear();
+		this.detMatCovRounds.clear();
 		this.roundErros.clear();
 		this.initializeStatisticLines();
 		this.startTimeFunction();
@@ -218,6 +233,8 @@ public class Statistic {
 		this.fileEvolutionOfErrors.write(headLine);
 		this.fileEvolutionOfErrorDifferences.write(headLine);
 		this.fileEvolutionOfMaxDistances.write(headLine);
+		if (this.fileEvolutionOfDetMatCovs != null)
+			this.fileEvolutionOfDetMatCovs.write(headLine);
 	}
 
 	private void writeLineEvolutionOfErrors(BufferedWriter writer, Object[] values) throws IOException {
@@ -232,41 +249,61 @@ public class Statistic {
 
 	private static String formatNumber(Double value) {
 		DecimalFormat df = new DecimalFormat("0.000000000000000E0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
-		return df.format(value); // 1.23456789E4
+		return value != null ? df.format(value) : ""; // 1.23456789E4
 	}
 
-	private ErrorEvolution getBestRound() {
+	private ErrorEvolution[] getBestWorstRound() {
 		int minErrorsCount = Integer.MAX_VALUE;
 		double minimum = Double.MAX_VALUE;
-		ErrorEvolution best = null;
+		ErrorEvolution bestEE = null;
+		
+		int maxErrorsCount = -Integer.MAX_VALUE;
+		double maximum = -Double.MAX_VALUE;
+		ErrorEvolution worstEE = null;
+
 		for (int round = 1; round <= Properties.MAX_RUNS; round++) {
+
 			List<ErrorEvolution> roundErrors = errorEvolution.get(round - 1);
 			int countErros = (int) roundErrors.stream().filter(error -> error != null).count();
-			ErrorEvolution minRoundErrorEvolution = roundErrors.stream().filter(error -> error != null).min(Comparator.comparing(ErrorEvolution::getError)).get();
+			ErrorEvolution roundErrorEvolution = roundErrors.stream().filter(error -> error != null).min(Comparator.comparing(ErrorEvolution::getError)).get();
+
+			// BEST
 			if (countErros < minErrorsCount) {
 				minErrorsCount = countErros;
-				minimum = minRoundErrorEvolution.getError();
-				best = minRoundErrorEvolution;
-				best.setRound(round);
-			} else if (countErros == minErrorsCount && minRoundErrorEvolution.getError() < minimum) {
-				minimum = minRoundErrorEvolution.getError();
-				best = minRoundErrorEvolution;
-				best.setRound(round);
+				minimum = roundErrorEvolution.getError();
+				bestEE = roundErrorEvolution;
+				bestEE.setRound(round);
+			} else if (countErros == minErrorsCount && roundErrorEvolution.getError() < minimum) {
+				minimum = roundErrorEvolution.getError();
+				bestEE = roundErrorEvolution;
+				bestEE.setRound(round);
+			}
+
+			// WORST
+			if (countErros > maxErrorsCount) {
+				maxErrorsCount = countErros;
+				maximum = roundErrorEvolution.getError();
+				worstEE = roundErrorEvolution;
+				worstEE.setRound(round);
+			} else if (countErros == maxErrorsCount && roundErrorEvolution.getError() > maximum) {
+				maximum = roundErrorEvolution.getError();
+				worstEE = roundErrorEvolution;
+				worstEE.setRound(round);
 			}
 		}
-		return best;
+		return new ErrorEvolution[] {bestEE, worstEE};
 	}
 
 	private void initializeStatisticLines() {
 		this.statisticLines.clear();
 		
-		String strFormat = "%-10s, %-22s, %-22s, %-22s, %-22s, %-22s, %-10s, %-10s, %-10s, %-10s, %-10s\n"; 
-		String head = String.format(strFormat + '\n', "F#", "BEST", "WORST", "MEDIAN", "MEAN", "STD", "TIME", "SR", "CR", "FE_DIFF", "MAX_DIST"); 
+		String strFormat = "%-10s, %-22s, %-22s, %-22s, %-22s, %-22s, %-10s, %-10s, %-10s, %-10s, %-10s, %-10s\n"; 
+		String head = String.format(strFormat + '\n', "F#", "BEST", "WORST", "MEDIAN", "MEAN", "STD", "TIME", "SR", "CR", "FE_DIFF", "MAX_DIST", "DET_MATCOV"); 
 		this.statisticLines.add(head);
 		System.out.println(head);
 	}
 
-	private void addStatisticLine(String label, List<Double> errors, Long timeSpent, Double successfulRate, int countRestarts, Double feDiff, Double maxDist) throws IOException { 
+	private void addStatisticLine(String label, List<Double> errors, Long timeSpent, Double successfulRate, int countRestarts, Double feDiff, Double maxDist, Double detMatCov) throws IOException { 
 		String strSuccessfulRate = "";
 		if (successfulRate != null)
 			strSuccessfulRate = formatNumber(successfulRate);
@@ -281,9 +318,9 @@ public class Statistic {
 		String standardDeviation = formatNumber(Helper.calculateStandardDeviation(errors, mean));
 		String feDiffStr = formatNumber(feDiff);
 		String maxDistStr = formatNumber(maxDist);
-
+		String detMatCovStr = formatNumber(detMatCov);
 		String strFormat = "%-10s, %-22s, %-22s, %-22s, %-22s, %-22s, %-10s, %-10s, %-10s, %-10s, %-10s\n";
-		String line = String.format(strFormat, label, best, worst, median, meanStr, standardDeviation, timeInSeconds(timeSpent), strSuccessfulRate, countRestarts, feDiffStr, maxDistStr);
+		String line = String.format(strFormat, label, best, worst, median, meanStr, standardDeviation, timeInSeconds(timeSpent), strSuccessfulRate, countRestarts, feDiffStr, maxDistStr, detMatCovStr);
 		this.statisticLines.add(line);
 		System.err.println(line);
 	}
@@ -297,8 +334,9 @@ public class Statistic {
 		this.errorDiffRounds.add(feDiff);
 		Double maxDist = Helper.getMaxDistance(population);
 		this.maxDistRounds.add(maxDist);
-
-		this.addStatisticLine("F(" + Properties.ARGUMENTS.get().getFunctionNumber() + "):Round(" + (this.roundErros.size() + 1) + ")", errors, timeElapsed, null, population.getCountRestart(), feDiff, maxDist);
+		if (population.getDetMatCov() != null)
+			this.detMatCovRounds.add(population.getDetMatCov());
+		this.addStatisticLine("F(" + Properties.ARGUMENTS.get().getFunctionNumber() + "):Round(" + (this.roundErros.size() + 1) + ")", errors, timeElapsed, null, population.getCountRestart(), feDiff, maxDist, population.getDetMatCov());
 		
 		this.roundErros.add(population.getBestError());
 		if (population.isMinErrorValueFound())
@@ -317,21 +355,35 @@ public class Statistic {
 
 		String fileEvolutionOfMaxDistancesName = FileUtil.getFileName(ID, algorithmName, prefixFile + "_evolution_maxdist.csv");
 		this.fileEvolutionOfMaxDistances = new BufferedWriter(new FileWriter(fileEvolutionOfMaxDistancesName));
+		
+		if (Properties.ARGUMENTS.get().isEigOperator()) {
+			String fileEvolutionOfDetMatCovName = FileUtil.getFileName(ID, algorithmName, prefixFile + "_evolution_detmatcov.csv");
+			this.fileEvolutionOfDetMatCovs = new BufferedWriter(new FileWriter(fileEvolutionOfDetMatCovName));
+		}
 
 		writeHeadEvolutionOfErrors();
 		for (int indexEvaluation = 0; indexEvaluation < EVALUATION_LIMITS.length; indexEvaluation++) {
 			BigDecimal errorMean = new BigDecimal(0.0);
 			BigDecimal errorDiffMean = new BigDecimal(0.0);
 			BigDecimal maxDistMean = new BigDecimal(0.0);
+			BigDecimal detMatCovMean = new BigDecimal(0.0);
+
 			Object[] errorValues = new Object[Properties.MAX_RUNS + 2];
 			Object[] errorDiffValues = new Object[Properties.MAX_RUNS + 2];
 			Object[] maxDistValues = new Object[Properties.MAX_RUNS + 2];
+			Object[] detMatCovValues = new Object[Properties.MAX_RUNS + 2];
+
 			errorValues[0] = EVALUATION_LIMITS[indexEvaluation];
 			errorDiffValues[0] = EVALUATION_LIMITS[indexEvaluation];
 			maxDistValues[0] = EVALUATION_LIMITS[indexEvaluation];
+			detMatCovValues[0] = EVALUATION_LIMITS[indexEvaluation];
+
 			for (int round = 1; round <= Properties.MAX_RUNS; round++) {
 				List<ErrorEvolution> roundErros = errorEvolution.get(round - 1);
 				errorValues[round] = "-";
+				errorDiffValues[round] = "-";
+				maxDistValues[round] = "-";
+				detMatCovValues[round] = "-";
 				if (indexEvaluation < roundErros.size()) {
 					ErrorEvolution errorEvolution = roundErros.get(indexEvaluation);
 					if (errorEvolution != null) {
@@ -343,6 +395,11 @@ public class Statistic {
 
 						maxDistMean = maxDistMean.add(new BigDecimal(errorEvolution.getMaxDistance()));
 						maxDistValues[round] = formatNumber(errorEvolution.getMaxDistance());
+
+						if (errorEvolution.getDetMatCov() != null) {
+							detMatCovMean = detMatCovMean.add(new BigDecimal(errorEvolution.getDetMatCov()));
+							detMatCovValues[round] = formatNumber(errorEvolution.getDetMatCov());
+						}
 					}
 				}
 			}
@@ -363,19 +420,31 @@ public class Statistic {
 			String strMaxDistMean = maxDistMean.doubleValue() > 0 ? formatNumber(maxDistMean.doubleValue()) : "-";
 			maxDistValues[Properties.MAX_RUNS + 1] = strMaxDistMean; 
 			writeLineEvolutionOfErrors(this.fileEvolutionOfMaxDistances, maxDistValues);
+			
+			if (this.fileEvolutionOfDetMatCovs != null) {
+				// evolution determinant covariance matrix
+				detMatCovMean = detMatCovMean.divide(new BigDecimal(Properties.MAX_RUNS));
+				String strDetMatCovMean = detMatCovMean.doubleValue() > 0 ? formatNumber(detMatCovMean.doubleValue()) : "-";
+				detMatCovValues[Properties.MAX_RUNS + 1] = strDetMatCovMean; 
+				writeLineEvolutionOfErrors(this.fileEvolutionOfDetMatCovs, detMatCovValues);
+			}
 		}
-		ErrorEvolution bestRound = getBestRound();
 		StringBuffer resume = new StringBuffer();
 		resume.append("\nInformação: " + Properties.ARGUMENTS.get().getInfo());
 		resume.append("\nNúmero de Avaliações: " + Properties.ARGUMENTS.get().getCountEvaluations());
 		resume.append("\nNúmero de Gerações: " + Properties.ARGUMENTS.get().getCountGenerations());
-		resume.append("\nMelhor Rodada: " + bestRound.getRound());
-		resume.append("\nMenor Erro: " + bestRound.getError());
+		ErrorEvolution[] bestWorstRound = getBestWorstRound();
+		resume.append("\nMelhor Rodada: " + bestWorstRound[0].getRound());
+		resume.append("\nMenor Erro: " + bestWorstRound[0].getError());
+		resume.append("\nPior Rodada: " + bestWorstRound[1].getRound());
+		resume.append("\nMaior Erro: " + bestWorstRound[1].getError());
 		this.fileEvolutionOfErrors.write(resume.toString());
 
 		this.fileEvolutionOfErrors.close();
 		this.fileEvolutionOfErrorDifferences.close();
 		this.fileEvolutionOfMaxDistances.close();
+		if (this.fileEvolutionOfDetMatCovs != null)
+			this.fileEvolutionOfDetMatCovs.close();
 	}
 
 	private void writeStatistics() throws IOException {
@@ -384,7 +453,8 @@ public class Statistic {
 		int avgCountRestarts = (int) Helper.getAverageIntegers(this.countRestartsRounds);
 		double avgFeDiff = Helper.getAverageDoubles(this.errorDiffRounds);
 		double avgMaxDist = Helper.getAverageDoubles(this.maxDistRounds);
-		this.addStatisticLine("F(" + Properties.ARGUMENTS.get().getFunctionNumber() + ")", this.roundErros, avgTimeSpent, successfulRate, avgCountRestarts, avgFeDiff, avgMaxDist); 
+		double avgDetMatCov = this.detMatCovRounds.size() > 0 ? Helper.getAverageDoubles(this.detMatCovRounds) : 0;
+		this.addStatisticLine("F(" + Properties.ARGUMENTS.get().getFunctionNumber() + ")", this.roundErros, avgTimeSpent, successfulRate, avgCountRestarts, avgFeDiff, avgMaxDist, avgDetMatCov); 
 
 		String algorithmName = Properties.ARGUMENTS.get().getName();
 		String prefixFile = Properties.ARGUMENTS.get().getPrefixFile();

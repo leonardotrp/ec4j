@@ -28,6 +28,7 @@ public class Population implements Cloneable {
 	private int countRestart;
 	private double funcValDiff;
 	private double maxDistance;
+	private Double detMatCov;
 	
 	public Population(Initializable initializable, int populationSize) {
 		super();
@@ -121,6 +122,14 @@ public class Population implements Cloneable {
 
 	public void setMaxDistance(double maxDistance) {
 		this.maxDistance = maxDistance;
+	}
+
+	public Double getDetMatCov() {
+		return detMatCov;
+	}
+
+	public void setDetMatCov(Double detGMatCov) {
+		this.detMatCov = detGMatCov;
 	}
 
 	public int size() {

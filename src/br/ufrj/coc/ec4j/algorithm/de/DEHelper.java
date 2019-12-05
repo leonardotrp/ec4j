@@ -47,6 +47,7 @@ public class DEHelper extends BaseAlgorithmHelper {
 		
 		if (this.isUseEig() || useProjections) {
 			Matrix cm = MatrixUtil.getCovarianceMatrix(population);
+			population.setDetMatCov(cm.det());
 			
 			//this.increasePopulation(population, cm.det());
 			this.eigenvectors = cm.eig().getV();
