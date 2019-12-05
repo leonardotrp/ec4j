@@ -115,6 +115,11 @@ public class Helper {
 		return new EuclideanDistance().compute(vMin, vMax);
 	}
 
+	public static double getErrorMean(Population population) {
+		DoubleSummaryStatistics stats = population.getIndividuals().stream().mapToDouble((x) -> getError(x)).summaryStatistics();
+		return stats.getAverage();
+	}
+
 	public static double getAverageLongs(List<Long> doubles) {
 		LongSummaryStatistics stats = doubles.stream().mapToLong((x) -> x).summaryStatistics();
 		return stats.getAverage();
@@ -131,7 +136,7 @@ public class Helper {
 	}	
 	
 	public static List<Double> calculateErrors(Population population) {
-		List<Double> errors = population.getIndividuals().stream().map(individual -> Helper.getError(individual)).collect(Collectors.toList());
+		List<Double> errors = population.getIndividuals().stream().map(individual -> getError(individual)).collect(Collectors.toList());
 		return errors;
 	}
 	

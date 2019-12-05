@@ -16,16 +16,21 @@ import br.ufrj.coc.ec4j.util.Helper;
 import br.ufrj.coc.ec4j.util.Properties;
 
 public class EvolutionProcessing {
-	public static int bestRound(String file) throws IOException {
-		String prefix = "Melhor Rodada: ";
+	public static int[] bestWorstRound(String file) throws IOException {
+		String prefixBest = "Melhor Rodada: ";
+		String prefixWorst = "Pior Rodada: ";
 		BufferedReader br = null;
 		int best = -1;
+		int worst = -1;
 		try {
 			br = new BufferedReader(new FileReader(file));
 			String line;
 			while ((line = br.readLine()) != null) {
-				if (line.startsWith(prefix)) {
+				if (line.startsWith(prefixBest)) {
 					best = Integer.parseInt(line.split(":")[1].trim());
+				}
+				if (line.startsWith(prefixWorst)) {
+					worst = Integer.parseInt(line.split(":")[1].trim());
 				}
             }
 		} catch (FileNotFoundException e) {
@@ -34,7 +39,7 @@ public class EvolutionProcessing {
 			if (br != null)
 				br.close();
 		}
-		return best;
+		return new int[] {best, worst};
 	}
 
 	private static void extracted(List<Double> listOfMaxFES, List<Double> listOfBests, List<Double> listOfMeans, String fileRoundErrorsName, int bestRoundColumn) throws IOException {
@@ -93,9 +98,7 @@ public class EvolutionProcessing {
 	
 	public static void main(String[] args) throws Exception {
 		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\JADE_EIG_ERRORDIFF_MAXDIST_STUDY\\CR_JADE_EIG_R10";
-		String sufix = "";//"_maxdist";//"_diff";
-		//String label = "Erros";//"Máxima Distância";//"(Fmax - Fmin)";
-		EvolutionChart2D bestEvolution = null;//, meanEvolution = null;//, medianEvolution = null;
+		EvolutionChart2D evolutionChart = null;
 
 		try {
 			for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
@@ -107,7 +110,7 @@ public class EvolutionProcessing {
 	
 				for (int functionNumber : Properties.FUNCTION_NUMBERS) { // loop functions
 	
-					bestEvolution = null; //meanEvolution = null;// medianEvolution = null;
+					evolutionChart = null;
 					int populationSize = 0;
 					for (String algotithmName : Properties.ALGORITHMS) { // loop algorithms
 	
@@ -120,36 +123,40 @@ public class EvolutionProcessing {
 							populationSize = arguments.getPopulationSize();
 	
 							List<Double> listOfMaxFES = new ArrayList<Double>();
-							List<Double> listOfBests = new ArrayList<Double>();
-							List<Double> listOfMeans = new ArrayList<Double>();
-							//List<Double> listOfMedians = new ArrayList<Double>();
 	
-							String fileRoundErrorsName = PATH_RESULT + '\\' + algotithmName + '\\' + arguments.getPrefixFile() + "_evolution" + sufix + ".csv";
-							int bestRoundColumn = bestRound(fileRoundErrorsName);
-							extracted(listOfMaxFES, listOfBests, listOfMeans, fileRoundErrorsName, bestRoundColumn);
+							List<Double> listOfBestOfBests = new ArrayList<Double>();
+							List<Double> listOfMeanOfBests = new ArrayList<Double>();
+							String fileRoundErrorOfBestsName = PATH_RESULT + '\\' + algotithmName + '\\' + arguments.getPrefixFile() + "_evolution.csv";
+							int[] bestWorstRoundColumn = bestWorstRound(fileRoundErrorOfBestsName);
+							extracted(listOfMaxFES, listOfBestOfBests, listOfMeanOfBests, fileRoundErrorOfBestsName, bestWorstRoundColumn[0]);
 
+							List<Double> listOfBestOfMeans = new ArrayList<Double>();
+							List<Double> listOfMeanOfMeans = new ArrayList<Double>();
+							String fileRoundErrorOfMeansName = PATH_RESULT + '\\' + algotithmName + '\\' + arguments.getPrefixFile() + "_evolution_mean.csv";
+							extracted(null, listOfBestOfBests, listOfMeanOfBests, fileRoundErrorOfBestsName, bestWorstRoundColumn[0]);
+							
 							String fileRoundFeDiffName = PATH_RESULT + '\\' + algotithmName + '\\' + arguments.getPrefixFile() + "_evolution_diff.csv";
 							List<Double> listOfBestsFeDiff = new ArrayList<Double>();
 							List<Double> listOfMeansFeDiff = new ArrayList<Double>();
-							extracted(null, listOfBestsFeDiff, listOfMeansFeDiff, fileRoundFeDiffName, bestRoundColumn);
+							extracted(null, listOfBestsFeDiff, listOfMeansFeDiff, fileRoundFeDiffName, bestWorstRoundColumn[0]);
 
 							String fileRoundMaxDistName = PATH_RESULT + '\\' + algotithmName + '\\' + arguments.getPrefixFile() + "_evolution_maxdist.csv";
 							List<Double> listOfBestsMaxDist = new ArrayList<Double>();
 							List<Double> listOfMeansMaxDist = new ArrayList<Double>();
-							extracted(null, listOfBestsMaxDist, listOfMeansMaxDist, fileRoundMaxDistName, bestRoundColumn);
+							extracted(null, listOfBestsMaxDist, listOfMeansMaxDist, fileRoundMaxDistName, bestWorstRoundColumn[0]);
 							
 							String subTitle = String.format("%s - Função %d - Dimensão %d - NP %d", arguments.getTitleChart(), functionNumber, individualSize, populationSize);
 							System.err.println(subTitle);
 							// BEST
-							if (bestEvolution == null) {
-								bestEvolution = new EvolutionChart2D("Evolução dos Erros (L)", "Evolução dos Parâmetros (R)");
+							if (evolutionChart == null) {
+								evolutionChart = new EvolutionChart2D("Evolução dos Erros (L)", "Evolução dos Parâmetros (R)");
 								String titleBest = String.format("Evolução dos Erros (L) x Parâmetros (R)");
-								bestEvolution.setTitle(titleBest, subTitle);
+								evolutionChart.setTitle(titleBest, subTitle);
 							}
-							bestEvolution.addSerie(listOfMaxFES, listOfBests, "Best (L)", 0);
-							bestEvolution.addSerie(listOfMaxFES, listOfMeans, "Mean (L)", 0);
-							bestEvolution.addSerie(listOfMaxFES, listOfMeansFeDiff, "Fmax - Fmin (R)", 1);
-							bestEvolution.addSerie(listOfMaxFES, listOfMeansMaxDist, "Máx. Dist (R)", 1);
+							evolutionChart.addSerie(listOfMaxFES, listOfBestOfBests, "Best (L)", 0);
+							evolutionChart.addSerie(listOfMaxFES, listOfMeanOfBests, "Mean (L)", 0);
+							evolutionChart.addSerie(listOfMaxFES, listOfMeansFeDiff, "Fmax - Fmin (R)", 1);
+							evolutionChart.addSerie(listOfMaxFES, listOfMeansMaxDist, "Máx. Dist (R)", 1);
 							/*
 							// MEAN
 							if (meanEvolution == null) {
@@ -169,11 +176,11 @@ public class EvolutionProcessing {
 							*/
 						}
 					}
-					File directoryBest = new File(directory.getAbsolutePath() + "\\best");
-					if (!directoryBest.exists())
-						directoryBest.mkdirs();
-					String bestFilePng = directoryBest.getAbsolutePath() + String.format("\\P%d_F%d_D%d_best_evolution" + sufix + ".png", populationSize, functionNumber, individualSize);
-					bestEvolution.toFile(bestFilePng);
+					File directoryEvolution = new File(directory.getAbsolutePath() + "\\evolution");
+					if (!directoryEvolution.exists())
+						directoryEvolution.mkdirs();
+					String evolutionFilePng = directoryEvolution.getAbsolutePath() + String.format("\\P%d_F%d_D%d_evolution.png", populationSize, functionNumber, individualSize);
+					evolutionChart.toFile(evolutionFilePng);
 					/*
 					File directoryMean = new File(directory.getAbsolutePath() + "\\mean");
 					if (!directoryMean.exists())
@@ -194,8 +201,8 @@ public class EvolutionProcessing {
 			e.printStackTrace();
 		}
 		finally {
-			if (bestEvolution != null)
-				bestEvolution.close(); // meanEvolution.close();// medianEvolution.close();
+			if (evolutionChart != null)
+				evolutionChart.close(); // meanEvolution.close();// medianEvolution.close();
 		}
 	}
 }
