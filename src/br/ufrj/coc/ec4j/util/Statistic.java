@@ -4,13 +4,11 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -61,7 +59,6 @@ public class Statistic {
 			1.00 };
 
 	class ErrorEvolution {
-		private Integer round;
 		private Double error;
 		private Double errorMean;
 		private Double errorDifference;
@@ -90,12 +87,6 @@ public class Statistic {
 		}
 		public Double getDetMatCov() {
 			return detMatCov;
-		}
-		public Integer getRound() {
-			return round;
-		}
-		public void setRound(Integer round) {
-			this.round = round;
 		}
 	}
 
@@ -231,6 +222,7 @@ public class Statistic {
 			sbFormat.append(", %-22s");
 			head[round + 1] = "R" + (round + 1);
 		}
+		sbFormat.append('\n');
 		String headLine = String.format(sbFormat.toString(), head);
 
 		this.fileEvolutionOfErrors.write(headLine);
@@ -254,48 +246,6 @@ public class Statistic {
 	private static String formatNumber(Double value) {
 		DecimalFormat df = new DecimalFormat("0.000000000000000E0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 		return value != null ? df.format(value) : ""; // 1.23456789E4
-	}
-
-	private ErrorEvolution[] getBestWorstRound() {
-		int minErrorsCount = Integer.MAX_VALUE;
-		double minimum = Double.MAX_VALUE;
-		ErrorEvolution bestEE = null;
-		
-		int maxErrorsCount = -Integer.MAX_VALUE;
-		double maximum = -Double.MAX_VALUE;
-		ErrorEvolution worstEE = null;
-
-		for (int round = 1; round <= Properties.MAX_RUNS; round++) {
-
-			List<ErrorEvolution> roundErrors = errorEvolution.get(round - 1);
-			int countErros = (int) roundErrors.stream().filter(error -> error != null).count();
-			ErrorEvolution roundErrorEvolution = roundErrors.stream().filter(error -> error != null).min(Comparator.comparing(ErrorEvolution::getError)).get();
-
-			// BEST
-			if (countErros < minErrorsCount) {
-				minErrorsCount = countErros;
-				minimum = roundErrorEvolution.getError();
-				bestEE = roundErrorEvolution;
-				bestEE.setRound(round);
-			} else if (countErros == minErrorsCount && roundErrorEvolution.getError() < minimum) {
-				minimum = roundErrorEvolution.getError();
-				bestEE = roundErrorEvolution;
-				bestEE.setRound(round);
-			}
-
-			// WORST
-			if (countErros > maxErrorsCount) {
-				maxErrorsCount = countErros;
-				maximum = roundErrorEvolution.getError();
-				worstEE = roundErrorEvolution;
-				worstEE.setRound(round);
-			} else if (countErros == maxErrorsCount && roundErrorEvolution.getError() > maximum) {
-				maximum = roundErrorEvolution.getError();
-				worstEE = roundErrorEvolution;
-				worstEE.setRound(round);
-			}
-		}
-		return new ErrorEvolution[] {bestEE, worstEE};
 	}
 
 	private void initializeStatisticLines() {
@@ -345,6 +295,44 @@ public class Statistic {
 		this.errorRounds.add(population.getBestError());
 		if (population.isMinErrorValueFound())
 			this.successfulRuns++;
+	}
+
+	class Round implements Comparable<Round> {
+		private int idx;
+		private int countErrors;
+		private ErrorEvolution errorEvolution;
+		public Round(int idx, int countErrors, ErrorEvolution errorEvolution) {
+			super();
+			this.idx = idx;
+			this.countErrors = countErrors;
+			this.errorEvolution = errorEvolution;
+		}
+		@Override
+		public int compareTo(Round o) {
+			Round r = (Round) o;
+			if (this.countErrors < r.countErrors || (r.countErrors == this.countErrors && this.errorEvolution.getError() < r.errorEvolution.getError()))
+				return -1;
+			else if (this.countErrors > r.countErrors || (r.countErrors == this.countErrors && this.errorEvolution.getError() > r.errorEvolution.getError()))
+				return 1;
+			else
+				return 0;
+		}
+		public int getIdx() {
+			return idx;
+		}
+	}
+	
+	private Round[] getBestWorstRound() {
+		List<Round> rounds = new ArrayList<Round>();
+		for (int round = 1; round <= Properties.MAX_RUNS; round++) {
+			List<ErrorEvolution> roundErrors = errorEvolution.get(round - 1);
+			int countErros = roundErrors.size();
+			ErrorEvolution roundErrorEvolution = roundErrors.get(countErros - 1);
+			rounds.add(new Round(round, countErros, roundErrorEvolution));
+		}
+		Collections.sort(rounds);
+		int idxMean = (Properties.MAX_RUNS % 2 == 0) ? (Properties.MAX_RUNS / 2) : (Properties.MAX_RUNS / 2) + 1;
+		return new Round[] {rounds.get(0), rounds.get(idxMean), rounds.get(Properties.MAX_RUNS - 1)};
 	}
 
 	private void writeEvolutionOfErros() throws IOException {
@@ -438,11 +426,13 @@ public class Statistic {
 		resume.append("\nInformação: " + Properties.ARGUMENTS.get().getInfo());
 		resume.append("\nNúmero de Avaliações: " + Properties.ARGUMENTS.get().getCountEvaluations());
 		resume.append("\nNúmero de Gerações: " + Properties.ARGUMENTS.get().getCountGenerations());
-		ErrorEvolution[] bestWorstRound = getBestWorstRound();
-		resume.append("\nMelhor Rodada: " + bestWorstRound[0].getRound());
-		resume.append("\nMenor Erro: " + bestWorstRound[0].getError());
-		resume.append("\nPior Rodada: " + bestWorstRound[1].getRound());
-		resume.append("\nMaior Erro: " + bestWorstRound[1].getError());
+		Round[] bestWorstRound = getBestWorstRound();
+		resume.append("\nRodada Melhor: " + bestWorstRound[0].idx);
+		resume.append("\nErro Menor: " + bestWorstRound[0].errorEvolution.getError());
+		resume.append("\nRodada Intermediária: " + bestWorstRound[1].idx);
+		resume.append("\nErro Intermediário: " + bestWorstRound[1].errorEvolution.getError());
+		resume.append("\nRodada Pior: " + bestWorstRound[2].idx);
+		resume.append("\nErro Maior: " + bestWorstRound[2].errorEvolution.getError());
 		this.fileEvolutionOfErrors.write(resume.toString());
 
 		this.fileEvolutionOfErrors.close();
