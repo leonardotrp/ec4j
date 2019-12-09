@@ -257,7 +257,7 @@ public class Statistic {
 		System.out.println(head);
 	}
 
-	private void addStatisticLine(String label, List<Double> errors, Long timeSpent, Double successfulRate, int countRestarts, Double feDiff, Double maxDist, Double detMatCov) throws IOException { 
+	private void addStatisticLine(String label, List<Double> errors, Long timeSpent, Double successfulRate, Double countRestarts, Double feDiff, Double maxDist, Double detMatCov) throws IOException { 
 		String strSuccessfulRate = "";
 		if (successfulRate != null)
 			strSuccessfulRate = formatNumber(successfulRate);
@@ -273,7 +273,7 @@ public class Statistic {
 		String feDiffStr = formatNumber(feDiff);
 		String maxDistStr = formatNumber(maxDist);
 		String detMatCovStr = formatNumber(detMatCov);
-		String strFormat = "%-10s, %-22s, %-22s, %-22s, %-22s, %-22s, %-10s, %-10s, %-10s, %-10s, %-10s\n";
+		String strFormat = "%-10s, %-22s, %-22s, %-22s, %-22s, %-22s, %-10s, %-10s, %-10s, %-10s, %-10s, %-10s\n";
 		String line = String.format(strFormat, label, best, worst, median, meanStr, standardDeviation, timeInSeconds(timeSpent), strSuccessfulRate, countRestarts, feDiffStr, maxDistStr, detMatCovStr);
 		this.statisticLines.add(line);
 		System.err.println(line);
@@ -290,7 +290,7 @@ public class Statistic {
 		this.maxDistRounds.add(maxDist);
 		if (population.getDetMatCov() != null)
 			this.detMatCovRounds.add(population.getDetMatCov());
-		this.addStatisticLine("F(" + Properties.ARGUMENTS.get().getFunctionNumber() + "):Round(" + (this.errorRounds.size() + 1) + ")", errors, timeElapsed, null, population.getCountRestart(), feDiff, maxDist, population.getDetMatCov());
+		this.addStatisticLine("F(" + Properties.ARGUMENTS.get().getFunctionNumber() + "):Round(" + (this.errorRounds.size() + 1) + ")", errors, timeElapsed, null, (double) population.getCountRestart(), feDiff, maxDist, population.getDetMatCov());
 		
 		this.errorRounds.add(population.getBestError());
 		if (population.isMinErrorValueFound())
@@ -424,15 +424,13 @@ public class Statistic {
 		}
 		StringBuffer resume = new StringBuffer();
 		resume.append("\nInformação: " + Properties.ARGUMENTS.get().getInfo());
-		resume.append("\nNúmero de Avaliações: " + Properties.ARGUMENTS.get().getCountEvaluations());
-		resume.append("\nNúmero de Gerações: " + Properties.ARGUMENTS.get().getCountGenerations());
+		resume.append(String.format("\nAvaliações=%d | Gerações=%d", Properties.ARGUMENTS.get().getCountEvaluations(), Properties.ARGUMENTS.get().getCountGenerations()));
+
 		Round[] bestWorstRound = getBestWorstRound();
-		resume.append("\nRodada Melhor: " + bestWorstRound[0].idx);
-		resume.append("\nErro Menor: " + bestWorstRound[0].errorEvolution.getError());
-		resume.append("\nRodada Intermediária: " + bestWorstRound[1].idx);
-		resume.append("\nErro Intermediário: " + bestWorstRound[1].errorEvolution.getError());
-		resume.append("\nRodada Pior: " + bestWorstRound[2].idx);
-		resume.append("\nErro Maior: " + bestWorstRound[2].errorEvolution.getError());
+		resume.append(String.format("\nRodada Melhor=%d | Erro=%e", bestWorstRound[0].idx, bestWorstRound[0].errorEvolution.getError()));
+		resume.append(String.format("\nRodada Intermediária=%d | Erro=%e", bestWorstRound[1].idx, bestWorstRound[1].errorEvolution.getError()));
+		resume.append(String.format("\nRodada Pior=%d | Erro=%e", bestWorstRound[2].idx, bestWorstRound[2].errorEvolution.getError()));
+
 		this.fileEvolutionOfErrors.write(resume.toString());
 
 		this.fileEvolutionOfErrors.close();
@@ -446,7 +444,7 @@ public class Statistic {
 	private void writeStatistics() throws IOException {
 		double successfulRate = (double) this.successfulRuns / Properties.MAX_RUNS;
 		long avgTimeSpent = (long) Helper.getAverageLongs(this.timeRounds);
-		int avgCountRestarts = (int) Helper.getAverageIntegers(this.countRestartsRounds);
+		double avgCountRestarts = Helper.getAverageIntegers(this.countRestartsRounds);
 		double avgFeDiff = Helper.getAverageDoubles(this.errorDiffRounds);
 		double avgMaxDist = Helper.getAverageDoubles(this.maxDistRounds);
 		double avgDetMatCov = this.detMatCovRounds.size() > 0 ? Helper.getAverageDoubles(this.detMatCovRounds) : 0;

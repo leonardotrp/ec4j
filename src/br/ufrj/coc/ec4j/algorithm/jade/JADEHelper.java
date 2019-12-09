@@ -123,22 +123,24 @@ public class JADEHelper extends DEHelper {
 	}
 
 	/**
-	 * initialize population by keeping better pBest individuals
+	 * restart population by keeping better individual
 	 * @param population
 	 */
-	protected void ipop(Population population) {
+	protected void controlledRestart(Population population) {
 		// initialize
 		Population sortedPopulation = super.getSortedPopulation();
-		int pBestIndex = this.selectPBestIndex(DEProperties.IPOP_GREEDINESS);
-		for (int index = pBestIndex + 1; index < sortedPopulation.size(); index++)
+		for (int index = 1; index < sortedPopulation.size(); index++)
 			sortedPopulation.initializeIndividual(index);
-			
-		int increaseSize = (int) (population.size() * (DEProperties.IPOP_FACTOR_NEW_POPSIZE / 100));
+		/*
+		int increaseSize = (int) (population.size() * (DEProperties.CR_FACTOR_NEW_POPSIZE / 100));
 		if (increaseSize > 0) {
 			// increase
 			for (int index = 0; index < increaseSize; index++)
 				population.addIndividual();
 			Properties.ARGUMENTS.get().setPopulationSize(population.size());
 		}
+		*/
+		population.incCountRestart();
+		this.initializeGeneration(population);
 	}
 }

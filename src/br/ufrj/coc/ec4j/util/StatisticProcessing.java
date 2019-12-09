@@ -24,7 +24,7 @@ public class StatisticProcessing {
 
 	public static void main(String[] args) throws Exception {
 
-		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\JADE_EIG_ERRORDIFF_MAXDIST_STUDY\\CR_JADE_EIG_R10";
+		String PATH_RESULT = "E:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\CR_JADE_R10_ROUNDS_STUDY";
 		
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
 
@@ -213,7 +213,7 @@ public class StatisticProcessing {
 			for (Cell lower : cellLowerMaxDists.values())
 				lower.setCellStyle(boldCellStyle);
 			
-	        FileOutputStream fileOut = new FileOutputStream(PATH_RESULT + String.format("\\P%d_D%d_R10.xlsx", np, individualSize));
+	        FileOutputStream fileOut = new FileOutputStream(PATH_RESULT + String.format("\\P%d_D%d_R%d.xlsx", np, individualSize, Properties.MAX_RUNS));
 	        workbook.write(fileOut);
 	        fileOut.close();
 

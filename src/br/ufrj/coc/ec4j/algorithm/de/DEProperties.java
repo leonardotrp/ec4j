@@ -32,11 +32,9 @@ public class DEProperties {
 		}
 	}
 
-	public static double IPOP_MAXDIFF_FUNCVAL = Double.parseDouble(bundle.getString("IPOP_MAXDIFF_FUNCVAL"));
-	public static double IPOP_MAXDIST = Double.parseDouble(bundle.getString("IPOP_MAXDIST"));
-	public static double IPOP_MAXFES_INTERVAL = Double.parseDouble(bundle.getString("IPOP_MAXFES_INTERVAL"));
-	public static double IPOP_GREEDINESS = Double.parseDouble(bundle.getString("IPOP_GREEDINESS"));
-	public static double IPOP_FACTOR_NEW_POPSIZE = Double.parseDouble(bundle.getString("IPOP_FACTOR_NEW_POPSIZE"));
+	public static double CR_MAX_FUNCVAL = Double.parseDouble(bundle.getString("CR_MAX_FUNCVAL"));
+	public static double CR_MAX_DIST = Double.parseDouble(bundle.getString("CR_MAX_DIST"));
+	public static double CR_MAXFES_INTERVAL = Double.parseDouble(bundle.getString("CR_MAXFES_INTERVAL"));
 
 	public enum Strategy {
 		BEST, RAND, RE_BASE, RE_ALL, // BEST_2_OPT, RAND_2_OPT, RE_2_OPT

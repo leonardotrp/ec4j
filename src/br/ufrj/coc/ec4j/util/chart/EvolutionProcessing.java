@@ -17,9 +17,9 @@ import br.ufrj.coc.ec4j.util.Properties;
 
 public class EvolutionProcessing {
 	public static int[] bestWorstRound(String file) throws IOException {
-		String prefixBest = "Rodada Melhor: ";
-		String prefixMean = "Rodada Intermediária: ";
-		String prefixWorst = "Rodada Pior: ";
+		String prefixBest = "Rodada Melhor=";
+		String prefixMean = "Rodada Intermediária=";
+		String prefixWorst = "Rodada Pior=";
 		BufferedReader br = null;
 		int best = -1;
 		int mean = -1;
