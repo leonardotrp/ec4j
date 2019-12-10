@@ -41,11 +41,30 @@ public class CR_JADEHelper extends JADEHelper {
 		}
 	}
 	
-	@Override
-	protected void controlledRestart(Population population) {
+	/**
+	 * restart population by keeping better individual
+	 * @param population
+	 */
+	private void controlledRestart(Population population) {
 		System.err.println(String.format("RESTART (%d)!", population.getCountRestart()));
+		// initialize
+		Population sortedPopulation = super.getSortedPopulation();
+		for (int index = 1; index < sortedPopulation.size(); index++)
+			sortedPopulation.initializeIndividual(index);
+		/*
+		int increaseSize = (int) (population.size() * (DEProperties.CR_FACTOR_NEW_POPSIZE / 100));
+		if (increaseSize > 0) {
+			// increase
+			for (int index = 0; index < increaseSize; index++)
+				population.addIndividual();
+			Properties.ARGUMENTS.get().setPopulationSize(population.size());
+		}
+		*/
+
 		population.setFuncValDiff(0);
 		population.setMaxDistance(0);
-		super.controlledRestart(population);
+
+		population.incCountRestart();
+		this.initializeGeneration(population);
 	}
 }
