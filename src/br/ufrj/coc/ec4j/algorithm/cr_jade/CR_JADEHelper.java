@@ -31,7 +31,7 @@ public class CR_JADEHelper extends JADEHelper {
 				double funcValueDiffInterval = Math.abs(population.getFuncValDiff() - funcValDifference);
 				double maxDistInterval = Math.abs(population.getMaxDistance() - maxDistance);
 				System.err.println(String.format("Test stagnation %.2f: funcValueDiffInterval = %e / maxDistInterval = %e", Properties.ARGUMENTS.get().getEvolutionPercentage(), funcValueDiffInterval, maxDistInterval));
-				boolean stagnation = (funcValueDiffInterval == 0.0 || maxDistInterval == 0.0);
+				boolean stagnation = (funcValueDiffInterval < 0.1 && maxDistInterval < 0.1);
 				if (stagnation) {
 					this.controlledRestart(population);
 				}

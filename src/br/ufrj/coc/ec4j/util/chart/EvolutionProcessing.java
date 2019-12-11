@@ -17,9 +17,9 @@ import br.ufrj.coc.ec4j.util.Properties;
 
 public class EvolutionProcessing {
 	public static int[] bestWorstRound(String file) throws IOException {
-		String prefixBest = "Rodada Melhor=";
-		String prefixMean = "Rodada Intermediária=";
-		String prefixWorst = "Rodada Pior=";
+		String prefixBest = "Rodada Melhor";
+		String prefixMean = "Rodada Intermediária";
+		String prefixWorst = "Rodada Pior";
 		BufferedReader br = null;
 		int best = -1;
 		int mean = -1;
@@ -29,13 +29,16 @@ public class EvolutionProcessing {
 			String line;
 			while ((line = br.readLine()) != null) {
 				if (line.startsWith(prefixBest)) {
-					best = Integer.parseInt(line.split(":")[1].trim());
+					line = line.split("\\|")[0].trim();
+					best = Integer.parseInt(line.split("=")[1].trim());
 				}
 				if (line.startsWith(prefixMean)) {
-					mean = Integer.parseInt(line.split(":")[1].trim());
+					line = line.split("\\|")[0].trim();
+					mean = Integer.parseInt(line.split("=")[1].trim());
 				}
 				if (line.startsWith(prefixWorst)) {
-					worst = Integer.parseInt(line.split(":")[1].trim());
+					line = line.split("\\|")[0].trim();
+					worst = Integer.parseInt(line.split("=")[1].trim());
 				}
             }
 		} catch (FileNotFoundException e) {
