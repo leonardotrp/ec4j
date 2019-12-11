@@ -20,21 +20,20 @@ public class CR_JADEHelper extends JADEHelper {
 		double funcValDifference = Helper.getFunctionValueDifference(population);
 		double maxDistance = Helper.getMaxDistance(population);
 
-		if (funcValDifference < Properties.MIN_ERROR_VALUE && maxDistance < 1) {
-			this.controlledRestart(population);
-		}
-		else if (DEProperties.CR_MAXFES_INTERVAL > 0) {
+		if (DEProperties.CR_MAXFES_INTERVAL > 0) {
 			int currentEvalPerc = (int) (Properties.ARGUMENTS.get().getEvolutionPercentage() * 100);
 			int interv = (int) (DEProperties.CR_MAXFES_INTERVAL * 100);
 			if (currentEvalPerc > this.evalPerc && (currentEvalPerc % interv) == 0) {
 				this.evalPerc = currentEvalPerc;
 				double funcValueDiffInterval = Math.abs(population.getFuncValDiff() - funcValDifference);
 				double maxDistInterval = Math.abs(population.getMaxDistance() - maxDistance);
-				System.err.println(String.format("Test stagnation %.2f: funcValueDiffInterval = %e / maxDistInterval = %e", Properties.ARGUMENTS.get().getEvolutionPercentage(), funcValueDiffInterval, maxDistInterval));
-				boolean stagnation = (funcValueDiffInterval < 0.1 && maxDistInterval < 0.1);
-				if (stagnation) {
+				//System.err.println(String.format("Test stagnation %.2f: funcValueDiffInterval = %e / maxDistInterval = %e", Properties.ARGUMENTS.get().getEvolutionPercentage(), funcValueDiffInterval, maxDistInterval));
+				boolean criteria1 = funcValueDiffInterval == 0.0 && maxDistInterval == 0.0;
+				boolean criteria2 = funcValueDiffInterval == 0.0 && maxDistInterval < DEProperties.CR_MAX_DIST;
+				boolean criteria3 = funcValueDiffInterval < DEProperties.CR_MAX_FUNCVAL && maxDistInterval == 0.0;
+				boolean stagnation = criteria1 || criteria2 || criteria3;
+				if (stagnation)
 					this.controlledRestart(population);
-				}
 				population.setFuncValDiff(funcValDifference);
 				population.setMaxDistance(maxDistance);
 			}
