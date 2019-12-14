@@ -98,8 +98,6 @@ public class EvolutionChart2D extends JFrame {
 		xAxis.setAutoRangeIncludesZero(false);
 		NumberAxis yAxis1 = new NumberAxis(yAxisLabel);
 		yAxis1.setAutoRangeIncludesZero(false);
-		NumberAxis yAxis2 = new NumberAxis(yAxisLabel2);
-		yAxis2.setAutoRangeIncludesZero(false);
 
 		XYItemRenderer renderer1 = new XYLineAndShapeRenderer(true, true);
 		XYPlot plot = new XYPlot(dataset1, xAxis, yAxis1, renderer1);
@@ -107,14 +105,19 @@ public class EvolutionChart2D extends JFrame {
 		for (int idx = 0; idx < COLORS1.length; idx++)
 			renderer1.setSeriesPaint(idx, COLORS1[idx]);
 
-		XYItemRenderer renderer2 = new XYLineAndShapeRenderer(true, true);
-		plot.setDataset(1, dataset2);
-		plot.setDomainAxis(xAxis);
-		plot.setRangeAxis(1, yAxis2);
-		plot.mapDatasetToRangeAxis(1, 1);
-		plot.setRenderer(1, renderer2);
-		for (int idx = 0; idx < COLORS2.length; idx++)
-			renderer2.setSeriesPaint(idx, COLORS2[idx]);
+		if (yAxisLabel2 != null) {
+			NumberAxis yAxis2 = new NumberAxis(yAxisLabel2);
+			yAxis2.setAutoRangeIncludesZero(false);
+	
+			XYItemRenderer renderer2 = new XYLineAndShapeRenderer(true, true);
+			plot.setDataset(1, dataset2);
+			plot.setDomainAxis(xAxis);
+			plot.setRangeAxis(1, yAxis2);
+			plot.mapDatasetToRangeAxis(1, 1);
+			plot.setRenderer(1, renderer2);
+			for (int idx = 0; idx < COLORS2.length; idx++)
+				renderer2.setSeriesPaint(idx, COLORS2[idx]);
+		}
 
 		return new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, false);
 	}
@@ -132,7 +135,7 @@ public class EvolutionChart2D extends JFrame {
 	@SuppressWarnings("serial")
 	private ChartPanel createEvolutionPanel(String yAxisLabel, String yAxisLabel2) {
 		XYDataset sampleDataY1 = createSampleData(this.xySeriesCollection);
-		XYDataset sampleDataY2 = createSampleData(this.xySeriesCollection2);
+		XYDataset sampleDataY2 = yAxisLabel2 != null ? createSampleData(this.xySeriesCollection2) : null;
 		
 		JFreeChart jfreechart = createScatterPlot(DEFAULT_CHART_TITLE, "Percentual de Avaliação (% MaxFES = Dim.10000)", yAxisLabel, yAxisLabel2, sampleDataY1, sampleDataY2, PlotOrientation.VERTICAL);
 		XYPlot xyPlot = (XYPlot) jfreechart.getPlot();
@@ -142,9 +145,11 @@ public class EvolutionChart2D extends JFrame {
 		yAxis.setNumberFormatOverride(numberFormat);
 		xyPlot.setRangeAxis(yAxis);
 
-		LogAxis yAxis2 = new LogAxis(yAxisLabel2);
-		yAxis2.setNumberFormatOverride(numberFormat);
-		xyPlot.setRangeAxis(1, yAxis2);
+		if (yAxisLabel2 != null) {
+			LogAxis yAxis2 = new LogAxis(yAxisLabel2);
+			yAxis2.setNumberFormatOverride(numberFormat);
+			xyPlot.setRangeAxis(1, yAxis2);
+		}
 		
 		xyPlot.setBackgroundPaint(Color.WHITE);
 		xyPlot.setDomainGridlinePaint(Color.LIGHT_GRAY);

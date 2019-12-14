@@ -136,7 +136,7 @@ public class EvolutionProcessing {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\CR_JADE_R10_ROUNDS_STUDY_NEW";
+		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\CR_JADE_R10_ROUNDS_STUDY_NEW\\04";
 		EvolutionChart2D bestRoundChart = null, meanRoundChart = null, worstRoundChart = null;
 		EvolutionChart2D meanOfBestsChart = null, medianOfBestsChart = null, stdOfBestsChart = null;
 		EvolutionChart2D meanOfMeansChart = null, medianOfMeansChart = null, stdOfMeansChart = null;
@@ -182,7 +182,7 @@ public class EvolutionProcessing {
 							List<Double> meanOfMeansErros = new ArrayList<Double>();
 							List<Double> medianOfMeansErros = new ArrayList<Double>();
 							List<Double> stdsOfMeansErros = new ArrayList<Double>();
-							extracted(listOfMaxFES, fileRoundErrorOfMeansName, meanOfBestsErros, medianOfBestsErros, stdsOfBestsErros, 0, null);
+							extracted(listOfMaxFES, fileRoundErrorOfMeansName, meanOfMeansErros, medianOfMeansErros, stdsOfMeansErros, 0, null);
 							
 							int[] bestWorstRoundColumn = bestWorstRound(fileRoundErrorOfBestsName);
 							int bestRound = bestWorstRoundColumn[0];
@@ -240,13 +240,13 @@ public class EvolutionProcessing {
 							}
 
 							
-							String subTitle = String.format("%s - Função %d - Dimensão %d - NP %d", arguments.getTitleChart(), functionNumber, individualSize, populationSize);
+							String subTitle = String.format("F%d - D%d - P%d - R%d", functionNumber, individualSize, populationSize, Properties.MAX_RUNS);
 							System.err.println(subTitle);
 							
 							// MEAN OF BESTS
 							if (meanOfBests) {
 								if (meanOfBestsChart == null) {
-									meanOfBestsChart = new EvolutionChart2D("Média dos Melhores Erros", "");
+									meanOfBestsChart = new EvolutionChart2D("Média dos Melhores Erros", null);
 									String titleMean = String.format("Evolução da Média dos Melhores Erros", Properties.MAX_RUNS);
 									meanOfBestsChart.setTitle(titleMean, subTitle);
 								}
@@ -256,7 +256,7 @@ public class EvolutionProcessing {
 							// MEDIAN OF BESTS
 							if (medianOfBests) {
 								if (medianOfBestsChart == null) {
-									medianOfBestsChart = new EvolutionChart2D("Mediana dos Melhores Erros", "");
+									medianOfBestsChart = new EvolutionChart2D("Mediana dos Melhores Erros", null);
 									String titleMedian = String.format("Evolução da Mediana dos Melhores Erros", Properties.MAX_RUNS);
 									medianOfBestsChart.setTitle(titleMedian, subTitle);
 								}
@@ -266,7 +266,7 @@ public class EvolutionProcessing {
 							// STD OF BESTS
 							if (stdOfBests) {
 								if (stdOfBestsChart == null) {
-									stdOfBestsChart = new EvolutionChart2D("Desvio Padrão dos Melhores Erros", "");
+									stdOfBestsChart = new EvolutionChart2D("Desvio Padrão dos Melhores Erros", null);
 									String titleStd = String.format("Evolução do Desvio Padrão dos Melhores Erros", Properties.MAX_RUNS);
 									stdOfBestsChart.setTitle(titleStd, subTitle);
 								}
@@ -276,7 +276,7 @@ public class EvolutionProcessing {
 							// MEAN OF MEANS
 							if (meanOfMeans) {
 								if (meanOfMeansChart == null) {
-									meanOfMeansChart = new EvolutionChart2D("Média dos Erros Médios", "");
+									meanOfMeansChart = new EvolutionChart2D("Média dos Erros Médios", null);
 									String titleMean = String.format("Evolução da Média dos Erros Médios", Properties.MAX_RUNS);
 									meanOfMeansChart.setTitle(titleMean, subTitle);
 								}
@@ -286,7 +286,7 @@ public class EvolutionProcessing {
 							// MEDIAN OF BESTS
 							if (medianOfMeans) {
 								if (medianOfMeansChart == null) {
-									medianOfMeansChart = new EvolutionChart2D("Mediana dos Erros Médios", "");
+									medianOfMeansChart = new EvolutionChart2D("Mediana dos Erros Médios", null);
 									String titleMedian = String.format("Evolução da Mediana dos Erros Médios", Properties.MAX_RUNS);
 									medianOfMeansChart.setTitle(titleMedian, subTitle);
 								}
@@ -296,7 +296,7 @@ public class EvolutionProcessing {
 							// STD OF MEANS
 							if (stdOfMeans) {
 								if (stdOfMeansChart == null) {
-									stdOfMeansChart = new EvolutionChart2D("Desvio Padrão dos Erros Médios", "");
+									stdOfMeansChart = new EvolutionChart2D("Desvio Padrão dos Erros Médios", null);
 									String titleStd = String.format("Evolução do Desvio Padrão dos Erros Médios", Properties.MAX_RUNS);
 									stdOfMeansChart.setTitle(titleStd, subTitle);
 								}
