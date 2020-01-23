@@ -108,13 +108,17 @@ public class DEProperties {
 	}
 
 	public boolean isCurrentToStrategy() {
-		return isCurrentToBestStrategy() || isCurrentToRandStrategy() || isJADE();
+		return isCurrentToBestStrategy() || isCurrentToPBestStrategy() || isCurrentToRandStrategy();
 	}
 
 	public boolean isCurrentToBestStrategy() {
 		return this.strategy.equals(Strategy.CURRENT_TO_BEST);
 	}
 	
+	public boolean isCurrentToPBestStrategy() {
+		return this.strategy.equals(Strategy.CURRENT_TO_pBEST);
+	}
+
 	public boolean isCurrentToRandStrategy() {
 		return this.strategy.equals(Strategy.CURRENT_TO_RAND);
 	}
@@ -133,14 +137,6 @@ public class DEProperties {
 	
 	public boolean isRouletteStrategyOthers() {
 		return this.strategy.equals(Strategy.RE_ALL);
-	}
-	
-	public boolean isJADE() {
-		return this.strategy.equals(Strategy.CURRENT_TO_pBEST);
-	}
-
-	public boolean isJADEWithArchieve() {
-		return isJADE() && DEProperties.EXTERNAL_ARCHIVE;
 	}
 	
 	public boolean isEigenvectorCrossover() {

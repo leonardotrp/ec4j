@@ -9,7 +9,6 @@ import br.ufrj.coc.ec4j.algorithm.Population;
 import br.ufrj.coc.ec4j.algorithm.de.DEHelper;
 import br.ufrj.coc.ec4j.algorithm.de.DEProperties;
 import br.ufrj.coc.ec4j.util.Helper;
-import br.ufrj.coc.ec4j.util.Properties;
 
 public class JADEHelper extends DEHelper {
 	private double mean_CR, location_F;
@@ -55,11 +54,11 @@ public class JADEHelper extends DEHelper {
 	}
 
 	public Individual getIndividualX2() {
-		return super.getProperties().isJADEWithArchieve() ? this.randomFromArchieve() : super.getIndividualX2();
+		return DEProperties.EXTERNAL_ARCHIVE ? this.randomFromArchieve() : super.getIndividualX2();
 	}
 
 	public void addInferior(Individual inferior) {
-		if (super.getProperties().isJADEWithArchieve()) {
+		if (DEProperties.EXTERNAL_ARCHIVE) {
 			if (inferiors.size() == super.getPopulation().size()) { // Randomly remove solutions from A so that |A| <=
 																	// NP
 				int indexToRemove = Helper.randomInRange(0, super.getPopulation().size() - 1);
@@ -77,19 +76,6 @@ public class JADEHelper extends DEHelper {
 		this.successDiffWeights.clear(); // Sf = {}
 	}
 	
-	public Individual selectDestiny() {
-		int indexTop = selectPBestIndex(DEProperties.GREEDINESS);
-		return super.getSortedPopulation().get(indexTop);
-	}
-
-	protected int selectPBestIndex(double greediness) {
-		BigDecimal p = new BigDecimal(greediness);
-		// BigDecimal percentTop = p.multiply(BigDecimal.valueOf(100)); // 100 . p%
-		int indexLastTop = p.multiply(BigDecimal.valueOf(Properties.ARGUMENTS.get().getPopulationSize())).intValue();
-		int indexTop = indexLastTop == 0 ? 0 : Helper.randomInRange(0, indexLastTop);
-		return indexTop;
-	}
-
 	public void generateControlParameters(Individual individual) {
 		individual.setCrossoverRate(super.generateCrossoverRate(this.mean_CR, 0.0, 1.0));
 		individual.setDifferencialWeight(super.generateDifferencialWeight(this.location_F, 0.0, 1.0));

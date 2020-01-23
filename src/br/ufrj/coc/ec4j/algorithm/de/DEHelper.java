@@ -158,10 +158,22 @@ public class DEHelper extends BaseAlgorithmHelper {
 				return super.getPopulation().getBest();
 			else if (this.properties.isCurrentToRandStrategy())
 				return super.getPopulation().get(randomPopulationIndex());
+			else if (this.properties.isCurrentToPBestStrategy()) {
+				int indexTop = selectPBestIndex(DEProperties.GREEDINESS);
+				return this.getSortedPopulation().get(indexTop);
+			}
 		}
 		return null;
 	}
 
+	private int selectPBestIndex(double greediness) {
+		BigDecimal p = new BigDecimal(greediness);
+		// BigDecimal percentTop = p.multiply(BigDecimal.valueOf(100)); // 100 . p%
+		int indexLastTop = p.multiply(BigDecimal.valueOf(Properties.ARGUMENTS.get().getPopulationSize())).intValue();
+		int indexTop = indexLastTop == 0 ? 0 : Helper.randomInRange(0, indexLastTop);
+		return indexTop;
+	}
+	
 	private Individual selectBase(Individual current) {
 		Individual base = null;
 		if (this.properties.isBestStrategy()) {
