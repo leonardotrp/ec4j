@@ -136,7 +136,7 @@ public class EvolutionProcessing {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\CR_JADE_R10_ROUNDS_STUDY_NEW\\04";
+		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\CR_JADE\\CR_JADE_R51_RANDS";
 		EvolutionChart2D bestRoundChart = null, meanRoundChart = null, worstRoundChart = null;
 		EvolutionChart2D meanOfBestsChart = null, medianOfBestsChart = null, stdOfBestsChart = null;
 		EvolutionChart2D meanOfMeansChart = null, medianOfMeansChart = null, stdOfMeansChart = null;
@@ -250,7 +250,7 @@ public class EvolutionProcessing {
 									String titleMean = String.format("Evolução da Média dos Melhores Erros", Properties.MAX_RUNS);
 									meanOfBestsChart.setTitle(titleMean, subTitle);
 								}
-								meanOfBestsChart.addSerie(listOfMaxFES, meanOfBestsErros, arguments.getTitleChart(), 0);
+								meanOfBestsChart.addSerie(listOfMaxFES, meanOfBestsErros, arguments.getTitleChart() + " ("+variant+")", 0);
 							}
 							
 							// MEDIAN OF BESTS
@@ -260,7 +260,7 @@ public class EvolutionProcessing {
 									String titleMedian = String.format("Evolução da Mediana dos Melhores Erros", Properties.MAX_RUNS);
 									medianOfBestsChart.setTitle(titleMedian, subTitle);
 								}
-								medianOfBestsChart.addSerie(listOfMaxFES, medianOfBestsErros, arguments.getTitleChart(), 0);
+								medianOfBestsChart.addSerie(listOfMaxFES, medianOfBestsErros, arguments.getTitleChart() + " ("+variant+")", 0);
 							}
 
 							// STD OF BESTS
@@ -270,7 +270,7 @@ public class EvolutionProcessing {
 									String titleStd = String.format("Evolução do Desvio Padrão dos Melhores Erros", Properties.MAX_RUNS);
 									stdOfBestsChart.setTitle(titleStd, subTitle);
 								}
-								stdOfBestsChart.addSerie(listOfMaxFES, stdsOfBestsErros, arguments.getTitleChart(), 0);
+								stdOfBestsChart.addSerie(listOfMaxFES, stdsOfBestsErros, arguments.getTitleChart() + " ("+variant+")", 0);
 							}
 
 							// MEAN OF MEANS
@@ -280,7 +280,7 @@ public class EvolutionProcessing {
 									String titleMean = String.format("Evolução da Média dos Erros Médios", Properties.MAX_RUNS);
 									meanOfMeansChart.setTitle(titleMean, subTitle);
 								}
-								meanOfMeansChart.addSerie(listOfMaxFES, meanOfMeansErros, arguments.getTitleChart(), 0);
+								meanOfMeansChart.addSerie(listOfMaxFES, meanOfMeansErros, arguments.getTitleChart() + " ("+variant+")", 0);
 							}
 							
 							// MEDIAN OF BESTS
@@ -290,7 +290,7 @@ public class EvolutionProcessing {
 									String titleMedian = String.format("Evolução da Mediana dos Erros Médios", Properties.MAX_RUNS);
 									medianOfMeansChart.setTitle(titleMedian, subTitle);
 								}
-								medianOfMeansChart.addSerie(listOfMaxFES, medianOfMeansErros, arguments.getTitleChart(), 0);
+								medianOfMeansChart.addSerie(listOfMaxFES, medianOfMeansErros, arguments.getTitleChart() + " ("+variant+")", 0);
 							}
 
 							// STD OF MEANS
@@ -300,7 +300,7 @@ public class EvolutionProcessing {
 									String titleStd = String.format("Evolução do Desvio Padrão dos Erros Médios", Properties.MAX_RUNS);
 									stdOfMeansChart.setTitle(titleStd, subTitle);
 								}
-								stdOfMeansChart.addSerie(listOfMaxFES, stdsOfMeansErros, arguments.getTitleChart(), 0);
+								stdOfMeansChart.addSerie(listOfMaxFES, stdsOfMeansErros, arguments.getTitleChart() + " ("+variant+")", 0);
 							}
 							
 							// BEST ROUND
