@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,6 +26,12 @@ import br.ufrj.coc.ec4j.util.chart.ProjectionChart2D;
 import br.ufrj.coc.ec4j.util.chart.ProjectionChart2D.ProjectionData;
 
 public class Statistic {
+	static final ResourceBundle bundle = ResourceBundle.getBundle(Statistic.class.getPackage().getName() + ".statistic");
+	static boolean evolErrorMeans = Boolean.parseBoolean(bundle.getString("evol_error_means"));
+	static boolean evolErrorDiffs = Boolean.parseBoolean(bundle.getString("evol_error_diffs"));
+	static boolean evolErrorMaxDists = Boolean.parseBoolean(bundle.getString("evol_error_maxdists"));
+	static boolean evolDetMatCovs = Boolean.parseBoolean(bundle.getString("evol_det_matcovs"));
+
 	static private String ID = UUID.randomUUID().toString();
 	private AtomicInteger counter = new AtomicInteger();
 	private ProjectionChart2D projectionChart2D;
@@ -226,10 +233,13 @@ public class Statistic {
 		String headLine = String.format(sbFormat.toString(), head);
 
 		this.fileEvolutionOfErrors.write(headLine);
-		this.fileEvolutionOfErrorMeans.write(headLine);
-		this.fileEvolutionOfErrorDifferences.write(headLine);
-		this.fileEvolutionOfMaxDistances.write(headLine);
-		if (this.fileEvolutionOfDetMatCovs != null)
+		if (evolErrorMeans)
+			this.fileEvolutionOfErrorMeans.write(headLine);
+		if (evolErrorDiffs)
+			this.fileEvolutionOfErrorDifferences.write(headLine);
+		if (evolErrorMaxDists)
+			this.fileEvolutionOfMaxDistances.write(headLine);
+		if (evolDetMatCovs && this.fileEvolutionOfDetMatCovs != null)
 			this.fileEvolutionOfDetMatCovs.write(headLine);
 	}
 
@@ -342,16 +352,19 @@ public class Statistic {
 		String fileEvolutionOfErrorsName = FileUtil.getFileName(ID, algorithmName, prefixFile + "_evolution.csv");
 		this.fileEvolutionOfErrors = new BufferedWriter(new FileWriter(fileEvolutionOfErrorsName));
 
-		String fileEvolutionOfErrorMeansName = FileUtil.getFileName(ID, algorithmName, prefixFile + "_evolution_mean.csv");
-		this.fileEvolutionOfErrorMeans = new BufferedWriter(new FileWriter(fileEvolutionOfErrorMeansName));
-		
-		String fileEvolutionOfErrorDifferencesName = FileUtil.getFileName(ID, algorithmName, prefixFile + "_evolution_diff.csv");
-		this.fileEvolutionOfErrorDifferences = new BufferedWriter(new FileWriter(fileEvolutionOfErrorDifferencesName));
-
-		String fileEvolutionOfMaxDistancesName = FileUtil.getFileName(ID, algorithmName, prefixFile + "_evolution_maxdist.csv");
-		this.fileEvolutionOfMaxDistances = new BufferedWriter(new FileWriter(fileEvolutionOfMaxDistancesName));
-		
-		if (Properties.ARGUMENTS.get().isEigOperator()) {
+		if (evolErrorMeans) {
+			String fileEvolutionOfErrorMeansName = FileUtil.getFileName(ID, algorithmName, prefixFile + "_evolution_mean.csv");
+			this.fileEvolutionOfErrorMeans = new BufferedWriter(new FileWriter(fileEvolutionOfErrorMeansName));
+		}
+		if (evolErrorDiffs) {
+			String fileEvolutionOfErrorDifferencesName = FileUtil.getFileName(ID, algorithmName, prefixFile + "_evolution_diff.csv");
+			this.fileEvolutionOfErrorDifferences = new BufferedWriter(new FileWriter(fileEvolutionOfErrorDifferencesName));
+		}
+		if (evolErrorMaxDists) {
+			String fileEvolutionOfMaxDistancesName = FileUtil.getFileName(ID, algorithmName, prefixFile + "_evolution_maxdist.csv");
+			this.fileEvolutionOfMaxDistances = new BufferedWriter(new FileWriter(fileEvolutionOfMaxDistancesName));
+		}		
+		if (evolDetMatCovs && Properties.ARGUMENTS.get().isEigOperator()) {
 			String fileEvolutionOfDetMatCovName = FileUtil.getFileName(ID, algorithmName, prefixFile + "_evolution_detmatcov.csv");
 			this.fileEvolutionOfDetMatCovs = new BufferedWriter(new FileWriter(fileEvolutionOfDetMatCovName));
 		}
@@ -409,15 +422,18 @@ public class Statistic {
 			writeLineEvolutionOfErrors(this.fileEvolutionOfErrors, errorBestValues);
 
 			// evolution mean error
-			writeLineEvolutionOfErrors(this.fileEvolutionOfErrorMeans, errorMeanValues);
+			if (evolErrorMeans)
+				writeLineEvolutionOfErrors(this.fileEvolutionOfErrorMeans, errorMeanValues);
 			
 			// evolution error difference
-			writeLineEvolutionOfErrors(this.fileEvolutionOfErrorDifferences, errorDiffValues);
+			if (evolErrorDiffs)
+				writeLineEvolutionOfErrors(this.fileEvolutionOfErrorDifferences, errorDiffValues);
 
 			// evolution max distance
-			writeLineEvolutionOfErrors(this.fileEvolutionOfMaxDistances, maxDistValues);
+			if (evolErrorMaxDists)
+				writeLineEvolutionOfErrors(this.fileEvolutionOfMaxDistances, maxDistValues);
 			
-			if (this.fileEvolutionOfDetMatCovs != null) {
+			if (evolDetMatCovs && this.fileEvolutionOfDetMatCovs != null) {
 				// evolution determinant covariance matrix
 				writeLineEvolutionOfErrors(this.fileEvolutionOfDetMatCovs, detMatCovValues);
 			}
@@ -434,9 +450,12 @@ public class Statistic {
 		this.fileEvolutionOfErrors.write(resume.toString());
 
 		this.fileEvolutionOfErrors.close();
-		this.fileEvolutionOfErrorMeans.close();
-		this.fileEvolutionOfErrorDifferences.close();
-		this.fileEvolutionOfMaxDistances.close();
+		if (this.fileEvolutionOfErrorMeans != null)
+			this.fileEvolutionOfErrorMeans.close();
+		if (this.fileEvolutionOfErrorDifferences != null)
+			this.fileEvolutionOfErrorDifferences.close();
+		if (this.fileEvolutionOfMaxDistances != null)
+			this.fileEvolutionOfMaxDistances.close();
 		if (this.fileEvolutionOfDetMatCovs != null)
 			this.fileEvolutionOfDetMatCovs.close();
 	}
