@@ -136,7 +136,7 @@ public class EvolutionProcessing {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\CR_JADE\\CR_JADE_R51_RANDS";
+		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\CR_JADE\\CR_JADE_R51_STUDY_NEW\\01";
 		EvolutionChart2D bestRoundChart = null, meanRoundChart = null, worstRoundChart = null;
 		EvolutionChart2D meanOfBestsChart = null, medianOfBestsChart = null, stdOfBestsChart = null;
 		EvolutionChart2D meanOfMeansChart = null, medianOfMeansChart = null, stdOfMeansChart = null;
