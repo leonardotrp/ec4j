@@ -177,12 +177,14 @@ public class EvolutionProcessing {
 							List<Double> meanOfBestsErros = new ArrayList<Double>();
 							List<Double> medianOfBestsErros = new ArrayList<Double>();
 							List<Double> stdsOfBestsErros = new ArrayList<Double>();
-							extracted(listOfMaxFES, fileRoundErrorOfBestsName, meanOfBestsErros, medianOfBestsErros, stdsOfBestsErros, 0, null);
+							if (meanOfBests)
+								extracted(listOfMaxFES, fileRoundErrorOfBestsName, meanOfBestsErros, medianOfBestsErros, stdsOfBestsErros, 0, null);
 
 							List<Double> meanOfMeansErros = new ArrayList<Double>();
 							List<Double> medianOfMeansErros = new ArrayList<Double>();
 							List<Double> stdsOfMeansErros = new ArrayList<Double>();
-							extracted(listOfMaxFES, fileRoundErrorOfMeansName, meanOfMeansErros, medianOfMeansErros, stdsOfMeansErros, 0, null);
+							if (meanOfMeans)
+								extracted(listOfMaxFES, fileRoundErrorOfMeansName, meanOfMeansErros, medianOfMeansErros, stdsOfMeansErros, 0, null);
 							
 							int[] bestWorstRoundColumn = bestWorstRound(fileRoundErrorOfBestsName);
 							int bestRound = bestWorstRoundColumn[0];
