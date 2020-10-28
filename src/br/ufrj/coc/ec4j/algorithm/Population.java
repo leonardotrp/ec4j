@@ -21,7 +21,7 @@ import br.ufrj.coc.ec4j.util.Properties;
 public class Population implements Cloneable {
 	private List<Individual> individuals;
 	private Initializable initializable;
-	private Individual best; // global best
+	private Individual best;
 	private boolean minErrorValueFound;
 	private Matrix firstEigenvectors;
 
@@ -66,6 +66,13 @@ public class Population implements Cloneable {
 		Individual individual = this.initializable.newInitialized();
 		this.individuals.add(individual);
 		updateBestError(individual);
+	}
+
+	public void randonRestart() {
+		int populationSize = this.individuals.size();
+		this.individuals.clear();
+		for (int index = 0; index < populationSize; index++)
+			this.addIndividual();
 	}
 
 	public List<Individual> getIndividuals() {
@@ -119,7 +126,7 @@ public class Population implements Cloneable {
 	public double getMaxDistance() {
 		return maxDistance;
 	}
-
+	
 	public void setMaxDistance(double maxDistance) {
 		this.maxDistance = maxDistance;
 	}
@@ -151,9 +158,8 @@ public class Population implements Cloneable {
 	public void updateBestError(Individual individual) {
 		double error = Helper.getError(individual);
 		double bestError = this.best == null ? Double.MAX_VALUE : this.getBestError();
-		if (error < bestError) {
+		if (error < bestError)
 			this.best = individual.clone();
-		}
 	}
 	
 	@Override

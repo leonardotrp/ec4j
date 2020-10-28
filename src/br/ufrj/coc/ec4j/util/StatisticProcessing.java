@@ -24,7 +24,7 @@ public class StatisticProcessing {
 
 	public static void main(String[] args) throws Exception {
 
-		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\CR_JADE\\CR_JADE_R51_STUDY_NEW\\01";
+		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\CR_JADE\\CR_JADE_EIG\\np5d_eig0.5";
 		
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
 

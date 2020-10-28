@@ -136,7 +136,7 @@ public class EvolutionProcessing {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\CR_JADE\\CR_JADE_R51_STUDY_NEW\\01";
+		String PATH_RESULT = "D:\\dev\\workspace\\ec4j\\results\\cr_jade-f4-np4d-d10-r30\\polakova";
 		EvolutionChart2D bestRoundChart = null, meanRoundChart = null, worstRoundChart = null;
 		EvolutionChart2D meanOfBestsChart = null, medianOfBestsChart = null, stdOfBestsChart = null;
 		EvolutionChart2D meanOfMeansChart = null, medianOfMeansChart = null, stdOfMeansChart = null;
@@ -249,7 +249,7 @@ public class EvolutionProcessing {
 							if (meanOfBests) {
 								if (meanOfBestsChart == null) {
 									meanOfBestsChart = new EvolutionChart2D("Média dos Melhores Erros", null);
-									String titleMean = String.format("Evolução da Média dos Melhores Erros", Properties.MAX_RUNS);
+									String titleMean = String.format("%s - Evolução da Média dos Melhores Erros", variant);
 									meanOfBestsChart.setTitle(titleMean, subTitle);
 								}
 								meanOfBestsChart.addSerie(listOfMaxFES, meanOfBestsErros, arguments.getTitleChart() + " ("+variant+")", 0);
@@ -259,7 +259,7 @@ public class EvolutionProcessing {
 							if (medianOfBests) {
 								if (medianOfBestsChart == null) {
 									medianOfBestsChart = new EvolutionChart2D("Mediana dos Melhores Erros", null);
-									String titleMedian = String.format("Evolução da Mediana dos Melhores Erros", Properties.MAX_RUNS);
+									String titleMedian = String.format("%s - Evolução da Mediana dos Melhores Erros", variant);
 									medianOfBestsChart.setTitle(titleMedian, subTitle);
 								}
 								medianOfBestsChart.addSerie(listOfMaxFES, medianOfBestsErros, arguments.getTitleChart() + " ("+variant+")", 0);
@@ -269,7 +269,7 @@ public class EvolutionProcessing {
 							if (stdOfBests) {
 								if (stdOfBestsChart == null) {
 									stdOfBestsChart = new EvolutionChart2D("Desvio Padrão dos Melhores Erros", null);
-									String titleStd = String.format("Evolução do Desvio Padrão dos Melhores Erros", Properties.MAX_RUNS);
+									String titleStd = String.format("%s - Evolução do Desvio Padrão dos Melhores Erros", variant);
 									stdOfBestsChart.setTitle(titleStd, subTitle);
 								}
 								stdOfBestsChart.addSerie(listOfMaxFES, stdsOfBestsErros, arguments.getTitleChart() + " ("+variant+")", 0);
@@ -279,7 +279,7 @@ public class EvolutionProcessing {
 							if (meanOfMeans) {
 								if (meanOfMeansChart == null) {
 									meanOfMeansChart = new EvolutionChart2D("Média dos Erros Médios", null);
-									String titleMean = String.format("Evolução da Média dos Erros Médios", Properties.MAX_RUNS);
+									String titleMean = String.format("%s - Evolução da Média dos Erros Médios", variant);
 									meanOfMeansChart.setTitle(titleMean, subTitle);
 								}
 								meanOfMeansChart.addSerie(listOfMaxFES, meanOfMeansErros, arguments.getTitleChart() + " ("+variant+")", 0);
@@ -289,7 +289,7 @@ public class EvolutionProcessing {
 							if (medianOfMeans) {
 								if (medianOfMeansChart == null) {
 									medianOfMeansChart = new EvolutionChart2D("Mediana dos Erros Médios", null);
-									String titleMedian = String.format("Evolução da Mediana dos Erros Médios", Properties.MAX_RUNS);
+									String titleMedian = String.format("%s - Evolução da Mediana dos Erros Médios", variant);
 									medianOfMeansChart.setTitle(titleMedian, subTitle);
 								}
 								medianOfMeansChart.addSerie(listOfMaxFES, medianOfMeansErros, arguments.getTitleChart() + " ("+variant+")", 0);
@@ -299,7 +299,7 @@ public class EvolutionProcessing {
 							if (stdOfMeans) {
 								if (stdOfMeansChart == null) {
 									stdOfMeansChart = new EvolutionChart2D("Desvio Padrão dos Erros Médios", null);
-									String titleStd = String.format("Evolução do Desvio Padrão dos Erros Médios", Properties.MAX_RUNS);
+									String titleStd = String.format("%s - Evolução do Desvio Padrão dos Erros Médios", variant);
 									stdOfMeansChart.setTitle(titleStd, subTitle);
 								}
 								stdOfMeansChart.addSerie(listOfMaxFES, stdsOfMeansErros, arguments.getTitleChart() + " ("+variant+")", 0);
@@ -309,7 +309,7 @@ public class EvolutionProcessing {
 							if (roundBestOfBests) {
 								if (bestRoundChart == null) {
 									bestRoundChart = new EvolutionChart2D("Evolução dos Erros (L)", "Evolução dos Parâmetros (R)");
-									String titleBest = String.format("Melhor Rodada (%d): Evolução dos Erros (L) x Parâmetros (R)", bestRound);
+									String titleBest = String.format("%s - Melhor Rodada (%d): Evolução dos Erros (L) x Parâmetros (R)", variant, bestRound);
 									bestRoundChart.setTitle(titleBest, subTitle);
 								}
 								bestRoundChart.addSerie(listOfMaxFES, bestRoundErros, "Best (L)", 0);
@@ -327,7 +327,7 @@ public class EvolutionProcessing {
 							if (roundMeanOfBests) {
 								if (meanRoundChart == null) {
 									meanRoundChart = new EvolutionChart2D("Evolução dos Erros (L)", "Evolução dos Parâmetros (R)");
-									String titleMean = String.format("Rodada Média (%d): Evolução dos Erros (L) x Parâmetros (R)", meanRound);
+									String titleMean = String.format("%s - Rodada Média (%d): Evolução dos Erros (L) x Parâmetros (R)", variant, meanRound);
 									meanRoundChart.setTitle(titleMean, subTitle);
 								}
 								meanRoundChart.addSerie(listOfMaxFES, meanRoundErros, "Best (L)", 0);
@@ -345,7 +345,7 @@ public class EvolutionProcessing {
 							if (roundWorstOfBests) {
 								if (worstRoundChart == null) {
 									worstRoundChart = new EvolutionChart2D("Evolução dos Erros (L)", "Evolução dos Parâmetros (R)");
-									String titleWorst = String.format("Pior Rodada (%d): Evolução dos Erros (L) x Parâmetros (R)", worstRound);
+									String titleWorst = String.format("%s - Pior Rodada (%d): Evolução dos Erros (L) x Parâmetros (R)", variant, worstRound);
 									worstRoundChart.setTitle(titleWorst, subTitle);
 								}
 								worstRoundChart.addSerie(listOfMaxFES, worstRoundErros, "Best (L)", 0);

@@ -464,10 +464,10 @@ public class Statistic {
 		double successfulRate = (double) this.successfulRuns / Properties.MAX_RUNS;
 		long avgTimeSpent = (long) Helper.getAverageLongs(this.timeRounds);
 		double avgCountRestarts = Helper.getAverageIntegers(this.countRestartsRounds);
-		double avgFeDiff = Helper.getAverageDoubles(this.errorDiffRounds);
-		double avgMaxDist = Helper.getAverageDoubles(this.maxDistRounds);
+		double medianFeDiff = Helper.calculateMedian(this.errorDiffRounds);
+		double medianMaxDist = Helper.calculateMedian(this.maxDistRounds);
 		double avgDetMatCov = this.detMatCovRounds.size() > 0 ? Helper.getAverageDoubles(this.detMatCovRounds) : 0;
-		this.addStatisticLine("F(" + Properties.ARGUMENTS.get().getFunctionNumber() + ")", this.errorRounds, avgTimeSpent, successfulRate, avgCountRestarts, avgFeDiff, avgMaxDist, avgDetMatCov); 
+		this.addStatisticLine("F(" + Properties.ARGUMENTS.get().getFunctionNumber() + ")", this.errorRounds, avgTimeSpent, successfulRate, avgCountRestarts, medianFeDiff, medianMaxDist, avgDetMatCov); 
 
 		String algorithmName = Properties.ARGUMENTS.get().getName();
 		String prefixFile = Properties.ARGUMENTS.get().getPrefixFile();
