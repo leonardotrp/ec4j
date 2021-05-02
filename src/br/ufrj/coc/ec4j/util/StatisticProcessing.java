@@ -1,6 +1,7 @@
 package br.ufrj.coc.ec4j.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -24,7 +25,7 @@ public class StatisticProcessing {
 
 	public static void main(String[] args) throws Exception {
 
-		String PATH_RESULT = "D:\\Google Drive (COC)\\trabalho de dissertação\\2 - jade with eig\\experimentos\\CR_JADE\\CR_JADE_EIG\\np5d_eig0.5";
+		String PATH_RESULT = "/home/leonardo/dev/workspaces/eclipse-workspace/ec4j/results";
 		
 		for (int individualSize : Properties.INDIVIDUAL_SIZES) { // loop dimensions
 
@@ -98,7 +99,7 @@ public class StatisticProcessing {
 
 						AlgorithmArguments arguments = new AlgorithmArguments(algotithmName, variant, algorithm.getInfo(), functionNumber, individualSize);
 						np = arguments.getPopulationSize();
-						String fileRoundErrorsName = PATH_RESULT + '\\' + algotithmName + '\\' + arguments.getPrefixFile() + "_statistics.csv";
+						String fileRoundErrorsName = PATH_RESULT + File.separator + algotithmName + File.separator + arguments.getPrefixFile() + "_statistics.csv";
 						BufferedReader br = null;
 						try {
 							br = new BufferedReader(new FileReader(fileRoundErrorsName));
@@ -213,7 +214,7 @@ public class StatisticProcessing {
 			for (Cell lower : cellLowerMaxDists.values())
 				lower.setCellStyle(boldCellStyle);*/
 			
-	        FileOutputStream fileOut = new FileOutputStream(PATH_RESULT + String.format("\\P%d_D%d_R%d.xlsx", np, individualSize, Properties.MAX_RUNS));
+	        FileOutputStream fileOut = new FileOutputStream(PATH_RESULT + String.format(File.separator + "P%d_D%d_R%d.xlsx", np, individualSize, Properties.MAX_RUNS));
 	        workbook.write(fileOut);
 	        fileOut.close();
 

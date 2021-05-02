@@ -42,7 +42,7 @@ public class CopyPNGFiles {
     }
 
 	public static void main(String[] args) {
-		Path directoryPath = Paths.get("C:", "dev/movies/ipop-jade-eig");
+		Path directoryPath = Paths.get("~", "dev/movies/ipop-jade-eig");
 
 		if (Files.isDirectory(directoryPath)) {
 			try (DirectoryStream<Path> stream = Files.newDirectoryStream(directoryPath, "*.png")) {
@@ -58,11 +58,11 @@ public class CopyPNGFiles {
 				for (int index = 0; index < files.length; index++) {
 					InputStream in = new FileInputStream(files[index]);
 					
-					File copyDir = new File("C:/dev/movies/ipop-jade-eig/copy/");
+					File copyDir = new File("~/dev/movies/ipop-jade-eig/copy/");
 					if (!copyDir.exists())
 						copyDir.mkdir();
 					
-					Path target = Paths.get(copyDir.getPath() + '/' + index + ".png");
+					Path target = Paths.get(copyDir.getPath() + File.separator + index + ".png");
 					
 					if (index % 5 == 0) {
 						System.out.println("Copying... " + files[index].getName());
@@ -74,5 +74,4 @@ public class CopyPNGFiles {
 			}
 		}
 	}
-
 }

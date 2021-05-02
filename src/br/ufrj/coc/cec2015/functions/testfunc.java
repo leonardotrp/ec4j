@@ -11,7 +11,7 @@ import java.util.Locale;
 import java.util.Scanner;
 
 public class testfunc {
-	static String INPUT_DATA_ROOT = '/' + testfunc.class.getPackage().getName().replace('.', '/') + "/input_data/";
+	static String INPUT_DATA_ROOT = File.separator + testfunc.class.getPackage().getName().replace(".", File.separator) + File.separator + "input_data" + File.separator;
 
 	static URL getInputData(String fileName) {
 		URL urlInput = testmain.class.getResource(INPUT_DATA_ROOT + fileName);

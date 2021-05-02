@@ -9,7 +9,7 @@ public class FileUtil {
 	public static String getFileName(String ID, String relativePath, String filename) {
 		URI uri;
 		try {
-			String root = Properties.RESULTS_ROOT + ID + '/';
+			String root = Properties.RESULTS_ROOT + ID + File.separator;
 			uri = new URI(root + relativePath);
 		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
@@ -17,9 +17,9 @@ public class FileUtil {
 		File directory = new File(uri);
 		if (!directory.exists())
 			directory.mkdirs();
-		return directory.getAbsolutePath() + '\\' + filename;
+		return directory.getAbsolutePath() + File.separator + filename;
 	}
-	
+
 	public static File getInitialPopulationFile(String cvsFilename) {
 		File file = null;
 		if (cvsFilename.length() > 0) {
