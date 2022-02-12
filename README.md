@@ -4,7 +4,7 @@ Framework developed in Java with support for the following evolutionary methods:
 - JADE
 - JADE w/A (_with Optional Archieve_)
 - JADE/EIG
-- CR-DE (_DE with Controlled Restart_)
+- CR-JADE/EIG (_JADE/EIG with Controlled Restart_)
 - ABC (_Artificial Bee Colony_)
 - PSO (_Particle Swarm Optimization_)
 - IPOP-CMAES (_Increase and Restart Population CMA-ES_)
