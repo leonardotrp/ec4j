@@ -1,10 +1,10 @@
 # EC4J - Evolutionary Computing for Java
 Framework developed in Java with support for the following evolutionary methods:
-- DE (Differencial Evolution)
+- DE (_Differencial Evolution_)
 - JADE
-- JADE with Optional Archieve
+- JADE w/A (_with Optional Archieve_)
 - JADE/EIG
-- CR-DE (DE with Controlled Restart)
-- ABC (Artificial Bee Colony)
-- PSO (Particle Swarm Optimization)
-- IPOP-CMAES
+- CR-DE (_DE with Controlled Restart_)
+- ABC (_Artificial Bee Colony_)
+- PSO (_Particle Swarm Optimization_)
+- IPOP-CMAES (_Increase and Restart Population CMA-ES_)
